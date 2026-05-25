@@ -10,7 +10,7 @@ class AuthController extends Controller
     // Hiển thị form đăng nhập phía Admin
     public function showLoginForm()
     {
-        return view('auth.login'); // Tự tạo file view giao diện
+        return view('auth.login');
     }
 
     // Xử lý logic khi bấm nút Đăng nhập
@@ -21,11 +21,8 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
-        // Sử dụng hàm Auth::attempt có sẵn của Laravel để check database
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-
-            // Nếu là admin thì vào thẳng dashboard, ngược lại về trang chủ
             if (Auth::user()->role === 'admin') {
                 return redirect()->route('admin.dashboard');
             }

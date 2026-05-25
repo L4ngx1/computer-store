@@ -7,16 +7,14 @@ use App\Models\Product;
 use App\Models\Category;
 use App\Models\Order;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 
 class ClientController extends Controller
 {
-    // 1. TRANG CHỦ (Home - 1.jpg)
     public function home()
     {
-        // Lấy danh sách sản phẩm mới nhất để hiển thị ở các hàng "New Products"
         $newProducts = Product::where('stock', '>', 0)->latest()->take(6)->get();
 
-        // Lấy sản phẩm nổi bật (Featured) theo danh mục cụ thể (ví dụ: MSI Laptops)
         $msiLaptops = Product::where('name', 'LIKE', '%MSI%')
             ->latest()
             ->take(5)
@@ -25,11 +23,9 @@ class ClientController extends Controller
         return view('client.home', compact('newProducts', 'msiLaptops'));
     }
 
-    // 2. TRANG GIỎ HÀNG (Shopping Cart - 1.png)
     public function cart()
     {
-        // Lấy giỏ hàng từ Session (Vì tự code thuần không dùng thư viện ngoài)
-        $cart = session()->get('cart', []);
+        $cart = Session::get('cart', []);
 
         // Tính toán các thông số tiền tệ như trong ảnh thiết kế
         $subtotal = 0;
@@ -44,10 +40,9 @@ class ClientController extends Controller
         return view('client.cart', compact('cart', 'subtotal', 'shipping', 'tax', 'orderTotal'));
     }
 
-    // 3. TRANG THANH TOÁN (Checkout - 1.png)
     public function checkout()
     {
-        $cart = session()->get('cart', []);
+        $cart = Session::get('cart', []);
         if (empty($cart)) {
             return redirect()->route('client.cart')->with('error', 'Giỏ hàng của bạn đang trống!');
         }
@@ -59,10 +54,8 @@ class ClientController extends Controller
         return view('client.checkout', compact('cart', 'subtotal'));
     }
 
-    // 4. TRANG DASHBOARD USER ACCOUNTS (User Account - 1.png)
     public function accountDashboard()
     {
-        // Lấy thông tin User đang đăng nhập qua Session Auth thuần
         $user = Auth::user();
 
         // Lấy các đơn hàng gần đây của User này để hiển thị trong mục "My Orders"

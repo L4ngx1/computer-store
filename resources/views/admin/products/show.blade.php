@@ -259,7 +259,7 @@
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="container" data-product-id="{{ request()->route('id') }}">
         <header>
             <h1>👁️ Chi tiết Sản phẩm</h1>
             <div class="breadcrumb">
@@ -367,7 +367,7 @@
 
     <script>
         const API_URL = '/api/admin/products';
-        const productId = {{ request()->route('id') }};
+        const productId = document.querySelector('[data-product-id]')?.dataset.productId;
 
         async function loadProduct() {
             const loading = document.getElementById('loading');

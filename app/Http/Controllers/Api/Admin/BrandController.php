@@ -83,7 +83,7 @@ class BrandController extends ApiController
         $slug = $baseSlug;
         $index = 1;
 
-        while (Brand::query()
+        while (Brand::query()   
             ->when($ignoreId, fn ($query) => $query->where('id', '!=', $ignoreId))
             ->where('slug', $slug)
             ->exists()) {

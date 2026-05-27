@@ -10,7 +10,7 @@ Route::get('/login', function () {
     return view('auth.login');
 })->name('login.form');
 
-Route::prefix('page')->name('client.')->group(function () {
+Route::name('client.')->group(function () {
     Route::get('about', function () {
         return view('client.about');
     })->name('about');

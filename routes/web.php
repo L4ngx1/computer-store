@@ -50,7 +50,11 @@ Route::prefix('page')->name('client.')->group(function () {
 
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/', function () {
-        return view('admin.dashboard');
+        return redirect()->route('admin.dashboard');
+    });
+
+    Route::get('/dashboard', function () {
+        return view('admin.dashboard.index');
     })->name('dashboard');
 
     Route::prefix('users')->name('users.')->group(function () {
@@ -68,42 +72,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         Route::get('/{id}/edit', function () {
             return view('admin.users.form');
-        })->name('edit');
-    });
-
-    Route::prefix('categories')->name('categories.')->group(function () {
-        Route::get('/', function () {
-            return view('admin.categories.index');
-        })->name('index');
-
-        Route::get('/create', function () {
-            return view('admin.categories.form');
-        })->name('create');
-
-        Route::get('/{id}', function () {
-            return view('admin.categories.show');
-        })->name('show');
-
-        Route::get('/{id}/edit', function () {
-            return view('admin.categories.form');
-        })->name('edit');
-    });
-
-    Route::prefix('brands')->name('brands.')->group(function () {
-        Route::get('/', function () {
-            return view('admin.brands.index');
-        })->name('index');
-
-        Route::get('/create', function () {
-            return view('admin.brands.form');
-        })->name('create');
-
-        Route::get('/{id}', function () {
-            return view('admin.brands.show');
-        })->name('show');
-
-        Route::get('/{id}/edit', function () {
-            return view('admin.brands.form');
         })->name('edit');
     });
 

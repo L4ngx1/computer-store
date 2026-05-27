@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\ProductController;
 
 Route::get('/', function () {
     return view('client.home');
@@ -48,7 +49,9 @@ Route::prefix('page')->name('client.')->group(function () {
     })->name('search');
 });
 
+// Tạm comment middleware để test
 Route::prefix('admin')->name('admin.')->group(function () {
+    // ->middleware('is_admin')
     Route::get('/', function () {
         return view('admin.dashboard');
     })->name('dashboard');
@@ -107,22 +110,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
         })->name('edit');
     });
 
-    Route::prefix('products')->name('products.')->group(function () {
-        Route::get('/', function () {
-            return view('admin.products.index');
-        })->name('index');
-
-        Route::get('/create', function () {
-            return view('admin.products.form');
-        })->name('create');
-
-        Route::get('/{id}', function () {
-            return view('admin.products.show');
-        })->name('show');
-
-        Route::get('/{id}/edit', function () {
-            return view('admin.products.form');
-        })->name('edit');
+    Route::prefix('products')->name('products.')->controller(ProductController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/create', 'create')->name('create');
+        Route::get('/{product}', 'show')->name('show');
+        Route::get('/{product}/edit', 'edit')->name('edit');
     });
 
     Route::prefix('orders')->name('orders.')->group(function () {

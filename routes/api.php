@@ -23,12 +23,48 @@ Route::get('products', [ClientController::class, 'products'])->name('products.in
 Route::get('products/featured', [ClientController::class, 'featured'])->name('products.featured');
 Route::get('products/{product:slug}', [ClientController::class, 'show'])->name('products.show');
 
-Route::prefix('admin')->name('admin.')->middleware('is_admin')->group(function () {
+Route::prefix('admin')->name('api.admin.')->group(function () {
+	// ->middleware('is_admin')
 	Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
-	Route::apiResource('users', UserController::class);
-	Route::apiResource('categories', CategoryController::class);
-	Route::apiResource('brands', BrandController::class);
-	Route::apiResource('products', ProductController::class);
-	Route::apiResource('orders', OrderController::class);
-	Route::patch('orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
+	Route::prefix('users')->name('users.')->controller(UserController::class)->group(function () {
+		Route::get('/', 'index')->name('index');
+		Route::post('/', 'store')->name('store');
+		Route::get('{user}', 'show')->name('show');
+		Route::put('{user}', 'update')->name('update');
+		Route::patch('{user}', 'update')->name('update');
+		Route::delete('{user}', 'destroy')->name('destroy');
+	});
+	Route::prefix('categories')->name('categories.')->controller(CategoryController::class)->group(function () {
+		Route::get('/', 'index')->name('index');
+		Route::post('/', 'store')->name('store');
+		Route::get('{category}', 'show')->name('show');
+		Route::put('{category}', 'update')->name('update');
+		Route::patch('{category}', 'update')->name('update');
+		Route::delete('{category}', 'destroy')->name('destroy');
+	});
+	Route::prefix('brands')->name('brands.')->controller(BrandController::class)->group(function () {
+		Route::get('/', 'index')->name('index');
+		Route::post('/', 'store')->name('store');
+		Route::get('{brand}', 'show')->name('show');
+		Route::put('{brand}', 'update')->name('update');
+		Route::patch('{brand}', 'update')->name('update');
+		Route::delete('{brand}', 'destroy')->name('destroy');
+	});
+	Route::prefix('products')->name('products.')->controller(ProductController::class)->group(function () {
+		Route::get('/', 'index')->name('index');
+		Route::post('/', 'store')->name('store');
+		Route::get('{product}', 'show')->name('show');
+		Route::put('{product}', 'update')->name('update');
+		Route::patch('{product}', 'update')->name('update');
+		Route::delete('{product}', 'destroy')->name('destroy');
+	});
+	Route::prefix('orders')->name('orders.')->controller(OrderController::class)->group(function () {
+		Route::get('/', 'index')->name('index');
+		Route::post('/', 'store')->name('store');
+		Route::get('{order}', 'show')->name('show');
+		Route::put('{order}', 'update')->name('update');
+		Route::patch('{order}', 'update')->name('update');
+		Route::delete('{order}', 'destroy')->name('destroy');
+		Route::patch('{order}/status', 'updateStatus')->name('updateStatus');
+	});
 });

@@ -7,6 +7,6 @@
 </head>
 <body>
     <h1>Client Home</h1>
-    <p>Placeholder view.</p>
+    <p>Placeholder </p>
 </body>
 </html>

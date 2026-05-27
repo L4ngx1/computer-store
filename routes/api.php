@@ -32,3 +32,16 @@ Route::prefix('admin')->name('admin.')->middleware('is_admin')->group(function (
 	Route::apiResource('orders', OrderController::class);
 	Route::patch('orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
 });
+Route::post('cart/summary', [ClientController::class, 'cartSummary'])
+    ->name('cart.summary');
+
+Route::post('checkout', [ClientController::class, 'checkout'])
+    ->name('checkout');
+
+Route::get('my-orders', [ClientController::class, 'orders'])
+    ->middleware('auth:sanctum')
+    ->name('orders.my');
+
+Route::get('my-orders/{order}', [ClientController::class, 'order'])
+    ->middleware('auth:sanctum')
+    ->name('orders.show');

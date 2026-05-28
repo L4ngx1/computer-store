@@ -38,7 +38,7 @@
                         </form>
 
                         <div class="mt-3 small text-muted">
-                            Admin đăng nhập tại <a href="{{ route('admin.auth.login') }}">/admin/login</a>.
+                            Admin đăng nhập tại <a href="{{ route('admin.login') }}">/admin/login</a>.
                         </div>
                     </div>
                 </div>

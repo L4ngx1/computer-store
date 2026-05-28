@@ -25,11 +25,11 @@
     </style>
 
     <div class="d-flex flex-column gap-4">
-        <div class="p-4 p-lg-5 border rounded-4 shadow-sm orders-hero">
-            <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+        <div class="p-4 border rounded-4 shadow-sm orders-hero">
+            <div class="d-flex flex-wrap justify-content-between align-items-start gap-1">
                 <div>
-                    <div class="orders-badge text-primary fw-semibold mb-2">Admin / Orders</div>
-                    <h1 class="h3 mb-2">Quản lý đơn hàng</h1>
+                    <div class="orders-badge text-primary fw-semibold">Admin / Orders</div>
+                    <h1 class="h3">Quản lý đơn hàng</h1>
                 </div>
                 <button class="btn btn-primary px-4" type="button" id="createOrderBtn">
                     <i class="bi bi-plus-lg me-1"></i>Thêm đơn hàng
@@ -105,13 +105,13 @@
         </div>
     </div>
 
-    @include('admin.orders._modals')
+    @include('admin.orders.modals')
 
     @push('scripts')
         <script src="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/js/tom-select.complete.min.js"></script>
     @endpush
 
     @push('scripts')
-        @include('admin.orders._scripts')
+        @include('admin.orders.scripts')
     @endpush
 @endsection

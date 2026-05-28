@@ -17,14 +17,29 @@ class Order extends Model
         'note',
         'total_amount',
         'payment_method',
-        'status'
+        'status',
+        'completed_at',
     ];
 
     protected function casts(): array
     {
         return [
             'total_amount' => 'decimal:2',
+            'completed_at' => 'datetime',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        static::saving(function (Order $order) {
+            if (! $order->isDirty('status')) {
+                return;
+            }
+
+            $order->completed_at = $order->status === 'completed'
+                ? ($order->completed_at ?? now())
+                : null;
+        });
     }
 
     public function user(): BelongsTo

@@ -10,9 +10,6 @@ use Illuminate\Support\Str;
 
 class CategoryController extends ApiController
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index(): JsonResponse
     {
         $categories = Category::query()->latest()->paginate(15);
@@ -20,9 +17,6 @@ class CategoryController extends ApiController
         return $this->paginated($categories, 'Lấy danh sách danh mục thành công.');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
@@ -40,17 +34,11 @@ class CategoryController extends ApiController
         return $this->success($category, 'Tạo danh mục thành công.', 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Category $category): JsonResponse
     {
         return $this->success($category, 'Lấy chi tiết danh mục thành công.');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Category $category): JsonResponse
     {
         $validated = $request->validate([
@@ -70,9 +58,6 @@ class CategoryController extends ApiController
         return $this->success($category->fresh(), 'Cập nhật danh mục thành công.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Category $category): JsonResponse
     {
         $category->delete();

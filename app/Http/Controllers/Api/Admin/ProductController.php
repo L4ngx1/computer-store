@@ -13,9 +13,6 @@ use Illuminate\Support\Str;
 
 class ProductController extends ApiController
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request): JsonResponse
     {
         $query = Product::query()->with(['category', 'brand'])->latest();
@@ -37,9 +34,6 @@ class ProductController extends ApiController
         return $this->paginated($products, 'Lấy danh sách sản phẩm thành công.');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request): JsonResponse
     {
         $validated = $this->validateProduct($request, null, false);
@@ -69,17 +63,11 @@ class ProductController extends ApiController
         return $this->success($product->load(['category', 'brand', 'images', 'attributes']), 'Tạo sản phẩm thành công.', 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Product $product): JsonResponse
     {
         return $this->success($product->load(['category', 'brand', 'images', 'attributes']), 'Lấy chi tiết sản phẩm thành công.');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Product $product): JsonResponse
     {
         $validated = $this->validateProduct($request, $product->id, true);
@@ -109,9 +97,6 @@ class ProductController extends ApiController
         return $this->success($product->fresh()->load(['category', 'brand', 'images', 'attributes']), 'Cập nhật sản phẩm thành công.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Product $product): JsonResponse
     {
         $product->delete();

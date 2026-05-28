@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\ApiController;
 use App\Models\Order;
-use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
@@ -13,9 +12,6 @@ use Illuminate\Support\Facades\DB;
 
 class OrderController extends ApiController
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request): JsonResponse
     {
         $query = Order::query()
@@ -49,9 +45,6 @@ class OrderController extends ApiController
         return $this->paginated($orders, 'Lấy danh sách đơn hàng thành công.');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request): JsonResponse
     {
         $validated = $this->validateOrderPayload($request);
@@ -72,17 +65,11 @@ class OrderController extends ApiController
         return $this->success($order, 'Tạo đơn hàng thành công.', 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Order $order): JsonResponse
     {
         return $this->success($this->loadOrder($order), 'Lấy chi tiết đơn hàng thành công.');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Order $order): JsonResponse
     {
         $validated = $this->validateOrderPayload($request, true);
@@ -105,9 +92,6 @@ class OrderController extends ApiController
         return $this->success($this->loadOrder($order), 'Cập nhật đơn hàng thành công.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Order $order): JsonResponse
     {
         $order->delete();

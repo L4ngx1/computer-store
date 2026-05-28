@@ -25,7 +25,7 @@
                     </div>
                 @endif
 
-                <form method="POST" action="{{ route('admin.auth.login.store') }}" class="vstack gap-3">
+                <form method="POST" action="{{ route('admin.login.store') }}" class="vstack gap-3">
                     @csrf
 
                     <div>

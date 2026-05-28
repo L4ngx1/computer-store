@@ -10,9 +10,6 @@ use Illuminate\Support\Facades\Auth;
 
 class UserController extends ApiController
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request): JsonResponse
     {
         $query = User::query()->latest();
@@ -38,9 +35,6 @@ class UserController extends ApiController
         return $this->paginated($users, 'Lấy danh sách người dùng thành công.');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
@@ -64,17 +58,11 @@ class UserController extends ApiController
         return $this->success($user, 'Tạo người dùng thành công.', 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(User $user): JsonResponse
     {
         return $this->success($user->loadCount('orders'), 'Lấy chi tiết người dùng thành công.');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, User $user): JsonResponse
     {
         $validated = $request->validate([
@@ -102,9 +90,6 @@ class UserController extends ApiController
         return $this->success($user->fresh(), 'Cập nhật người dùng thành công.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(User $user): JsonResponse
     {
         if (Auth::id() === $user->id) {

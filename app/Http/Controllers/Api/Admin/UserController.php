@@ -13,9 +13,27 @@ class UserController extends ApiController
     /**
      * Display a listing of the resource.
      */
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $users = User::query()->latest()->paginate(15);
+        $query = User::query()->latest();
+
+        if ($request->filled('role')) {
+            $query->where('role', $request->string('role')->toString());
+        }
+
+        if ($request->filled('q')) {
+            $keyword = $request->string('q')->toString();
+            $query->where(function ($builder) use ($keyword) {
+                $builder->where('name', 'like', "%{$keyword}%")
+                    ->orWhere('email', 'like', "%{$keyword}%")
+                    ->orWhere('phone', 'like', "%{$keyword}%");
+            });
+        }
+
+        $perPage = (int) $request->integer('per_page', 15);
+        $perPage = max(1, min($perPage, 100));
+
+        $users = $query->paginate($perPage)->withQueryString();
 
         return $this->paginated($users, 'Lấy danh sách người dùng thành công.');
     }

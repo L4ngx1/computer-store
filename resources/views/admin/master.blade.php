@@ -5,8 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Admin')</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    @stack('styles')
 </head>
 
 <body class="bg-light">
@@ -30,6 +32,25 @@
                     <li class="nav-item">
                         <a class="nav-link {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}" href="{{ route('admin.orders.index') }}">Đơn hàng</a>
                     </li>
+                    <li class="nav-item dropdown ms-3">
+
+                        <a class="nav-link dropdown-toggle d-flex align-items-center px-2 py-1" href="#" id="adminMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Tài khoản">
+                            <i class="bi bi-person-circle fs-4 align-middle text-white" aria-hidden="true"></i>
+                        </a>
+
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="adminMenu">
+                            <li class="dropdown-header">{{ $user->name ?? 'Tài khoản' }}</li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li>
+                                <form action="{{ route('admin.auth.logout') }}" method="POST" class="m-0">
+                                    @csrf
+                                    <button type="submit" class="dropdown-item">Đăng xuất</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -40,6 +61,7 @@
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    @stack('scripts')
 </body>
 
 </html>

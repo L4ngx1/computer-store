@@ -1,14 +1,17 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Auth\AdminAuthController;
+use App\Http\Controllers\Auth\ClientAuthController;
 
 Route::get('/', function () {
     return view('client.home');
 })->name('home');
 
-Route::get('/login', function () {
-    return view('auth.login');
-})->name('login.form');
+Route::get('/login', [ClientAuthController::class, 'create'])->middleware('guest')->name('login');
+Route::post('/login', [ClientAuthController::class, 'store'])->middleware('guest')->name('login.store');
+Route::post('/logout', [ClientAuthController::class, 'destroy'])->middleware('auth')->name('logout');
 
 Route::name('client.')->group(function () {
     Route::get('about', function () {
@@ -48,11 +51,19 @@ Route::name('client.')->group(function () {
     })->name('search');
 });
 
-Route::prefix('admin')->name('admin.')->group(function () {
-    Route::get('/', function () {
-        return redirect()->route('admin.dashboard');
-    });
+Route::get('/admin/login', [AdminAuthController::class, 'create'])->middleware('guest')->name('admin.auth.login');
+Route::post('/admin/login', [AdminAuthController::class, 'store'])->middleware('guest')->name('admin.auth.login.store');
+Route::post('/admin/logout', [AdminAuthController::class, 'destroy'])->middleware('auth')->name('admin.auth.logout');
 
+Route::get('/admin', function () {
+    if (Auth::check() && Auth::user()->role === 'admin') {
+        return redirect()->route('admin.dashboard');
+    }
+
+    return redirect()->route('admin.auth.login');
+});
+
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'is_admin'])->group(function () {
     Route::get('/dashboard', function () {
         return view('admin.dashboard.index');
     })->name('dashboard');
@@ -99,15 +110,15 @@ Route::prefix('admin')->name('admin.')->group(function () {
         })->name('index');
 
         Route::get('/create', function () {
-            return view('admin.orders.form');
+            return view('admin.orders.index');
         })->name('create');
 
         Route::get('/{id}', function () {
-            return view('admin.orders.show');
+            return view('admin.orders.index');
         })->name('show');
 
         Route::get('/{id}/edit', function () {
-            return view('admin.orders.form');
+            return view('admin.orders.index');
         })->name('edit');
     });
 });

@@ -1,0 +1,57 @@
+<?php
+
+namespace App\Http\Controllers\Auth;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
+
+class AdminAuthController extends Controller
+{
+    public function create(): View|RedirectResponse
+    {
+        if (Auth::check() && Auth::user()->role === 'admin') {
+            return redirect()->route('admin.dashboard');
+        }
+
+        return view('admin.auth.login');
+    }
+
+    public function store(Request $request): RedirectResponse
+    {
+        $credentials = $request->validate([
+            'email' => ['required', 'email'],
+            'password' => ['required', 'string'],
+        ]);
+
+        if (! Auth::attempt($credentials)) {
+            return back()->withErrors([
+                'email' => 'Email hoặc mật khẩu không chính xác.',
+            ])->onlyInput('email');
+        }
+
+        $request->session()->regenerate();
+
+        if (Auth::user()->role !== 'admin') {
+            Auth::logout();
+
+            return back()->withErrors([
+                'email' => 'Tài khoản này không có quyền truy cập admin.',
+            ])->onlyInput('email');
+        }
+
+        return redirect()->route('admin.dashboard');
+    }
+
+    public function destroy(Request $request): RedirectResponse
+    {
+        Auth::logout();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('admin.auth.login');
+    }
+}

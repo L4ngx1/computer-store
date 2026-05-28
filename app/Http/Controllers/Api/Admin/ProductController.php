@@ -16,12 +16,23 @@ class ProductController extends ApiController
     /**
      * Display a listing of the resource.
      */
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $products = Product::query()
-            ->with(['category', 'brand'])
-            ->latest()
-            ->paginate(15);
+        $query = Product::query()->with(['category', 'brand'])->latest();
+
+        if ($request->filled('q')) {
+            $keyword = $request->string('q')->toString();
+
+            $query->where(function ($builder) use ($keyword) {
+                $builder->where('name', 'like', "%{$keyword}%")
+                    ->orWhere('sku', 'like', "%{$keyword}%");
+            });
+        }
+
+        $perPage = (int) $request->integer('per_page', 15);
+        $perPage = max(1, min($perPage, 100));
+
+        $products = $query->paginate($perPage)->withQueryString();
 
         return $this->paginated($products, 'Lấy danh sách sản phẩm thành công.');
     }

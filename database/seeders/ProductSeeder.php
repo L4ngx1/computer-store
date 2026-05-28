@@ -123,5 +123,78 @@ class ProductSeeder extends Seeder
         ProductAttribute::create(['product_id' => $p3->id, 'name' => 'CPU', 'value' => 'Ryzen 5']);
         ProductAttribute::create(['product_id' => $p3->id, 'name' => 'RAM', 'value' => '8GB']);
         ProductAttribute::create(['product_id' => $p3->id, 'name' => 'VGA', 'value' => 'GTX 1660 Ti']);
+
+        // Sản phẩm 4: Laptop văn phòng ASUS
+        $p4 = Product::updateOrCreate(
+            ['sku' => 'LAP-ASUS-VIVO15'],
+            [
+                'name' => 'Laptop ASUS Vivobook 15 X1504ZA',
+                'slug' => Str::slug('Laptop ASUS Vivobook 15 X1504ZA'),
+                'summary' => 'Laptop mỏng nhẹ cho học tập và văn phòng, hiệu năng ổn định.',
+                'description' => 'Trang bị Intel Core i5, SSD tốc độ cao và màn hình 15.6 inch, phù hợp cho sinh viên và dân văn phòng cần máy gọn, bền, pin tốt.',
+                'price' => 15990000,
+                'sale_price' => 14990000,
+                'stock' => 20,
+                'thumbnail' => 'products/asus_vivobook_15.jpg',
+                'is_featured' => false,
+                'is_active' => true,
+                'category_id' => $catLaptop->id,
+                'brand_id' => $brandAsus->id,
+            ]
+        );
+
+        $p4->attributes()->delete();
+        $p4->images()->delete();
+        ProductAttribute::create(['product_id' => $p4->id, 'name' => 'CPU', 'value' => 'Core i5']);
+        ProductAttribute::create(['product_id' => $p4->id, 'name' => 'RAM', 'value' => '8GB']);
+        ProductAttribute::create(['product_id' => $p4->id, 'name' => 'Ổ cứng', 'value' => '512GB SSD']);
+
+        // Sản phẩm 5: SSD MSI
+        $p5 = Product::updateOrCreate(
+            ['sku' => 'SSD-MSI-1TB'],
+            [
+                'name' => 'SSD MSI Spatium M482 1TB',
+                'slug' => Str::slug('SSD MSI Spatium M482 1TB'),
+                'summary' => 'SSD NVMe tốc độ cao cho máy tính bàn và laptop.',
+                'description' => 'Ổ cứng SSD chuẩn PCIe 4.0 cho tốc độ đọc ghi vượt trội, rút ngắn thời gian khởi động hệ thống và ứng dụng.',
+                'price' => 2290000,
+                'sale_price' => 1990000,
+                'stock' => 35,
+                'thumbnail' => 'products/msi_spatium_m482.jpg',
+                'is_featured' => true,
+                'is_active' => true,
+                'category_id' => $catLinhKien->id,
+                'brand_id' => $brandMsi->id,
+            ]
+        );
+
+        $p5->attributes()->delete();
+        $p5->images()->delete();
+        ProductAttribute::create(['product_id' => $p5->id, 'name' => 'Dung lượng', 'value' => '1TB']);
+        ProductAttribute::create(['product_id' => $p5->id, 'name' => 'Chuẩn giao tiếp', 'value' => 'NVMe PCIe 4.0']);
+
+        // Sản phẩm 6: VGA NVIDIA
+        $p6 = Product::updateOrCreate(
+            ['sku' => 'VGA-NVIDIA-4060'],
+            [
+                'name' => 'Card Màn Hình NVIDIA GeForce RTX 4060',
+                'slug' => Str::slug('Card Màn Hình NVIDIA GeForce RTX 4060'),
+                'summary' => 'Card đồ họa phổ biến cho game thủ và dựng phim tầm trung.',
+                'description' => 'RTX 4060 mang lại hiệu năng ổn định cho game 1080p, hỗ trợ DLSS 3 và tiết kiệm điện năng.',
+                'price' => 9990000,
+                'sale_price' => 9490000,
+                'stock' => 12,
+                'thumbnail' => 'products/nvidia_rtx4060.jpg',
+                'is_featured' => false,
+                'is_active' => true,
+                'category_id' => $catLinhKien->id,
+                'brand_id' => $brandNvidia->id,
+            ]
+        );
+
+        $p6->attributes()->delete();
+        $p6->images()->delete();
+        ProductAttribute::create(['product_id' => $p6->id, 'name' => 'VGA', 'value' => 'RTX 4060']);
+        ProductAttribute::create(['product_id' => $p6->id, 'name' => 'Dung lượng VRAM', 'value' => '8GB']);
     }
 }

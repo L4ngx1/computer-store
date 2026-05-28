@@ -22,6 +22,6 @@ class AdminMiddleware
             ], 403);
         }
 
-        return redirect('/')->with('error', 'Bạn không có quyền truy cập vào trang quản trị.');
+        return redirect()->route('admin.login')->with('error', 'Bạn không có quyền truy cập vào trang quản trị.');
     }
 }

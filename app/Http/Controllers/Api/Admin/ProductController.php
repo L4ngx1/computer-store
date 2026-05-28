@@ -13,22 +13,27 @@ use Illuminate\Support\Str;
 
 class ProductController extends ApiController
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $products = Product::query()
-            ->with(['category', 'brand'])
-            ->latest()
-            ->paginate(15);
+        $query = Product::query()->with(['category', 'brand'])->latest();
+
+        if ($request->filled('q')) {
+            $keyword = $request->string('q')->toString();
+
+            $query->where(function ($builder) use ($keyword) {
+                $builder->where('name', 'like', "%{$keyword}%")
+                    ->orWhere('sku', 'like', "%{$keyword}%");
+            });
+        }
+
+        $perPage = (int) $request->integer('per_page', 15);
+        $perPage = max(1, min($perPage, 100));
+
+        $products = $query->paginate($perPage)->withQueryString();
 
         return $this->paginated($products, 'Lấy danh sách sản phẩm thành công.');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request): JsonResponse
     {
         $validated = $this->validateProduct($request, null, false);
@@ -58,17 +63,11 @@ class ProductController extends ApiController
         return $this->success($product->load(['category', 'brand', 'images', 'attributes']), 'Tạo sản phẩm thành công.', 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Product $product): JsonResponse
     {
         return $this->success($product->load(['category', 'brand', 'images', 'attributes']), 'Lấy chi tiết sản phẩm thành công.');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Product $product): JsonResponse
     {
         $validated = $this->validateProduct($request, $product->id, true);
@@ -98,9 +97,6 @@ class ProductController extends ApiController
         return $this->success($product->fresh()->load(['category', 'brand', 'images', 'attributes']), 'Cập nhật sản phẩm thành công.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Product $product): JsonResponse
     {
         $product->delete();

@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Order extends Model
 {
@@ -15,17 +17,37 @@ class Order extends Model
         'note',
         'total_amount',
         'payment_method',
-        'status'
+        'status',
+        'completed_at',
     ];
 
-    // Đơn hàng thuộc về một User (nếu có đăng nhập)
-    public function user()
+    protected function casts(): array
+    {
+        return [
+            'total_amount' => 'decimal:2',
+            'completed_at' => 'datetime',
+        ];
+    }
+
+    protected static function booted(): void
+    {
+        static::saving(function (Order $order) {
+            if (! $order->isDirty('status')) {
+                return;
+            }
+
+            $order->completed_at = $order->status === 'completed'
+                ? ($order->completed_at ?? now())
+                : null;
+        });
+    }
+
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    // Một đơn hàng có nhiều sản phẩm chi tiết bên trong
-    public function items()
+    public function items(): HasMany
     {
         return $this->hasMany(OrderItem::class);
     }

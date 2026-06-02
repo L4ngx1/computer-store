@@ -4,7 +4,7 @@
 <div class="container-fluid py-4">
     <div class="row mb-4">
         <div class="col-md-8">
-            <h1 class="h3 mb-0">👁️ Chi tiết Sản phẩm</h1>
+            <h1 class="h3 mb-0"> Chi tiết Sản phẩm</h1>
         </div>
         <div class="col-md-4 text-end">
             <a href="{{ route('admin.products.edit', $product->id) }}" class="btn btn-warning">
@@ -50,7 +50,7 @@
             <!-- Thông tin cơ bản -->
             <div class="card shadow-sm mb-3">
                 <div class="card-header bg-light">
-                    <h6 class="mb-0">ℹ️ Thông tin cơ bản</h6>
+                    <h6 class="mb-0"> Thông tin cơ bản</h6>
                 </div>
                 <div class="card-body">
                     <div class="row mb-3">
@@ -87,7 +87,7 @@
             <!-- Giá & Kho -->
             <div class="card shadow-sm mb-3">
                 <div class="card-header bg-light">
-                    <h6 class="mb-0">💰 Giá & Kho hàng</h6>
+                    <h6 class="mb-0"> Giá & Kho hàng</h6>
                 </div>
                 <div class="card-body">
                     <div class="row mb-3">
@@ -122,7 +122,7 @@
             <!-- Phân loại -->
             <div class="card shadow-sm mb-3">
                 <div class="card-header bg-light">
-                    <h6 class="mb-0">📁 Phân loại</h6>
+                    <h6 class="mb-0"> Phân loại</h6>
                 </div>
                 <div class="card-body">
                     <div class="row mb-3">
@@ -145,7 +145,7 @@
             <!-- Trạng thái -->
             <div class="card shadow-sm mb-3">
                 <div class="card-header bg-light">
-                    <h6 class="mb-0">🔧 Trạng thái</h6>
+                    <h6 class="mb-0"> Trạng thái</h6>
                 </div>
                 <div class="card-body">
                     <div class="row mb-3">
@@ -163,7 +163,7 @@
                             <label class="text-muted small">Nổi bật</label>
                             <p class="mb-0">
                                 @if($product->is_featured)
-                                    <span class="badge bg-warning">⭐ Nổi bật (Hiển thị trên trang chủ)</span>
+                                    <span class="badge bg-warning"> Nổi bật (Hiển thị trên trang chủ)</span>
                                 @else
                                     <span class="badge bg-light text-dark">Thường</span>
                                 @endif
@@ -177,7 +177,7 @@
             @if($product->attributes && $product->attributes->count() > 0)
                 <div class="card shadow-sm mb-3">
                     <div class="card-header bg-light">
-                        <h6 class="mb-0">🏷️ Thuộc tính</h6>
+                        <h6 class="mb-0"> Thuộc tính</h6>
                     </div>
                     <div class="card-body">
                         <table class="table table-sm mb-0">
@@ -197,7 +197,7 @@
             <!-- Thông tin hệ thống -->
             <div class="card shadow-sm">
                 <div class="card-header bg-light">
-                    <h6 class="mb-0">⏰ Thông tin hệ thống</h6>
+                    <h6 class="mb-0"> Thông tin hệ thống</h6>
                 </div>
                 <div class="card-body">
                     <div class="row">

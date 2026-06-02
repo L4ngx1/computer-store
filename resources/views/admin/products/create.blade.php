@@ -4,7 +4,7 @@
 <div class="container-fluid py-4">
     <div class="row mb-4">
         <div class="col-md-8">
-            <h1 class="h3 mb-0">➕ Thêm Sản phẩm Mới</h1>
+            <h1 class="h3 mb-0"> Thêm Sản phẩm Mới</h1>
         </div>
         <div class="col-md-4 text-end">
             <a href="{{ route('admin.products.index') }}" class="btn btn-secondary">
@@ -18,14 +18,14 @@
             <form id="productForm" method="POST">
                 @csrf
                 
-                <!-- Thông tin cơ bản -->
+               
                 <div class="mb-4">
-                    <h5 class="border-bottom pb-2 mb-3">ℹ️ Thông tin cơ bản</h5>
+                    <h5 class="border-bottom pb-2 mb-3"> Thông tin cơ bản</h5>
                     
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="name" class="form-label">Tên Sản phẩm <span class="text-danger">*</span></label>
-                            <input type="text" id="name" name="name" class="form-control @error('name') is-invalid @enderror" 
+                            <input type="text" id="name" name="name" class="form-control " 
                                    value="{{ old('name') }}" required>
                             @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
@@ -63,7 +63,7 @@
 
                 <!-- Giá & Kho -->
                 <div class="mb-4">
-                    <h5 class="border-bottom pb-2 mb-3">💰 Giá & Kho hàng</h5>
+                    <h5 class="border-bottom pb-2 mb-3"> Giá & Kho hàng</h5>
                     
                     <div class="row">
                         <div class="col-md-4 mb-3">
@@ -89,7 +89,7 @@
 
                 <!-- Phân loại & Ảnh -->
                 <div class="mb-4">
-                    <h5 class="border-bottom pb-2 mb-3">📁 Phân loại & Ảnh</h5>
+                    <h5 class="border-bottom pb-2 mb-3"> Phân loại & Ảnh</h5>
                     
                     <div class="row">
                         <div class="col-md-6 mb-3">
@@ -129,14 +129,14 @@
 
                 <!-- Trạng thái -->
                 <div class="mb-4">
-                    <h5 class="border-bottom pb-2 mb-3">🔧 Trạng thái</h5>
+                    <h5 class="border-bottom pb-2 mb-3"> Trạng thái</h5>
                     
                     <div class="form-check form-switch">
                         <input type="hidden" name="is_active" value="0">
                         <input type="checkbox" id="is_active" name="is_active" class="form-check-input" 
                                value="1" {{ old('is_active') ? 'checked' : '' }}>
                         <label for="is_active" class="form-check-label">
-                            ✓ Bán (Hiển thị & cho phép mua)
+                             Bán (Hiển thị & cho phép mua)
                         </label>
                     </div>
 
@@ -145,7 +145,7 @@
                         <input type="checkbox" id="is_featured" name="is_featured" class="form-check-input" 
                                value="1" {{ old('is_featured') ? 'checked' : '' }}>
                         <label for="is_featured" class="form-check-label">
-                            ⭐ Nổi bật (Hiển thị trên trang chủ)
+                             Nổi bật (Hiển thị trên trang chủ)
                         </label>
                     </div>
                 </div>
@@ -184,7 +184,7 @@
             if (response.ok && data.success) {
                 window.location.href = '{{ route("admin.products.index") }}';
             } else {
-                // Show validation errors
+                
                 const errors = data.data?.errors || data.message || 'Lỗi không xác định';
                 alert(typeof errors === 'string' ? errors : JSON.stringify(errors));
             }

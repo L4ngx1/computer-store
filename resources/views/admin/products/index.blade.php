@@ -4,7 +4,7 @@
 <div class="container-fluid py-4">
     <div class="row mb-4">
         <div class="col-md-6">
-            <h1 class="h3 mb-0">📦 Quản lý Kho Sản phẩm</h1>
+            <h1 class="h3 mb-0"> Quản lý Kho Sản phẩm</h1>
         </div>
         <div class="col-md-6 text-end">
             <a href="{{ route('admin.products.create') }}" class="btn btn-primary">
@@ -56,9 +56,9 @@
                             </td>
                             <td>
                                 @if($product->is_active)
-                                    <span class="badge bg-success">✓ Bán</span>
+                                    <span class="badge bg-success"> Bán</span>
                                 @else
-                                    <span class="badge bg-secondary">✗ Dừng</span>
+                                    <span class="badge bg-secondary"> Dừng</span>
                                 @endif
                             </td>
                             <td>

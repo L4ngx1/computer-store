@@ -1,9 +1,9 @@
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const api = {
-            orders: '/api/v1/admin/orders',
-            users: '/api/v1/admin/users',
-            products: '/api/v1/admin/products',
+            orders: '/api/admin/orders',
+            users: '/api/admin/users',
+            products: '/api/admin/products',
         };
 
         const $ = (id) => document.getElementById(id);

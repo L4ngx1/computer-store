@@ -14,14 +14,6 @@ class AdminMiddleware
         if (Auth::check() && Auth::user()->role === 'admin') {
             return $next($request);
         }
-
-        if ($request->expectsJson()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Bạn không có quyền truy cập vào trang quản trị.',
-            ], 403);
-        }
-
-        return redirect()->route('admin.login')->with('error', 'Bạn không có quyền truy cập vào trang quản trị.');
+        return redirect('/')->with('error', 'Bạn không có quyền truy cập vào trang quản trị.');
     }
 }

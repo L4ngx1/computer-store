@@ -2,126 +2,176 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use App\Models\Category;
 use App\Models\Brand;
+use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductAttribute;
 use App\Models\ProductImage;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
 class ProductSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
+    private const PRODUCTS_PER_CATEGORY = 12;
+
     public function run(): void
     {
-        // 1. Tạo danh mục mẫu (Categories)
-        $catLaptop = Category::updateOrCreate(
-            ['slug' => 'laptop'],
-            ['name' => 'Laptop', 'image' => 'cat_laptop.jpg', 'is_active' => true]
-        );
-        $catPC = Category::updateOrCreate(
-            ['slug' => 'pc-dong-bo'],
-            ['name' => 'PC Đồng Bộ', 'image' => 'cat_pc.jpg', 'is_active' => true]
-        );
-        $catLinhKien = Category::updateOrCreate(
-            ['slug' => 'linh-kien'],
-            ['name' => 'Linh Kiện Máy Tính', 'image' => 'cat_linhkien.jpg', 'is_active' => true]
-        );
+        $this->call(CatalogSeeder::class);
 
-        // 2. Tạo thương hiệu mẫu (Brands)
-        $brandAsus = Brand::updateOrCreate(
-            ['slug' => 'asus'],
-            ['name' => 'ASUS', 'logo' => 'logo_asus.png']
-        );
-        $brandMsi = Brand::updateOrCreate(
-            ['slug' => 'msi'],
-            ['name' => 'MSI', 'logo' => 'logo_msi.png']
-        );
-        $brandNvidia = Brand::updateOrCreate(
-            ['slug' => 'nvidia'],
-            ['name' => 'NVIDIA', 'logo' => 'logo_nvidia.png']
-        );
+        $brands = Brand::orderBy('id')->get();
 
-        // 3. Tạo sản phẩm mẫu (Products)
+        Category::where('is_active', true)->orderBy('id')->get()->each(function (Category $category) use ($brands) {
+            for ($index = 1; $index <= self::PRODUCTS_PER_CATEGORY; $index++) {
+                $brand = $brands[($category->id + $index) % $brands->count()];
+                $data = $this->productData($category, $brand, $index);
 
-        // Sản phẩm 1: Laptop Gaming ASUS
-        $p1 = Product::updateOrCreate(
-            ['sku' => 'LAP-ASUS-ROG01'],
-            [
-                'name' => 'Laptop Gaming ASUS ROG Strix G16',
-                'slug' => Str::slug('Laptop Gaming ASUS ROG Strix G16'),
-            'summary' => 'Laptop gaming đỉnh cao với CPU Intel Core i7 thế hệ mới và card đồ họa RTX 4060.',
-            'description' => 'Sở hữu hiệu năng vượt trội, hệ thống tản nhiệt thông minh và màn hình 165Hz siêu mượt mà. Phù hợp cho cả game thủ và đồ họa chuyên nghiệp.',
-                'price' => 35990000,
-                'sale_price' => 33990000,
-                'stock' => 15,
-                'thumbnail' => 'products/rog_strix_g16.jpg',
-                'is_featured' => true,
-                'is_active' => true,
-                'category_id' => $catLaptop->id,
-                'brand_id' => $brandAsus->id,
-            ]
-        );
+                $product = Product::updateOrCreate(
+                    ['sku' => $data['sku']],
+                    [
+                        'name' => $data['name'],
+                        'slug' => Str::slug($data['name']),
+                        'summary' => $data['summary'],
+                        'description' => $data['description'],
+                        'price' => $data['price'],
+                        'sale_price' => $data['sale_price'],
+                        'stock' => $data['stock'],
+                        'thumbnail' => $data['thumbnail'],
+                        'is_featured' => $index <= 3,
+                        'is_active' => true,
+                        'category_id' => $category->id,
+                        'brand_id' => $brand->id,
+                    ]
+                );
 
-        $p1->attributes()->delete();
-        $p1->images()->delete();
-        ProductAttribute::create(['product_id' => $p1->id, 'name' => 'CPU', 'value' => 'Core i7']);
-        ProductAttribute::create(['product_id' => $p1->id, 'name' => 'RAM', 'value' => '16GB']);
-        ProductAttribute::create(['product_id' => $p1->id, 'name' => 'VGA', 'value' => 'RTX 4060']);
-        ProductAttribute::create(['product_id' => $p1->id, 'name' => 'Ổ cứng', 'value' => '512GB SSD']);
-        ProductImage::create(['product_id' => $p1->id, 'image_path' => 'products/rog_strix_side1.jpg']);
-        ProductImage::create(['product_id' => $p1->id, 'image_path' => 'products/rog_strix_side2.jpg']);
+                $this->syncDetails($product, $data['attributes'], $data['images']);
+            }
+        });
+    }
 
-        // Sản phẩm 2: Card màn hình MSI
-        $p2 = Product::updateOrCreate(
-            ['sku' => 'VGA-MSI-4070TIX'],
-            [
-            'name' => 'Card Màn Hình MSI GeForce RTX 4070 Ti GAMING X SLIM',
-            'slug' => Str::slug('Card Màn Hình MSI GeForce RTX 4070 Ti GAMING X SLIM'),
-            'summary' => 'Card đồ họa hiệu năng cao thế hệ Ada Lovelace siêu mát, siêu mỏng.',
-            'description' => 'Được trang bị kiến trúc NVIDIA mới nhất, kiến tạo thế giới ảo mượt mà với công nghệ Ray Tracing thế hệ thứ 3 cùng DLSS 3 ổn định khung hình.',
-                'price' => 24500000,
-                'sale_price' => 23900000,
-                'stock' => 8,
-                'thumbnail' => 'products/msi_rtx4070ti.jpg',
-                'is_featured' => true,
-                'is_active' => true,
-                'category_id' => $catLinhKien->id,
-                'brand_id' => $brandMsi->id,
-            ]
-        );
+    private function productData(Category $category, Brand $brand, int $index): array
+    {
+        $profile = $this->categoryProfiles()[$category->slug] ?? $this->defaultProfile($category);
+        $variant = $profile['variants'][($index - 1) % count($profile['variants'])];
+        $price = $profile['price_min'] + ($index * $profile['price_step']);
+        $hasSale = $index % 3 !== 0;
 
-        $p2->attributes()->delete();
-        $p2->images()->delete();
-        ProductAttribute::create(['product_id' => $p2->id, 'name' => 'VGA', 'value' => 'RTX 4070 Ti']);
-        ProductAttribute::create(['product_id' => $p2->id, 'name' => 'Dung lượng VRAM', 'value' => '12GB']);
+        $name = "{$brand->name} {$variant} {$profile['suffix']} {$index}";
 
-        // Sản phẩm 3: PC Đồng Bộ ASUS
-        $p3 = Product::updateOrCreate(
-            ['sku' => 'PC-ASUS-G10DK'],
-            [
-            'name' => 'PC Đồng Bộ ASUS ROG Strix G10DK',
-            'slug' => Str::slug('PC Đồng Bộ ASUS ROG Strix G10DK'),
-            'summary' => 'Máy tính để bàn cấu hình sẵn mạnh mẽ, ổn định.',
-            'description' => 'Bộ máy chiến game tối ưu trang bị chip AMD Ryzen 5, card đồ họa rời GTX 1660 Ti, sẵn sàng cân tốt các tựa game Esport hiện tại.',
-                'price' => 18990000,
-                'sale_price' => null,
-                'stock' => 5,
-                'thumbnail' => 'products/asus_pc_g10.jpg',
-                'is_featured' => false,
-                'is_active' => true,
-                'category_id' => $catPC->id,
-                'brand_id' => $brandAsus->id,
-            ]
-        );
+        return [
+            'sku' => strtoupper(Str::slug($category->slug . '-' . $brand->slug . '-' . $index, '-')),
+            'name' => $name,
+            'summary' => "{$name} phù hợp cho nhu cầu {$profile['use_case']}.",
+            'description' => "{$name} được lựa chọn cho website máy tính với cấu hình ổn định, bảo hành rõ ràng và dễ nâng cấp theo nhu cầu sử dụng.",
+            'price' => $price,
+            'sale_price' => $hasSale ? max(100000, $price - ($profile['discount'] + $index * 10000)) : null,
+            'stock' => 5 + ($index * 3) % 46,
+            'thumbnail' => "products/{$category->slug}-{$index}.jpg",
+            'images' => [
+                "products/{$category->slug}-{$index}-1.jpg",
+                "products/{$category->slug}-{$index}-2.jpg",
+            ],
+            'attributes' => $this->attributesFor($category->slug, $index),
+        ];
+    }
 
-        $p3->attributes()->delete();
-        $p3->images()->delete();
-        ProductAttribute::create(['product_id' => $p3->id, 'name' => 'CPU', 'value' => 'Ryzen 5']);
-        ProductAttribute::create(['product_id' => $p3->id, 'name' => 'RAM', 'value' => '8GB']);
-        ProductAttribute::create(['product_id' => $p3->id, 'name' => 'VGA', 'value' => 'GTX 1660 Ti']);
+    private function syncDetails(Product $product, array $attributes, array $images): void
+    {
+        $product->attributes()->delete();
+        $product->images()->delete();
+
+        foreach ($attributes as $name => $value) {
+            ProductAttribute::create([
+                'product_id' => $product->id,
+                'name' => $name,
+                'value' => $value,
+            ]);
+        }
+
+        foreach ($images as $image) {
+            ProductImage::create([
+                'product_id' => $product->id,
+                'image_path' => $image,
+            ]);
+        }
+    }
+
+    private function categoryProfiles(): array
+    {
+        return [
+            'pc-gaming' => $this->profile(['Aero', 'Phantom', 'Storm', 'Titan'], 'Gaming PC', 'chơi game', 15990000, 1450000, 800000),
+            'pc-van-phong' => $this->profile(['Office', 'Slim', 'Mini', 'Eco'], 'Desktop', 'văn phòng', 6990000, 550000, 300000),
+            'pc-workstation' => $this->profile(['Creator', 'Studio', 'Render', 'Pro'], 'Workstation', 'đồ họa và dựng phim', 28990000, 2400000, 1200000),
+            'pc-dong-bo' => $this->profile(['Essential', 'Tower', 'Business', 'Compact'], 'PC', 'học tập và làm việc', 8990000, 800000, 400000),
+            'laptop' => $this->profile(['Modern', 'Aspire', 'IdeaPad', 'Vivobook'], 'Laptop', 'học tập và làm việc', 11990000, 900000, 500000),
+            'laptop-gaming' => $this->profile(['ROG', 'Katana', 'Nitro', 'Legion'], 'Gaming Laptop', 'chơi game', 19990000, 1600000, 900000),
+            'laptop-van-phong' => $this->profile(['Swift', 'Pavilion', 'ThinkBook', 'Inspiron'], 'Office Laptop', 'văn phòng', 10990000, 750000, 450000),
+            'laptop-do-hoa' => $this->profile(['Studio', 'Creator', 'ProArt', 'Precision'], 'Creator Laptop', 'thiết kế đồ họa', 22990000, 1900000, 1000000),
+            'linh-kien' => $this->profile(['Upgrade', 'Performance', 'Prime', 'Gaming'], 'Component', 'nâng cấp máy tính', 990000, 350000, 120000),
+            'cpu' => $this->profile(['Core', 'Ryzen', 'Ultra', 'Thread'], 'Processor', 'xử lý đa nhiệm', 2490000, 600000, 200000),
+            'mainboard' => $this->profile(['Prime', 'Gaming', 'Aorus', 'Mortar'], 'Mainboard', 'lắp ráp PC', 2190000, 420000, 180000),
+            'ram' => $this->profile(['Fury', 'Vengeance', 'Trident', 'Value'], 'RAM DDR4/DDR5', 'nâng cấp bộ nhớ', 790000, 180000, 70000),
+            'vga' => $this->profile(['GeForce', 'Radeon', 'Gaming X', 'Eagle'], 'Graphics Card', 'chơi game và render', 4990000, 1200000, 500000),
+            'ssd-hdd' => $this->profile(['Blue', 'Black', 'Barracuda', 'Spatium'], 'Storage', 'lưu trữ tốc độ cao', 890000, 230000, 90000),
+            'psu' => $this->profile(['Bronze', 'Gold', 'Platinum', 'Modular'], 'Power Supply', 'cấp nguồn ổn định', 990000, 250000, 90000),
+            'case-may-tinh' => $this->profile(['Airflow', 'Mesh', 'RGB', 'Silent'], 'Case', 'lắp ráp PC', 790000, 220000, 80000),
+            'tan-nhiet' => $this->profile(['Air', 'Liquid', 'Tower', 'ARGB'], 'Cooler', 'tản nhiệt CPU', 490000, 190000, 60000),
+            'man-hinh' => $this->profile(['UltraGear', 'Odyssey', 'ProArt', 'Gaming'], 'Monitor', 'hiển thị sắc nét', 2490000, 650000, 250000),
+            'ban-phim' => $this->profile(['Mechanical', 'Wireless', 'RGB', 'Office'], 'Keyboard', 'gõ phím và chơi game', 390000, 160000, 50000),
+            'chuot' => $this->profile(['Wireless', 'Gaming', 'Ergo', 'Silent'], 'Mouse', 'điều khiển chính xác', 250000, 120000, 40000),
+            'tai-nghe' => $this->profile(['Surround', 'Wireless', 'Studio', 'Gaming'], 'Headset', 'nghe gọi và chơi game', 490000, 170000, 60000),
+            'loa' => $this->profile(['Stereo', 'Soundbar', 'Bluetooth', 'RGB'], 'Speaker', 'giải trí', 390000, 160000, 50000),
+            'webcam' => $this->profile(['Full HD', 'Streaming', 'Business', 'Auto Focus'], 'Webcam', 'họp trực tuyến', 450000, 140000, 50000),
+            'thiet-bi-mang' => $this->profile(['WiFi 6', 'Mesh', 'Router', 'Switch'], 'Network Device', 'kết nối mạng', 590000, 180000, 60000),
+            'phu-kien-laptop' => $this->profile(['Stand', 'Sleeve', 'Cooling Pad', 'Dock'], 'Laptop Accessory', 'phụ kiện laptop', 190000, 90000, 30000),
+            'cap-adapter' => $this->profile(['USB-C', 'HDMI', 'Hub', 'Charger'], 'Adapter', 'kết nối thiết bị', 150000, 70000, 20000),
+            'ghe-gaming' => $this->profile(['Racing', 'Ergo', 'Premium', 'Fabric'], 'Gaming Chair', 'ngồi làm việc và chơi game', 2490000, 450000, 180000),
+        ];
+    }
+
+    private function profile(array $variants, string $suffix, string $useCase, int $priceMin, int $priceStep, int $discount): array
+    {
+        return compact('variants', 'suffix', 'useCase') + [
+            'use_case' => $useCase,
+            'price_min' => $priceMin,
+            'price_step' => $priceStep,
+            'discount' => $discount,
+        ];
+    }
+
+    private function defaultProfile(Category $category): array
+    {
+        return $this->profile(['Standard', 'Plus', 'Pro', 'Max'], $category->name, 'sử dụng hằng ngày', 990000, 250000, 100000);
+    }
+
+    private function attributesFor(string $categorySlug, int $index): array
+    {
+        if (str_contains($categorySlug, 'laptop')) {
+            return [
+                'CPU' => $index % 2 ? 'Intel Core i5' : 'AMD Ryzen 5',
+                'RAM' => $index % 3 ? '16GB' : '32GB',
+                'Ổ cứng' => $index % 2 ? '512GB SSD' : '1TB SSD',
+                'Màn hình' => $index % 2 ? '15.6 inch FHD' : '16 inch 2.5K',
+            ];
+        }
+
+        if (str_starts_with($categorySlug, 'pc')) {
+            return [
+                'CPU' => $index % 2 ? 'Intel Core i5' : 'AMD Ryzen 7',
+                'RAM' => $index % 3 ? '16GB' : '32GB',
+                'VGA' => $index % 2 ? 'RTX 4060' : 'Radeon RX 7600',
+                'Ổ cứng' => '1TB SSD',
+            ];
+        }
+
+        return match ($categorySlug) {
+            'cpu' => ['Socket' => $index % 2 ? 'LGA1700' : 'AM5', 'Số nhân' => 6 + $index % 10, 'Bảo hành' => '36 tháng'],
+            'mainboard' => ['Chipset' => $index % 2 ? 'B760' : 'B650', 'Kích thước' => $index % 2 ? 'ATX' : 'mATX', 'Bảo hành' => '36 tháng'],
+            'ram' => ['Dung lượng' => $index % 2 ? '16GB' : '32GB', 'Bus' => $index % 2 ? '3200MHz' : '5600MHz', 'Chuẩn' => $index % 2 ? 'DDR4' : 'DDR5'],
+            'vga' => ['VRAM' => $index % 2 ? '8GB' : '12GB', 'Chuẩn bộ nhớ' => 'GDDR6', 'Bảo hành' => '36 tháng'],
+            'ssd-hdd' => ['Dung lượng' => $index % 2 ? '1TB' : '2TB', 'Chuẩn' => $index % 2 ? 'NVMe PCIe' : 'SATA', 'Bảo hành' => '36 tháng'],
+            'psu' => ['Công suất' => 550 + $index * 50 . 'W', 'Chuẩn' => $index % 2 ? '80 Plus Bronze' : '80 Plus Gold', 'Bảo hành' => '36 tháng'],
+            'man-hinh' => ['Kích thước' => $index % 2 ? '24 inch' : '27 inch', 'Tần số quét' => $index % 2 ? '75Hz' : '165Hz', 'Tấm nền' => 'IPS'],
+            default => ['Bảo hành' => '12 tháng', 'Tình trạng' => 'Mới 100%', 'Nguồn gốc' => 'Chính hãng'],
+        };
     }
 }

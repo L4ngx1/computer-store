@@ -10,19 +10,31 @@ use Illuminate\Support\Facades\Auth;
 
 class UserController extends ApiController
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $users = User::query()->latest()->paginate(15);
+        $query = User::query()->latest();
+
+        if ($request->filled('role')) {
+            $query->where('role', $request->string('role')->toString());
+        }
+
+        if ($request->filled('q')) {
+            $keyword = $request->string('q')->toString();
+            $query->where(function ($builder) use ($keyword) {
+                $builder->where('name', 'like', "%{$keyword}%")
+                    ->orWhere('email', 'like', "%{$keyword}%")
+                    ->orWhere('phone', 'like', "%{$keyword}%");
+            });
+        }
+
+        $perPage = (int) $request->integer('per_page', 15);
+        $perPage = max(1, min($perPage, 100));
+
+        $users = $query->paginate($perPage)->withQueryString();
 
         return $this->paginated($users, 'Lấy danh sách người dùng thành công.');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
@@ -46,17 +58,11 @@ class UserController extends ApiController
         return $this->success($user, 'Tạo người dùng thành công.', 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(User $user): JsonResponse
     {
         return $this->success($user->loadCount('orders'), 'Lấy chi tiết người dùng thành công.');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, User $user): JsonResponse
     {
         $validated = $request->validate([
@@ -84,9 +90,6 @@ class UserController extends ApiController
         return $this->success($user->fresh(), 'Cập nhật người dùng thành công.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(User $user): JsonResponse
     {
         if (Auth::id() === $user->id) {

@@ -8,7 +8,6 @@ class Brand extends Model
 {
     protected $fillable = ['name', 'slug', 'logo'];
 
-    // Một thương hiệu có nhiều sản phẩm
     public function products()
     {
         return $this->hasMany(Product::class);

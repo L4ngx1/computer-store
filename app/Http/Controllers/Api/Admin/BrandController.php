@@ -10,9 +10,6 @@ use Illuminate\Support\Str;
 
 class BrandController extends ApiController
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index(): JsonResponse
     {
         $brands = Brand::query()->latest()->paginate(15);
@@ -20,9 +17,6 @@ class BrandController extends ApiController
         return $this->paginated($brands, 'Lấy danh sách thương hiệu thành công.');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
@@ -38,17 +32,11 @@ class BrandController extends ApiController
         return $this->success($brand, 'Tạo thương hiệu thành công.', 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Brand $brand): JsonResponse
     {
         return $this->success($brand, 'Lấy chi tiết thương hiệu thành công.');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Brand $brand): JsonResponse
     {
         $validated = $request->validate([
@@ -67,9 +55,6 @@ class BrandController extends ApiController
         return $this->success($brand->fresh(), 'Cập nhật thương hiệu thành công.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Brand $brand): JsonResponse
     {
         $brand->delete();

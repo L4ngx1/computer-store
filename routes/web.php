@@ -13,6 +13,20 @@ Route::get('/login', function () {
     return view('auth.login');
 })->name('login.form');
 
+Route::get('/register', function () {
+    return view('auth.register');
+})->name('register.form');
+
+Route::post('/login', function () {
+    // Placeholder for login logic
+    return redirect('/');
+})->name('login.store');
+
+Route::post('/register', function () {
+    // Placeholder for register logic
+    return redirect('/login');
+})->name('register.store');
+
 Route::prefix('page')->name('client.')->group(function () {
     Route::get('about', function () {
         return view('client.about');

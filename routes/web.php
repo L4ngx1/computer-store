@@ -1,7 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Auth\AdminAuthController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\DashboardController;
 
 Route::get('/', function () {
     return view('client.home');
@@ -10,6 +12,20 @@ Route::get('/', function () {
 Route::get('/login', function () {
     return view('auth.login');
 })->name('login.form');
+
+Route::get('/register', function () {
+    return view('auth.register');
+})->name('register.form');
+
+Route::post('/login', function () {
+    // Placeholder for login logic
+    return redirect('/');
+})->name('login.store');
+
+Route::post('/register', function () {
+    // Placeholder for register logic
+    return redirect('/login');
+})->name('register.store');
 
 Route::prefix('page')->name('client.')->group(function () {
     Route::get('about', function () {
@@ -51,87 +67,94 @@ Route::prefix('page')->name('client.')->group(function () {
 
 // Tạm comment middleware để test
 Route::prefix('admin')->name('admin.')->group(function () {
-    // ->middleware('is_admin')
-    Route::get('/', function () {
-        return view('admin.dashboard');
-    })->name('dashboard');
+    Route::get('/login', [AdminAuthController::class, 'create'])->name('login');
+    Route::post('/login', [AdminAuthController::class, 'store'])->name('login.store');
+    Route::post('/logout', [AdminAuthController::class, 'destroy'])->name('logout');
 
-    Route::prefix('users')->name('users.')->group(function () {
+    Route::middleware('is_admin')->group(function () {
         Route::get('/', function () {
-            return view('admin.users.index');
-        })->name('index');
+            return redirect()->route('admin.dashboard');
+        });
 
-        Route::get('/create', function () {
-            return view('admin.users.form');
-        })->name('create');
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-        Route::get('/{id}', function () {
-            return view('admin.users.show');
-        })->name('show');
+        Route::prefix('users')->name('users.')->group(function () {
+            Route::get('/', function () {
+                return view('admin.users.index');
+            })->name('index');
 
-        Route::get('/{id}/edit', function () {
-            return view('admin.users.form');
-        })->name('edit');
-    });
+            Route::get('/create', function () {
+                return view('admin.users.form');
+            })->name('create');
 
-    Route::prefix('categories')->name('categories.')->group(function () {
-        Route::get('/', function () {
-            return view('admin.categories.index');
-        })->name('index');
+            Route::get('/{id}', function () {
+                return view('admin.users.show');
+            })->name('show');
 
-        Route::get('/create', function () {
-            return view('admin.categories.form');
-        })->name('create');
+            Route::get('/{id}/edit', function () {
+                return view('admin.users.form');
+            })->name('edit');
+        });
 
-        Route::get('/{id}', function () {
-            return view('admin.categories.show');
-        })->name('show');
+        Route::prefix('categories')->name('categories.')->group(function () {
+            Route::get('/', function () {
+                return view('admin.categories.index');
+            })->name('index');
 
-        Route::get('/{id}/edit', function () {
-            return view('admin.categories.form');
-        })->name('edit');
-    });
+            Route::get('/create', function () {
+                return view('admin.categories.form');
+            })->name('create');
 
-    Route::prefix('brands')->name('brands.')->group(function () {
-        Route::get('/', function () {
-            return view('admin.brands.index');
-        })->name('index');
+            Route::get('/{id}', function () {
+                return view('admin.categories.show');
+            })->name('show');
 
-        Route::get('/create', function () {
-            return view('admin.brands.form');
-        })->name('create');
+            Route::get('/{id}/edit', function () {
+                return view('admin.categories.form');
+            })->name('edit');
+        });
 
-        Route::get('/{id}', function () {
-            return view('admin.brands.show');
-        })->name('show');
+        Route::prefix('brands')->name('brands.')->group(function () {
+            Route::get('/', function () {
+                return view('admin.brands.index');
+            })->name('index');
 
-        Route::get('/{id}/edit', function () {
-            return view('admin.brands.form');
-        })->name('edit');
-    });
+            Route::get('/create', function () {
+                return view('admin.brands.form');
+            })->name('create');
 
-    Route::prefix('products')->name('products.')->controller(ProductController::class)->group(function () {
-        Route::get('/', 'index')->name('index');
-        Route::get('/create', 'create')->name('create');
-        Route::get('/{product}', 'show')->name('show');
-        Route::get('/{product}/edit', 'edit')->name('edit');
-    });
+            Route::get('/{id}', function () {
+                return view('admin.brands.show');
+            })->name('show');
 
-    Route::prefix('orders')->name('orders.')->group(function () {
-        Route::get('/', function () {
-            return view('admin.orders.index');
-        })->name('index');
+            Route::get('/{id}/edit', function () {
+                return view('admin.brands.form');
+            })->name('edit');
+        });
 
-        Route::get('/create', function () {
-            return view('admin.orders.form');
-        })->name('create');
+        Route::prefix('products')->name('products.')->controller(ProductController::class)->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/create', 'create')->name('create');
+            Route::get('/{product}', 'show')->name('show');
+            Route::get('/{product}/edit', 'edit')->name('edit');
+        });
 
-        Route::get('/{id}', function () {
-            return view('admin.orders.show');
-        })->name('show');
+        Route::prefix('orders')->name('orders.')->group(function () {
+            Route::get('/', function () {
+                return view('admin.orders.index');
+            })->name('index');
 
-        Route::get('/{id}/edit', function () {
-            return view('admin.orders.form');
-        })->name('edit');
+            Route::get('/create', function () {
+                return redirect()->route('admin.orders.index');
+            })->name('create');
+
+            Route::get('/{id}', function () {
+                return redirect()->route('admin.orders.index');
+            })->name('show');
+
+            Route::get('/{id}/edit', function () {
+                return redirect()->route('admin.orders.index');
+            })->name('edit');
+        });
     });
 });

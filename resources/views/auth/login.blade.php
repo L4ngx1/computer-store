@@ -1,49 +1,56 @@
-<!doctype html>
-<html lang="vi">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Đăng nhập khách hàng</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-</head>
-<body class="bg-light">
-    <div class="container py-5">
-        <div class="row justify-content-center">
-            <div class="col-12 col-md-8 col-lg-5">
-                <div class="card shadow-sm border-0">
-                    <div class="card-body p-4 p-md-5">
-                        <h1 class="h3 mb-1">Đăng nhập khách hàng</h1>
-                        <p class="text-muted mb-4">Sử dụng tài khoản khách hàng để tiếp tục.</p>
+@extends('layouts.site')
 
-                        @if ($errors->any())
-                            <div class="alert alert-danger">
-                                {{ $errors->first() }}
-                            </div>
-                        @endif
+@section('title', 'Đăng nhập & Đăng kí - Computer Store')
 
-                        <form method="POST" action="{{ route('login.store') }}" class="vstack gap-3">
-                            @csrf
+@section('content')
+    <div class="small text-secondary mb-4">Trang chủ › Đăng nhập</div>
 
-                            <div>
-                                <label for="email" class="form-label">Email</label>
-                                <input type="email" name="email" id="email" value="{{ old('email') }}" class="form-control" required autofocus>
-                            </div>
+    <div class="row g-4 align-items-stretch">
+        <div class="col-lg-6">
+            <section class="bg-light h-100 p-4">
+                <h1 class="h3 fw-bold mb-2">Khách hàng đã đăng kí</h1>
+                <p class="text-secondary mb-4">Nếu bạn đã có tài khoản, hãy đăng nhập bằng địa chỉ email của bạn.</p>
 
-                            <div>
-                                <label for="password" class="form-label">Mật khẩu</label>
-                                <input type="password" name="password" id="password" class="form-control" required>
-                            </div>
-
-                            <button type="submit" class="btn btn-primary">Đăng nhập</button>
-                        </form>
-
-                        <div class="mt-3 small text-muted">
-                            Admin đăng nhập tại <a href="{{ route('admin.login') }}">/admin/login</a>.
-                        </div>
+                @if ($errors->any())
+                    <div class="alert alert-danger">
+                        {{ $errors->first() }}
                     </div>
-                </div>
-            </div>
+                @endif
+
+                <form method="POST" action="{{ route('login.store') }}">
+                    @csrf
+
+                    <div class="mb-4">
+                        <label for="email" class="form-label fw-semibold">Email</label>
+                        <input type="email" name="email" id="email" value="{{ old('email') }}" class="form-control form-control-lg" required autofocus>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="password" class="form-label fw-semibold">Mật khẩu</label>
+                        <input type="password" name="password" id="password" class="form-control form-control-lg" required>
+                    </div>
+
+                    <div class="d-flex flex-wrap align-items-center gap-3">
+                        <button type="submit" class="btn btn-primary rounded-pill px-4 py-2">Đăng nhập</button>
+                        <a href="#" class="text-primary fw-semibold text-decoration-none">Quên mật khẩu?</a>
+                    </div>
+                </form>
+            </section>
+        </div>
+
+        <div class="col-lg-6">
+            <section class="bg-light h-100 p-4">
+                <h2 class="h3 fw-bold mb-2">Khách hàng mới?</h2>
+                <p class="text-secondary mb-4">Tạo một tài khoản có rất nhiều lợi ích.</p>
+
+                <ul class="list-unstyled d-grid gap-3 mb-4">
+                    <li><i class="bi bi-check-circle-fill text-primary me-2"></i>Theo dõi đơn hàng của bạn</li>
+                    <li><i class="bi bi-check-circle-fill text-primary me-2"></i>Lưu mục ưa thích của bạn</li>
+                    <li><i class="bi bi-check-circle-fill text-primary me-2"></i>Lịch sử đơn hàng và hơn thế nữa</li>
+                </ul>
+
+                <a href="{{ route('register.form') }}" class="btn btn-primary rounded-pill px-4 py-2">Tạo Tài Khoản</a>
+            </section>
         </div>
     </div>
-</body>
-</html>
+@endsection

@@ -38,7 +38,17 @@ class ProductController extends ApiController
     {
         $validated = $this->validateProduct($request, null, false);
 
-        $product = DB::transaction(function () use ($validated) {
+        $product = DB::transaction(function () use ($validated, $request) {
+            $thumbnailPath = $validated['thumbnail'];
+            
+            // Handle file upload if thumbnail is a file
+            if ($request->hasFile('thumbnail')) {
+                $file = $request->file('thumbnail');
+                $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $thumbnailPath = $file->storeAs('products/thumbnails', $filename, 'public');
+                $thumbnailPath = '/storage/' . $thumbnailPath;
+            }
+            
             $product = Product::create([
                 'name' => $validated['name'],
                 'slug' => $this->resolveSlug($validated['slug'] ?? $validated['name']),
@@ -48,7 +58,7 @@ class ProductController extends ApiController
                 'price' => $validated['price'],
                 'sale_price' => $validated['sale_price'] ?? null,
                 'stock' => $validated['stock'] ?? 0,
-                'thumbnail' => $validated['thumbnail'],
+                'thumbnail' => $thumbnailPath,
                 'is_featured' => $validated['is_featured'] ?? false,
                 'is_active' => $validated['is_active'] ?? true,
                 'category_id' => $validated['category_id'],
@@ -72,7 +82,19 @@ class ProductController extends ApiController
     {
         $validated = $this->validateProduct($request, $product->id, true);
 
-        $product = DB::transaction(function () use ($validated, $product) {
+        $product = DB::transaction(function () use ($validated, $product, $request) {
+            $thumbnailPath = $product->thumbnail;
+            
+            // Handle file upload if thumbnail is a file
+            if ($request->hasFile('thumbnail') && array_key_exists('thumbnail', $validated)) {
+                $file = $request->file('thumbnail');
+                $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $thumbnailPath = $file->storeAs('products/thumbnails', $filename, 'public');
+                $thumbnailPath = '/storage/' . $thumbnailPath;
+            } elseif (array_key_exists('thumbnail', $validated) && is_string($validated['thumbnail'])) {
+                $thumbnailPath = $validated['thumbnail'];
+            }
+            
             $product->update([
                 'name' => $validated['name'] ?? $product->name,
                 'slug' => $this->resolveSlug($validated['slug'] ?? $validated['name'] ?? $product->name, $product->id),
@@ -82,7 +104,7 @@ class ProductController extends ApiController
                 'price' => $validated['price'] ?? $product->price,
                 'sale_price' => array_key_exists('sale_price', $validated) ? $validated['sale_price'] : $product->sale_price,
                 'stock' => $validated['stock'] ?? $product->stock,
-                'thumbnail' => $validated['thumbnail'] ?? $product->thumbnail,
+                'thumbnail' => $thumbnailPath,
                 'is_featured' => $validated['is_featured'] ?? $product->is_featured,
                 'is_active' => $validated['is_active'] ?? $product->is_active,
                 'category_id' => $validated['category_id'] ?? $product->category_id,
@@ -123,7 +145,7 @@ class ProductController extends ApiController
             'price' => $priceRule . '|numeric|min:0',
             'sale_price' => 'nullable|numeric|min:0',
             'stock' => 'nullable|integer|min:0',
-            'thumbnail' => $thumbnailRule . '|string|max:255',
+            'thumbnail' => $thumbnailRule . '|image|mimes:jpeg,png,gif,webp|max:2048',
             'is_featured' => 'nullable|boolean',
             'is_active' => 'nullable|boolean',
             'category_id' => $categoryRule . '|exists:categories,id',

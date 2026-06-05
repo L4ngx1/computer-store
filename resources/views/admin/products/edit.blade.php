@@ -4,7 +4,7 @@
 <div class="container-fluid py-4">
     <div class="row mb-4">
         <div class="col-md-8">
-            <h1 class="h3 mb-0">✏️ Sửa Sản phẩm: {{ $product->name }}</h1>
+            <h1 class="h3 mb-0"> Chỉnh sửa Sản phẩm</h1>
         </div>
         <div class="col-md-4 text-end">
             <a href="{{ route('admin.products.index') }}" class="btn btn-secondary">
@@ -15,17 +15,18 @@
 
     <div class="card shadow-sm">
         <div class="card-body">
-            <form id="productForm" method="PUT">
+            <form id="productForm" method="POST">
                 @csrf
+                @method('PATCH')
                 
-                <!-- Thông tin cơ bản -->
+               
                 <div class="mb-4">
-                    <h5 class="border-bottom pb-2 mb-3">ℹ️ Thông tin cơ bản</h5>
+                    <h5 class="border-bottom pb-2 mb-3"> Thông tin cơ bản</h5>
                     
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="name" class="form-label">Tên Sản phẩm <span class="text-danger">*</span></label>
-                            <input type="text" id="name" name="name" class="form-control @error('name') is-invalid @enderror" 
+                            <input type="text" id="name" name="name" class="form-control " 
                                    value="{{ $product->name }}" required>
                             @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
@@ -63,7 +64,7 @@
 
                 <!-- Giá & Kho -->
                 <div class="mb-4">
-                    <h5 class="border-bottom pb-2 mb-3">💰 Giá & Kho hàng</h5>
+                    <h5 class="border-bottom pb-2 mb-3"> Giá & Kho hàng</h5>
                     
                     <div class="row">
                         <div class="col-md-4 mb-3">
@@ -89,7 +90,7 @@
 
                 <!-- Phân loại & Ảnh -->
                 <div class="mb-4">
-                    <h5 class="border-bottom pb-2 mb-3">📁 Phân loại & Ảnh</h5>
+                    <h5 class="border-bottom pb-2 mb-3"> Phân loại & Ảnh</h5>
                     
                     <div class="row">
                         <div class="col-md-6 mb-3">
@@ -119,24 +120,33 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="thumbnail" class="form-label">Ảnh đại diện (URL) <span class="text-danger">*</span></label>
-                        <input type="url" id="thumbnail" name="thumbnail" class="form-control @error('thumbnail') is-invalid @enderror" 
-                               value="{{ $product->thumbnail }}" required>
-                        <small class="text-muted d-block mt-1">Nhập đường dẫn URL của ảnh sản phẩm</small>
-                        @error('thumbnail')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                        <label for="thumbnail" class="form-label">Ảnh đại diện</label>
+                        <div class="d-flex gap-3 align-items-start">
+                            <div style="flex: 1;">
+                                <input type="file" id="thumbnail" name="thumbnail" class="form-control @error('thumbnail') is-invalid @enderror" 
+                                       accept="image/*">
+                                <small class="text-muted d-block mt-1">Chọn ảnh mới để cập nhật (JPG, PNG, WebP, ...)</small>
+                                @error('thumbnail')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                            </div>
+                            <div style="min-width: 150px;">
+                                <div id="thumbnailPreview" class="bg-light border rounded p-2 text-center" style="width: 150px; height: 150px; overflow: hidden;">
+                                    <img id="previewImage" src="{{ $product->thumbnail }}" alt="Preview" style="width: 100%; height: 100%; object-fit: cover;">
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Trạng thái -->
                 <div class="mb-4">
-                    <h5 class="border-bottom pb-2 mb-3">🔧 Trạng thái</h5>
+                    <h5 class="border-bottom pb-2 mb-3"> Trạng thái</h5>
                     
                     <div class="form-check form-switch">
                         <input type="hidden" name="is_active" value="0">
                         <input type="checkbox" id="is_active" name="is_active" class="form-check-input" 
                                value="1" {{ $product->is_active ? 'checked' : '' }}>
                         <label for="is_active" class="form-check-label">
-                            ✓ Bán (Hiển thị & cho phép mua)
+                             Bán (Hiển thị & cho phép mua)
                         </label>
                     </div>
 
@@ -145,14 +155,14 @@
                         <input type="checkbox" id="is_featured" name="is_featured" class="form-check-input" 
                                value="1" {{ $product->is_featured ? 'checked' : '' }}>
                         <label for="is_featured" class="form-check-label">
-                            ⭐ Nổi bật (Hiển thị trên trang chủ)
+                             Nổi bật (Hiển thị trên trang chủ)
                         </label>
                     </div>
                 </div>
 
                 <!-- Nút hành động -->
                 <div class="mb-3">
-                    <button type="button" class="btn btn-success btn-lg" onclick="submitForm()">
+                    <button type="button" class="btn btn-primary btn-lg" onclick="submitForm()">
                         <i class="bi bi-check-circle"></i> Cập nhật Sản phẩm
                     </button>
                     <a href="{{ route('admin.products.index') }}" class="btn btn-secondary btn-lg">
@@ -165,16 +175,26 @@
 </div>
 
 <script>
+    // Preview image when file is selected
+    document.getElementById('thumbnail').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const previewImage = document.getElementById('previewImage');
+                previewImage.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
     async function submitForm() {
         const form = document.getElementById('productForm');
         const formData = new FormData(form);
         
-        // Add PATCH method since HTML forms don't support it
-        formData.append('_method', 'PATCH');
-        
         try {
             const response = await fetch('/api/admin/products/{{ $product->id }}', {
-                method: 'POST',
+                method: 'PATCH',
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                     'Accept': 'application/json'

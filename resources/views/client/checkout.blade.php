@@ -1,12 +1,11 @@
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Checkout</title>
-</head>
-<body>
-    <h1>Client Checkout</h1>
-    <p>Placeholder view.</p>
-</body>
-</html>
+@extends('layouts.site')
+
+@section('title', 'Thanh toán')
+
+@section('content')
+    <div class="small text-secondary mb-4">Trang chủ › Giỏ hàng › Thanh toán</div>
+    <section class="bg-light p-4">
+        <h1 class="h2 fw-bold mb-3">Thanh toán</h1>
+        <p class="text-secondary mb-0">Nội dung trang thanh toán sẽ được cập nhật sau.</p>
+    </section>
+@endsection

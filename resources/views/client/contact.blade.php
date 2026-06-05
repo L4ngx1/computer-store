@@ -1,12 +1,11 @@
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Contact</title>
-</head>
-<body>
-    <h1>Client Contact</h1>
-    <p>Placeholder view.</p>
-</body>
-</html>
+@extends('layouts.site')
+
+@section('title', 'Liên hệ')
+
+@section('content')
+    <div class="small text-secondary mb-4">Trang chủ › Liên hệ</div>
+    <section class="bg-light p-4">
+        <h1 class="h2 fw-bold mb-3">Liên hệ</h1>
+        <p class="text-secondary mb-0">Nội dung trang sẽ được cập nhật sau.</p>
+    </section>
+@endsection

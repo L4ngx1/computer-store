@@ -119,11 +119,20 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="thumbnail" class="form-label">Ảnh đại diện (URL) <span class="text-danger">*</span></label>
-                        <input type="url" id="thumbnail" name="thumbnail" class="form-control @error('thumbnail') is-invalid @enderror" 
-                               value="{{ old('thumbnail') }}" required>
-                        <small class="text-muted d-block mt-1">Nhập đường dẫn URL của ảnh sản phẩm</small>
-                        @error('thumbnail')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                        <label for="thumbnail" class="form-label">Ảnh đại diện <span class="text-danger">*</span></label>
+                        <div class="d-flex gap-3 align-items-start">
+                            <div style="flex: 1;">
+                                <input type="file" id="thumbnail" name="thumbnail" class="form-control @error('thumbnail') is-invalid @enderror" 
+                                       accept="image/*" required>
+                                <small class="text-muted d-block mt-1">Chọn ảnh từ thiết bị của bạn (JPG, PNG, WebP, ...)</small>
+                                @error('thumbnail')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                            </div>
+                            <div style="min-width: 150px;">
+                                <div id="thumbnailPreview" class="bg-light border rounded p-2 text-center" style="width: 150px; height: 150px; display: none; overflow: hidden;">
+                                    <img id="previewImage" src="" alt="Preview" style="width: 100%; height: 100%; object-fit: cover;">
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -165,6 +174,21 @@
 </div>
 
 <script>
+    // Preview image when file is selected
+    document.getElementById('thumbnail').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const preview = document.getElementById('thumbnailPreview');
+                const previewImage = document.getElementById('previewImage');
+                previewImage.src = event.target.result;
+                preview.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
     async function submitForm() {
         const form = document.getElementById('productForm');
         const formData = new FormData(form);

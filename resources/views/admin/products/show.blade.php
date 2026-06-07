@@ -36,11 +36,11 @@
                     <div class="card-body">
                         <div class="row g-2">
                             @foreach($product->images as $image)
-                                <div class="col-md-6">
-                                    <img src="{{ $image->image_path }}" alt="Product image" class="img-fluid rounded">
-                                </div>
+                            <div class="col-md-6">
+                                <img src="{{ asset('storage/' . $image->image_path) }}" alt="Product image" class="img-fluid rounded">
+                            </div>
                             @endforeach
-                        </div>
+</div>
                     </div>
                 </div>
             @endif

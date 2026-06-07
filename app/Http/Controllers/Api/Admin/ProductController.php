@@ -38,7 +38,16 @@ class ProductController extends ApiController
     {
         $validated = $this->validateProduct($request, null, false);
 
-        $product = DB::transaction(function () use ($validated) {
+        $product = DB::transaction(function () use ($validated, $request) {
+            // Handle thumbnail file upload
+            $thumbnailPath = $validated['thumbnail'];
+            if ($request->hasFile('thumbnail')) {
+                $file = $request->file('thumbnail');
+                $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $path = $file->storeAs('products/thumbnails', $filename, 'public');
+                $thumbnailPath = '/storage/' . $path;
+            }
+
             $product = Product::create([
                 'name' => $validated['name'],
                 'slug' => $this->resolveSlug($validated['slug'] ?? $validated['name']),
@@ -48,12 +57,32 @@ class ProductController extends ApiController
                 'price' => $validated['price'],
                 'sale_price' => $validated['sale_price'] ?? null,
                 'stock' => $validated['stock'] ?? 0,
-                'thumbnail' => $validated['thumbnail'],
+                'thumbnail' => $thumbnailPath,
                 'is_featured' => $validated['is_featured'] ?? false,
                 'is_active' => $validated['is_active'] ?? true,
                 'category_id' => $validated['category_id'],
                 'brand_id' => $validated['brand_id'],
             ]);
+
+            // Handle multiple product images
+            $images = $request->file('images', []);
+            if (!empty($images) && is_array($images)) {
+                foreach ($images as $index => $image) {
+                    if ($image && $image->isValid()) {
+                        $timestamp = time();
+                        $randomId = uniqid($index . '_', true);
+                        $filename = $timestamp . '_' . $randomId . '.' . $image->getClientOriginalExtension();
+                        $path = $image->storeAs('products/images', $filename, 'public');
+                        
+                        if ($path) {
+                            ProductImage::create([
+                                'product_id' => $product->id,
+                                'image_path' => '/storage/' . $path,
+                            ]);
+                        }
+                    }
+                }
+            }
 
             $this->syncRelations($product, $validated);
 
@@ -72,7 +101,18 @@ class ProductController extends ApiController
     {
         $validated = $this->validateProduct($request, $product->id, true);
 
-        $product = DB::transaction(function () use ($validated, $product) {
+        $product = DB::transaction(function () use ($validated, $product, $request) {
+            // Handle thumbnail file upload
+            $thumbnailPath = $product->thumbnail;
+            if ($request->hasFile('thumbnail')) {
+                $file = $request->file('thumbnail');
+                $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $path = $file->storeAs('products/thumbnails', $filename, 'public');
+                $thumbnailPath = '/storage/' . $path;
+            } elseif (array_key_exists('thumbnail', $validated) && is_string($validated['thumbnail'])) {
+                $thumbnailPath = $validated['thumbnail'];
+            }
+
             $product->update([
                 'name' => $validated['name'] ?? $product->name,
                 'slug' => $this->resolveSlug($validated['slug'] ?? $validated['name'] ?? $product->name, $product->id),
@@ -82,12 +122,36 @@ class ProductController extends ApiController
                 'price' => $validated['price'] ?? $product->price,
                 'sale_price' => array_key_exists('sale_price', $validated) ? $validated['sale_price'] : $product->sale_price,
                 'stock' => $validated['stock'] ?? $product->stock,
-                'thumbnail' => $validated['thumbnail'] ?? $product->thumbnail,
+                'thumbnail' => $thumbnailPath,
                 'is_featured' => $validated['is_featured'] ?? $product->is_featured,
                 'is_active' => $validated['is_active'] ?? $product->is_active,
                 'category_id' => $validated['category_id'] ?? $product->category_id,
                 'brand_id' => $validated['brand_id'] ?? $product->brand_id,
             ]);
+
+            // Handle multiple product images - check both 'images' and validate presence
+            $images = $request->file('images', []);
+            if (!empty($images) && is_array($images)) {
+                // Delete old images
+                $product->images()->delete();
+                
+                // Store new images
+                foreach ($images as $index => $image) {
+                    if ($image && $image->isValid()) {
+                        $timestamp = time();
+                        $randomId = uniqid($index . '_', true);
+                        $filename = $timestamp . '_' . $randomId . '.' . $image->getClientOriginalExtension();
+                        $path = $image->storeAs('products/images', $filename, 'public');
+                        
+                        if ($path) {
+                            ProductImage::create([
+                                'product_id' => $product->id,
+                                'image_path' => '/storage/' . $path,
+                            ]);
+                        }
+                    }
+                }
+            }
 
             $this->syncRelations($product, $validated, true);
 
@@ -106,12 +170,12 @@ class ProductController extends ApiController
 
     private function validateProduct(Request $request, ?int $ignoreId = null, bool $isUpdate = false): array
     {
-        $nameRule = $isUpdate ? 'sometimes|required' : 'required';
-        $skuRule = $isUpdate ? 'sometimes|required' : 'required';
-        $priceRule = $isUpdate ? 'sometimes|required' : 'required';
-        $thumbnailRule = $isUpdate ? 'sometimes|required' : 'required';
-        $categoryRule = $isUpdate ? 'sometimes|required' : 'required';
-        $brandRule = $isUpdate ? 'sometimes|required' : 'required';
+        $nameRule = $isUpdate ? 'sometimes' : 'required';
+        $skuRule = $isUpdate ? 'sometimes' : 'required';
+        $priceRule = $isUpdate ? 'sometimes' : 'required';
+        $thumbnailRule = $isUpdate ? 'nullable' : 'required';
+        $categoryRule = $isUpdate ? 'sometimes' : 'required';
+        $brandRule = $isUpdate ? 'sometimes' : 'required';
         $uniqueSuffix = $ignoreId ? ',' . $ignoreId : '';
 
         return $request->validate([
@@ -123,13 +187,13 @@ class ProductController extends ApiController
             'price' => $priceRule . '|numeric|min:0',
             'sale_price' => 'nullable|numeric|min:0',
             'stock' => 'nullable|integer|min:0',
-            'thumbnail' => $thumbnailRule . '|string|max:255',
+            'thumbnail' => $thumbnailRule . '|image|mimes:jpeg,png,gif,webp|max:2048',
+            'images' => 'nullable|array',
+            'images.*' => 'image|mimes:jpeg,png,gif,webp|max:2048',
             'is_featured' => 'nullable|boolean',
             'is_active' => 'nullable|boolean',
             'category_id' => $categoryRule . '|exists:categories,id',
             'brand_id' => $brandRule . '|exists:brands,id',
-            'images' => 'nullable|array',
-            'images.*' => 'string|max:255',
             'attributes' => 'nullable|array',
             'attributes.*.name' => 'required_with:attributes|string|max:255',
             'attributes.*.value' => 'required_with:attributes|string|max:255',

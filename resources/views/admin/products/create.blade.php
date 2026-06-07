@@ -100,11 +100,28 @@
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label for="thumbnail" class="form-label">Ảnh đại diện (URL) <span class="text-danger">*</span></label>
-                        <input type="url" id="thumbnail" name="thumbnail" class="form-control @error('thumbnail') is-invalid @enderror" value="{{ old('thumbnail') }}" required>
-                        <small class="text-muted d-block mt-1">Nhập đường dẫn URL của ảnh sản phẩm</small>
+                    <!-- Ảnh Thumbnail -->
+                    <div class="mb-4">
+                        <label for="thumbnail" class="form-label">Ảnh Đại Diện (Ảnh Chính) <span class="text-danger">*</span></label>
+                        <input type="file" id="thumbnail" name="thumbnail" class="form-control @error('thumbnail') is-invalid @enderror" accept="image/*" required>
+                        <small class="text-muted d-block mt-1">Chọn ảnh chính của sản phẩm</small>
                         @error('thumbnail')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                        
+                        <div id="thumbnailPreview" class="mt-3" style="display: none;">
+                            <img id="thumbnailImage" src="" alt="Thumbnail Preview" class="img-fluid rounded" style="max-width: 300px; max-height: 300px; object-fit: cover;">
+                        </div>
+                    </div>
+
+                    <!-- Ảnh Chi Tiết Sản Phẩm -->
+                    <div class="mb-4">
+                        <label for="images" class="form-label">Ảnh Chi Tiết Sản Phẩm</label>
+                        <input type="file" id="images" name="images[]" class="form-control @error('images') is-invalid @enderror" accept="image/*" multiple>
+                        <small class="text-muted d-block mt-1">Chọn nhiều ảnh chi tiết (có thể chọn 0 hoặc nhiều ảnh)</small>
+                        @error('images')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+
+                        <div id="imagesPreview" class="mt-3 d-flex gap-2 flex-wrap">
+                            <!-- Preview images will appear here -->
+                        </div>
                     </div>
                 </div>
 
@@ -140,6 +157,55 @@
 
 @push('scripts')
 <script>
+    // Thumbnail preview
+    document.getElementById('thumbnail').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                document.getElementById('thumbnailImage').src = event.target.result;
+                document.getElementById('thumbnailPreview').style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Multiple images preview
+    document.getElementById('images').addEventListener('change', function(e) {
+        const previewContainer = document.getElementById('imagesPreview');
+        previewContainer.innerHTML = '';
+
+        const files = Array.from(e.target.files);
+        files.forEach((file, index) => {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const imgWrapper = document.createElement('div');
+                imgWrapper.className = 'position-relative';
+                imgWrapper.style.cssText = 'width: 100px; height: 100px;';
+                
+                const img = document.createElement('img');
+                img.src = event.target.result;
+                img.className = 'img-fluid rounded border';
+                img.style.cssText = 'width: 100%; height: 100%; object-fit: cover;';
+                
+                const removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.className = 'btn btn-sm btn-danger position-absolute top-0 end-0';
+                removeBtn.innerHTML = '&times;';
+                removeBtn.style.cssText = 'width: 24px; height: 24px; padding: 0; border-radius: 50%; margin: -5px -5px 0 0;';
+                removeBtn.onclick = function(e) {
+                    e.preventDefault();
+                    imgWrapper.remove();
+                };
+
+                imgWrapper.appendChild(img);
+                imgWrapper.appendChild(removeBtn);
+                previewContainer.appendChild(imgWrapper);
+            };
+            reader.readAsDataURL(file);
+        });
+    });
+
     async function submitForm() {
         const form = document.getElementById('productForm');
         const formData = new FormData(form);

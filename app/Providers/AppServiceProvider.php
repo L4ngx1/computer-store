@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\File;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +20,16 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Ensure storage directories exist for product images
+        $storagePaths = [
+            storage_path('app/public/products/thumbnails'),
+            storage_path('app/public/products/images'),
+        ];
+
+        foreach ($storagePaths as $path) {
+            if (!File::exists($path)) {
+                File::makeDirectory($path, 0755, true);
+            }
+        }
     }
 }

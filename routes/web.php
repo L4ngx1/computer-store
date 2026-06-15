@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AdminAuthController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Client\ProfileController;
 
 Route::get('/', function () {
     return view('client.home');
@@ -32,9 +34,8 @@ Route::prefix('page')->name('client.')->group(function () {
         return view('client.about');
     })->name('about');
 
-    Route::get('account', function () {
-        return view('client.account');
-    })->name('account');
+    Route::get('account', [ProfileController::class, 'show'])->name('account');
+    Route::put('account', [ProfileController::class, 'update'])->name('account.update');
 
     Route::get('cart', function () {
         return view('client.cart');
@@ -78,22 +79,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-        Route::prefix('users')->name('users.')->group(function () {
-            Route::get('/', function () {
-                return view('admin.users.index');
-            })->name('index');
-
-            Route::get('/create', function () {
-                return view('admin.users.form');
-            })->name('create');
-
-            Route::get('/{id}', function () {
-                return view('admin.users.show');
-            })->name('show');
-
-            Route::get('/{id}/edit', function () {
-                return view('admin.users.form');
-            })->name('edit');
+        Route::prefix('users')->name('users.')->controller(UserController::class)->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('/{user}', 'show')->name('show');
+            Route::get('/{user}/edit', 'edit')->name('edit');
+            Route::put('/{user}', 'update')->name('update');
+            Route::delete('/{user}', 'destroy')->name('destroy');
         });
 
         Route::prefix('categories')->name('categories.')->group(function () {

@@ -64,7 +64,11 @@
                             <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary p-1">2</span>
                         </span>
                     </a>
-                    <a class="btn border-0 fs-4 text-primary p-2" href="{{ route('login.form') }}" aria-label="Tài khoản"><i class="bi bi-person-circle"></i></a>
+                    @auth
+                        <a class="btn border-0 fs-4 text-primary p-2" href="{{ route('client.account') }}" aria-label="Tài khoản"><i class="bi bi-person-circle"></i></a>
+                    @else
+                        <a class="btn border-0 fs-4 text-primary p-2" href="{{ route('login.form') }}" aria-label="Tài khoản"><i class="bi bi-person-circle"></i></a>
+                    @endauth
                 </div>
             </div>
         </div>

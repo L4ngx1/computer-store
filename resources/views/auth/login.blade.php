@@ -11,6 +11,12 @@
                 <h1 class="h3 fw-bold mb-2">Khách hàng đã đăng kí</h1>
                 <p class="text-secondary mb-4">Nếu bạn đã có tài khoản, hãy đăng nhập bằng địa chỉ email của bạn.</p>
 
+                @if (session('success'))
+                    <div class="alert alert-success">
+                        {{ session('success') }}
+                    </div>
+                @endif
+
                 @if ($errors->any())
                     <div class="alert alert-danger">
                         {{ $errors->first() }}

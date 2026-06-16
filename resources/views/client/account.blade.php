@@ -21,21 +21,27 @@
             <!-- Sidebar Navigation -->
             <div class="col-lg-3 mb-4">
                 <div class="list-group sticky-top" style="top: 20px;">
-                    <a href="#account-info" class="list-group-item list-group-item-action active" data-bs-toggle="list">
+                    <a href="#" class="list-group-item list-group-item-action active" data-section="account">
                         <i class="bi bi-person me-2"></i> Thông tin tài khoản
                     </a>
-                    <a href="#contact-info" class="list-group-item list-group-item-action" data-bs-toggle="list">
+                    <a href="#" class="list-group-item list-group-item-action" data-section="contact">
                         <i class="bi bi-telephone me-2"></i> Thông tin liên hệ
                     </a>
-                    <a href="#address-info" class="list-group-item list-group-item-action" data-bs-toggle="list">
+                    <a href="#" class="list-group-item list-group-item-action" data-section="address">
                         <i class="bi bi-map me-2"></i> Địa chỉ
                     </a>
-                    <a href="#change-password" class="list-group-item list-group-item-action" data-bs-toggle="list">
+                    <a href="#" class="list-group-item list-group-item-action" data-section="password">
                         <i class="bi bi-shield-lock me-2"></i> Đổi mật khẩu
                     </a>
-                    <a href="#orders" class="list-group-item list-group-item-action" data-bs-toggle="list">
+                    <a href="#" class="list-group-item list-group-item-action" data-section="orders">
                         <i class="bi bi-box me-2"></i> Lịch sử đơn hàng
                     </a>
+                    <form action="{{ route('logout') }}" method="POST" class="mt-2">
+                        @csrf
+                        <button type="submit" class="list-group-item list-group-item-action list-group-item-danger w-100 text-start" style="border-top: 1px solid #dee2e6;">
+                            <i class="bi bi-box-arrow-right me-2"></i> Đăng xuất
+                        </button>
+                    </form>
                 </div>
             </div>
 
@@ -46,9 +52,9 @@
                     @method('PUT')
 
                     <!-- Account Information -->
-                    <div class="card shadow-sm mb-4">
+                    <div class="card shadow-sm mb-4" data-section-id="account">
                         <div class="card-header bg-light">
-                            <h5 class="mb-0" id="account-info">
+                            <h5 class="mb-0">
                                 <i class="bi bi-person"></i> Thông tin tài khoản
                             </h5>
                         </div>
@@ -84,9 +90,9 @@
                     </div>
 
                     <!-- Contact Information -->
-                    <div class="card shadow-sm mb-4">
+                    <div class="card shadow-sm mb-4" data-section-id="contact">
                         <div class="card-header bg-light">
-                            <h5 class="mb-0" id="contact-info">
+                            <h5 class="mb-0">
                                 <i class="bi bi-telephone"></i> Thông tin liên hệ
                             </h5>
                         </div>
@@ -103,9 +109,9 @@
                     </div>
 
                     <!-- Address Information -->
-                    <div class="card shadow-sm mb-4">
+                    <div class="card shadow-sm mb-4" data-section-id="address">
                         <div class="card-header bg-light">
-                            <h5 class="mb-0" id="address-info">
+                            <h5 class="mb-0">
                                 <i class="bi bi-map"></i> Địa chỉ
                             </h5>
                         </div>
@@ -122,9 +128,9 @@
                     </div>
 
                     <!-- Change Password -->
-                    <div class="card shadow-sm mb-4">
+                    <div class="card shadow-sm mb-4" data-section-id="password">
                         <div class="card-header bg-light">
-                            <h5 class="mb-0" id="change-password">
+                            <h5 class="mb-0">
                                 <i class="bi bi-shield-lock"></i> Đổi mật khẩu
                             </h5>
                         </div>
@@ -147,7 +153,7 @@
                     </div>
 
                     <!-- Save Button -->
-                    <div class="card shadow-sm">
+                    <div class="card shadow-sm" data-section-id="account contact address password">
                         <div class="card-body d-flex gap-2">
                             <button type="submit" class="btn btn-primary">
                                 <i class="bi bi-check-circle"></i> Lưu thay đổi
@@ -164,9 +170,9 @@
         <!-- Orders Section -->
         <div class="row mt-4">
             <div class="col-12">
-                <div class="card shadow-sm">
+                <div class="card shadow-sm" data-section-id="orders">
                     <div class="card-header bg-light">
-                        <h5 class="mb-0" id="orders">
+                        <h5 class="mb-0">
                             <i class="bi bi-box"></i> Lịch sử đơn hàng
                         </h5>
                     </div>
@@ -212,4 +218,62 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuItems = document.querySelectorAll('.list-group [data-section]');
+            const sections = document.querySelectorAll('[data-section-id]');
+            
+            function showSection(sectionName) {
+                // Hide all sections
+                sections.forEach(section => {
+                    const sectionIds = section.getAttribute('data-section-id');
+                    // Hide section unless it's multi-section (for Save Button)
+                    if (sectionIds && sectionIds.includes(' ')) {
+                        // Multi-section element (like Save Button) - only hide if current section is orders
+                        if (sectionName === 'orders') {
+                            section.style.display = 'none';
+                        } else {
+                            section.style.display = 'block';
+                        }
+                    } else {
+                        // Single section element
+                        section.style.display = 'none';
+                    }
+                });
+                
+                // Show the selected section
+                const selectedSection = document.querySelector(`[data-section-id="${sectionName}"]`);
+                if (selectedSection) {
+                    selectedSection.style.display = 'block';
+                    
+                    // Scroll to section smoothly
+                    setTimeout(() => {
+                        selectedSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 100);
+                }
+                
+                // Update active menu item
+                menuItems.forEach(item => {
+                    item.classList.remove('active');
+                });
+                const activeItem = document.querySelector(`[data-section="${sectionName}"]`);
+                if (activeItem) {
+                    activeItem.classList.add('active');
+                }
+            }
+            
+            // Add click handlers to menu items
+            menuItems.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const sectionName = this.getAttribute('data-section');
+                    showSection(sectionName);
+                });
+            });
+            
+            // Initialize - show only account section by default
+            showSection('account');
+        });
+    </script>
 @endsection

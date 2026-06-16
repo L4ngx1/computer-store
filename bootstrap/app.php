@@ -19,7 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->redirectGuestsTo(function ($request) {
             return $request->is('admin') || $request->is('admin/*')
                 ? route('admin.login')
-                : route('login');
+                : route('login.form');
         });
 
         $middleware->redirectUsersTo(function ($request) {

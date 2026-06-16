@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AdminAuthController;
+use App\Http\Controllers\Auth\ClientAuthController;
+use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\UserController;
@@ -11,39 +13,29 @@ Route::get('/', function () {
     return view('client.home');
 })->name('home');
 
-Route::get('/login', function () {
-    return view('auth.login');
-})->name('login.form');
+Route::get('/login', [ClientAuthController::class, 'create'])->name('login.form');
+Route::post('/login', [ClientAuthController::class, 'store'])->name('login.store');
 
-Route::get('/register', function () {
-    return view('auth.register');
-})->name('register.form');
+Route::get('/register', [RegisterController::class, 'create'])->name('register.form');
+Route::post('/register', [RegisterController::class, 'store'])->name('register.store');
 
-Route::post('/login', function () {
-    // Placeholder for login logic
-    return redirect('/');
-})->name('login.store');
+Route::post('/logout', [ClientAuthController::class, 'destroy'])->middleware('auth')->name('logout');
 
-Route::post('/register', function () {
-    // Placeholder for register logic
-    return redirect('/login');
-})->name('register.store');
-
-Route::prefix('page')->name('client.')->group(function () {
+Route::prefix('page')->name('client.')->middleware('auth')->group(function () {
     Route::get('about', function () {
         return view('client.about');
-    })->name('about');
+    })->withoutMiddleware('auth')->name('about');
 
     Route::get('account', [ProfileController::class, 'show'])->name('account');
     Route::put('account', [ProfileController::class, 'update'])->name('account.update');
 
     Route::get('cart', function () {
         return view('client.cart');
-    })->name('cart');
+    })->withoutMiddleware('auth')->name('cart');
 
     Route::get('catalog', function () {
         return view('client.catalog');
-    })->name('catalog');
+    })->withoutMiddleware('auth')->name('catalog');
 
     Route::get('checkout', function () {
         return view('client.checkout');
@@ -51,19 +43,19 @@ Route::prefix('page')->name('client.')->group(function () {
 
     Route::get('contact', function () {
         return view('client.contact');
-    })->name('contact');
+    })->withoutMiddleware('auth')->name('contact');
 
     Route::get('faq', function () {
         return view('client.faq');
-    })->name('faq');
+    })->withoutMiddleware('auth')->name('faq');
 
     Route::get('product', function () {
         return view('client.product');
-    })->name('product');
+    })->withoutMiddleware('auth')->name('product');
 
     Route::get('search', function () {
         return view('client.search');
-    })->name('search');
+    })->withoutMiddleware('auth')->name('search');
 });
 
 // Tạm comment middleware để test

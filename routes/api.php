@@ -10,9 +10,9 @@ use App\Http\Controllers\Api\Admin\ProductController;
 use App\Http\Controllers\Api\Admin\UserController;
 use Illuminate\Support\Facades\Route;
 
-Route::post('login', [AuthController::class, 'login'])->name('login');
-Route::post('logout', [AuthController::class, 'logout'])->name('logout');
-Route::post('register', [AuthController::class, 'register'])->name('register');
+Route::post('login', [AuthController::class, 'login'])->name('api.login');
+Route::post('logout', [AuthController::class, 'logout'])->middleware('auth')->name('api.logout');
+Route::post('register', [AuthController::class, 'register'])->name('api.register');
 Route::get('me', [AuthController::class, 'me'])->name('me');
 Route::patch('me', [AuthController::class, 'updateProfile'])->name('me.update');
 Route::patch('me/password', [AuthController::class, 'changePassword'])->name('me.password');

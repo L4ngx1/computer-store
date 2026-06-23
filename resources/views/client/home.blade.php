@@ -24,22 +24,22 @@
                 <span class="fw-semibold small" style="font-size: 12px;">Laptops</span>
             </div>
             <div class="p-3 border rounded-circle bg-light d-flex align-items-center justify-content-center" style="width: 100px; height: 100px; cursor: pointer;">
-                <span class="fw-semibold small" style="font-size: 12px;">PC Gaming</span>
+                <span class="fw-semibold small" style="font-size: 12px;">Máy tính chơi game</span>
             </div>
             <div class="p-3 border rounded-circle bg-light d-flex align-items-center justify-content-center" style="width: 100px; height: 100px; cursor: pointer;">
-                <span class="fw-semibold small" style="font-size: 12px;">Accessories</span>
+                <span class="fw-semibold small" style="font-size: 12px;">Linh kiện/ Phụ kiện</span>
             </div>
             <div class="p-3 border rounded-circle bg-light d-flex align-items-center justify-content-center" style="width: 100px; height: 100px; cursor: pointer;">
-                <span class="fw-semibold small" style="font-size: 12px;">Monitors</span>
+                <span class="fw-semibold small" style="font-size: 12px;">Màn hình</span>
             </div>
         </div>
     </section>
 
     <section class="mb-5">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="fw-bold" style="font-size: 22px; color: #000;">New Products</h2>
+            <h2 class="fw-bold" style="font-size: 22px; color: #000;">Sản phẩm mới</h2>
             <a href="{{ route('client.catalog') }}" class="text-decoration-underline small" style="color: #0156FF;">
-                See All Products
+                Xem tất cả sản phẩm
             </a>
         </div>
 
@@ -47,7 +47,7 @@
             @for($i = 0; $i < 4; $i++)
             <div class="col border-end border-bottom p-3 bg-white position-relative style-product-card">
                 <div class="d-flex align-items-center gap-1 mb-2">
-                    <span class="text-success" style="font-size: 11px;">● in stock</span>
+                    <span class="text-success" style="font-size: 11px;">● Còn hàng      </span>
                 </div>
 
                 <div class="text-center my-3">
@@ -68,7 +68,7 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <span class="fw-bold text-dark fs-5">$1,250.00</span>
                         <a href="{{ route('client.product') }}" class="btn btn-sm rounded-pill px-3 fw-semibold" style="border: 2px solid #0156FF; color: #0156FF; font-size: 12px;">
-                            Details
+                            Chi tiết
                         </a>
                     </div>
                 </div>

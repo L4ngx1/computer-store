@@ -1,32 +1,32 @@
 @extends('layouts.site')
 
-@section('title', 'Product Detail')
+@section('title', 'Chi tiết sản phẩm')
 
 @section('content')
 <div class="border-bottom sticky-top bg-white style-subnav" style="top: 0; z-index: 1020;">
     <div class="container d-flex justify-content-between align-items-center py-2">
         <ul class="nav gap-4 small fw-semibold">
             <li class="nav-item">
-                <a class="nav-link p-0 text-dark border-bottom border-primary border-2 pb-2 active" href="#">About Product</a>
+                <a class="nav-link p-0 text-dark border-bottom border-primary border-2 pb-2 active" href="#">Về sản phẩm</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link p-0 text-secondary pb-2" href="#">Details</a>
+                <a class="nav-link p-0 text-secondary pb-2" href="#">Chi tiết</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link p-0 text-secondary pb-2" href="#">Specs</a>
+                <a class="nav-link p-0 text-secondary pb-2" href="#">Thông số kỹ thuật</a>
             </li>
         </ul>
         <div class="d-flex align-items-center gap-3">
             <div class="small">
-                <span class="text-secondary small">On Sale from</span>
+                <span class="text-secondary small">Giá ưu đãi từ</span>
                 <span class="fw-bold text-dark d-block" style="font-size: 15px;">$3,299.00</span>
             </div>
             <div class="d-flex align-items-center bg-light border px-2 py-1 rounded">
-                <span class="small text-secondary me-2">Qty:</span>
+                <span class="small text-secondary me-2">SL:</span>
                 <input type="number" value="1" min="1" class="form-control form-control-sm text-center border-0 bg-transparent p-0" style="width: 30px; font-weight: bold;">
             </div>
             <button class="btn rounded-pill text-white px-4 fw-semibold btn-sm" style="background-color: #0156FF;">
-                Add to Cart
+                Thêm vào giỏ hàng
             </button>
             <button class="btn btn-warning rounded-pill px-3 fw-semibold btn-sm" style="background-color: #FFB800; border: none;">
                 PayPal
@@ -37,7 +37,7 @@
 
 <div class="container py-4">
     <div class="small text-secondary mb-4" style="font-size: 12px;">
-        Home <span class="mx-1">›</span> Laptops <span class="mx-1">›</span> <span class="text-dark">MSI Titan Series</span>
+        Trang chủ <span class="mx-1">›</span> Laptop <span class="mx-1">›</span> <span class="text-dark">MSI Titan Series</span>
     </div>
 
     <div class="row g-5 align-items-center">
@@ -46,16 +46,16 @@
                 MSI Titan GT77 HX 13VI
             </h1>
             <p class="text-primary small mb-4" style="color: #0156FF !important; cursor: pointer;">
-                Be the first to review this product
+                Hãy là người đầu tiên đánh giá sản phẩm này
             </p>
             
             <div class="pe-lg-5" style="font-size: 14px; line-height: 1.6; color: #000;">
-                <p>MSI Titan GT77 HX is the pinnacle of gaming laptops. Equipped with the latest Intel® Core™ i9-13980HX processor and NVIDIA® GeForce RTX™ 4090 graphics, it delivers desktop-level performance for hardcore gamers and professional creators alike.</p>
-                <p>Featuring a stunning 17.3" 4K Mini LED 144Hz display, Mechanical Cherry MX keyboard, and extreme cooling solution, the Titan GT77 HX redefines what is possible on a portable machine.</p>
+                <p>MSI Titan GT77 HX là đỉnh cao của dòng laptop gaming. Được trang bị bộ vi xử lý Intel® Core™ i9-13980HX mới nhất và đồ họa NVIDIA® GeForce RTX™ 4090, mang lại hiệu năng cấp độ máy tính để bàn cho cả game thủ chuyên nghiệp và những nhà sáng tạo nội dung.</p>
+                <p>Sở hữu màn hình 17.3" 4K Mini LED 144Hz tuyệt đẹp, bàn phím cơ Cherry MX và giải pháp tản nhiệt cực đỉnh, Titan GT77 HX định nghĩa lại mọi giới hạn trên một cỗ máy di động.</p>
             </div>
 
             <div class="mt-4">
-                <span class="small fw-semibold text-secondary d-block mb-2">Color options:</span>
+                <span class="small fw-semibold text-secondary d-block mb-2">Tùy chọn màu sắc:</span>
                 <div class="d-flex gap-2">
                     <span class="d-inline-block rounded-circle border border-dark" style="width: 20px; height: 20px; background-color: #000; cursor: pointer;"></span>
                     <span class="d-inline-block rounded-circle" style="width: 20px; height: 20px; background-color: #cccccc; cursor: pointer;"></span>
@@ -86,7 +86,7 @@
     </div>
 
     <div class="mt-5 p-4 rounded text-center small text-secondary" style="background-color: #F5F7FF;">
-        Have a question? <a href="#" class="text-primary fw-semibold text-decoration-none" style="color: #0156FF !important;">Contact Us</a> or call our experts at Shop Pty Ltd.
+        Bạn có thắc mắc? <a href="#" class="text-primary fw-semibold text-decoration-none" style="color: #0156FF !important;">Liên hệ với chúng tôi</a> hoặc gọi cho các chuyên gia của chúng tôi tại Shop Pty Ltd.
     </div>
 </div>
 @endsection

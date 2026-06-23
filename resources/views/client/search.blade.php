@@ -1,27 +1,27 @@
 @extends('layouts.site')
 
-@section('title', 'Search Results')
+@section('title', 'Kết quả tìm kiếm')
 
 @section('content')
 <div class="container py-4">
     <div class="small text-secondary mb-3" style="font-size: 12px;">
-        Home <span class="mx-1">›</span> <span class="text-dark">Search Results</span>
+        Trang chủ <span class="mx-1">›</span> <span class="text-dark">Kết quả tìm kiếm</span>
     </div>
 
     <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
         <div>
             <h1 class="fw-bold m-0" style="font-size: 24px; color: #000;">
-                Search results for: <span class="text-secondary fw-normal">"MSI"</span>
+                Kết quả tìm kiếm cho: <span class="text-secondary fw-normal">"MSI"</span>
             </h1>
-            <p class="text-muted small m-0 mt-1">Found 12 matching products</p>
+            <p class="text-muted small m-0 mt-1">Tìm thấy 12 sản phẩm phù hợp</p>
         </div>
         
         <div class="d-flex align-items-center gap-2 small">
-            <span class="text-secondary">Sort By:</span>
-            <select class="form-select form-select-sm bg-white border rounded-1" style="width: 130px; font-size: 13px;">
-                <option>Relevance</option>
-                <option>Price: Low to High</option>
-                <option>Price: High to Low</option>
+            <span class="text-secondary">Sắp xếp theo:</span>
+            <select class="form-select form-select-sm bg-white border rounded-1" style="width: 150px; font-size: 13px;">
+                <option>Sự phù hợp</option>
+                <option>Giá: Thấp đến Cao</option>
+                <option>Giá: Cao đến Thấp</option>
             </select>
         </div>
     </div>
@@ -30,7 +30,7 @@
         @for($i = 1; $i <= 8; $i++)
         <div class="col border-end border-bottom p-3 bg-white position-relative style-product-card">
             <div class="d-flex align-items-center gap-1 mb-2">
-                <span class="text-success" style="font-size: 11px;">● in stock</span>
+                <span class="text-success" style="font-size: 11px;">● Còn hàng</span>
             </div>
 
             <div class="text-center my-3">
@@ -51,7 +51,7 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <span class="fw-bold text-dark fs-5">$1,199.00</span>
                     <a href="{{ route('client.product') }}" class="btn btn-sm rounded-pill px-3 fw-semibold" style="border: 2px solid #0156FF; color: #0156FF; font-size: 12px;">
-                        Details
+                        Chi tiết
                     </a>
                 </div>
             </div>

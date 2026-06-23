@@ -38,16 +38,7 @@ class ProductController extends ApiController
     {
         $validated = $this->validateProduct($request, null, false);
 
-        $product = DB::transaction(function () use ($validated, $request) {
-            // Handle thumbnail file upload
-            $thumbnailPath = $validated['thumbnail'];
-            if ($request->hasFile('thumbnail')) {
-                $file = $request->file('thumbnail');
-                $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-                $path = $file->storeAs('products/thumbnails', $filename, 'public');
-                $thumbnailPath = '/storage/' . $path;
-            }
-
+        $product = DB::transaction(function () use ($validated) {
             $product = Product::create([
                 'name' => $validated['name'],
                 'slug' => $this->resolveSlug($validated['slug'] ?? $validated['name']),
@@ -153,7 +144,32 @@ class ProductController extends ApiController
                 }
             }
 
-            $this->syncRelations($product, $validated, true);
+            // Handle multiple product images
+            $images = $request->file('images', []);
+            if (!empty($images) && is_array($images)) {
+                // Delete old images
+                $product->images()->delete();
+                
+                // Store new images
+                foreach ($images as $index => $image) {
+                    if ($image && $image->isValid()) {
+                        $timestamp = time();
+                        $randomId = uniqid($index . '_', true);
+                        $filename = $timestamp . '_' . $randomId . '.' . $image->getClientOriginalExtension();
+                        $path = $image->storeAs('products/images', $filename, 'public');
+                        
+                        if ($path) {
+                            ProductImage::create([
+                                'product_id' => $product->id,
+                                'image_path' => '/storage/' . $path,
+                            ]);
+                        }
+                    }
+                }
+            }
+
+            // Sync attributes only (images are handled above via file upload)
+            $this->syncAttributesOnly($product, $validated, true);
 
             return $product;
         });
@@ -200,21 +216,35 @@ class ProductController extends ApiController
         ]);
     }
 
+    /**
+     * Dùng cho store(): sync cả images (path string) lẫn attributes
+     */
     private function syncRelations(Product $product, array $validated, bool $replaceExisting = false): void
     {
-        if (array_key_exists('images', $validated)) {
+        // Lưu ý: trong store(), images đã được upload và lưu trước khi gọi hàm này.
+        // syncRelations ở store chỉ được gọi khi validated['images'] là string paths (không dùng).
+        // Thực tế store() đã xử lý file images thủ công ở trên, nên bỏ qua ở đây.
+
+        if (array_key_exists('attributes', $validated)) {
             if ($replaceExisting) {
-                $product->images()->delete();
+                $product->attributes()->delete();
             }
 
-            foreach ($validated['images'] as $imagePath) {
-                ProductImage::create([
+            foreach ($validated['attributes'] as $attribute) {
+                ProductAttribute::create([
                     'product_id' => $product->id,
-                    'image_path' => $imagePath,
+                    'name' => $attribute['name'],
+                    'value' => $attribute['value'],
                 ]);
             }
         }
+    }
 
+    /**
+     * Dùng cho update(): chỉ sync attributes (images được xử lý riêng qua file upload)
+     */
+    private function syncAttributesOnly(Product $product, array $validated, bool $replaceExisting = false): void
+    {
         if (array_key_exists('attributes', $validated)) {
             if ($replaceExisting) {
                 $product->attributes()->delete();

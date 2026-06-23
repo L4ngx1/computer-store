@@ -38,7 +38,16 @@ class ProductController extends ApiController
     {
         $validated = $this->validateProduct($request, null, false);
 
-        $product = DB::transaction(function () use ($validated) {
+        $product = DB::transaction(function () use ($validated, $request) {
+            
+            $thumbnailPath = null;
+            if ($request->hasFile('thumbnail')) {
+                $file = $request->file('thumbnail');
+                $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $path = $file->storeAs('products/thumbnails', $filename, 'public');
+                $thumbnailPath = '/storage/' . $path;
+            }
+
             $product = Product::create([
                 'name' => $validated['name'],
                 'slug' => $this->resolveSlug($validated['slug'] ?? $validated['name']),
@@ -119,30 +128,6 @@ class ProductController extends ApiController
                 'category_id' => $validated['category_id'] ?? $product->category_id,
                 'brand_id' => $validated['brand_id'] ?? $product->brand_id,
             ]);
-
-            // Handle multiple product images - check both 'images' and validate presence
-            $images = $request->file('images', []);
-            if (!empty($images) && is_array($images)) {
-                // Delete old images
-                $product->images()->delete();
-                
-                // Store new images
-                foreach ($images as $index => $image) {
-                    if ($image && $image->isValid()) {
-                        $timestamp = time();
-                        $randomId = uniqid($index . '_', true);
-                        $filename = $timestamp . '_' . $randomId . '.' . $image->getClientOriginalExtension();
-                        $path = $image->storeAs('products/images', $filename, 'public');
-                        
-                        if ($path) {
-                            ProductImage::create([
-                                'product_id' => $product->id,
-                                'image_path' => '/storage/' . $path,
-                            ]);
-                        }
-                    }
-                }
-            }
 
             // Handle multiple product images
             $images = $request->file('images', []);

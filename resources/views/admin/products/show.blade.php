@@ -31,14 +31,6 @@
                              class="img-fluid rounded"
                              style="width: 100%; height: 280px; object-fit: cover;">
                     </div>
-                    <div class="card-body">
-                        <div class="row g-2">
-                            @foreach($product->images as $image)
-                            <div class="col-md-6">
-                                <img src="{{ asset('storage/' . $image->image_path) }}" alt="Product image" class="img-fluid rounded">
-                            </div>
-                            @endforeach
-</div>
 
                     {{-- Thumbnail strip: thumbnail + ảnh chi tiết --}}
                     <div class="d-flex gap-2 flex-wrap justify-content-center">

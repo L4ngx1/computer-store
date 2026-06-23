@@ -259,10 +259,11 @@
     async function submitForm() {
         const form = document.getElementById('productForm');
         const formData = new FormData(form);
+        formData.set('_method', 'PATCH');
         
         try {
             const response = await fetch('/api/admin/products/{{ $product->id }}', {
-                method: 'PATCH',
+                method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                     'Accept': 'application/json'

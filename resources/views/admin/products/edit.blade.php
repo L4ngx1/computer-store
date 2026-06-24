@@ -1,19 +1,19 @@
-@extends('layouts.app')
+@extends('admin.master')
+
+@section('title', 'Chỉnh sửa sản phẩm')
 
 @section('content')
-<div class="container-fluid py-4">
-    <div class="row mb-4">
-        <div class="col-md-8">
-            <h1 class="h3 mb-0"> Chỉnh sửa Sản phẩm</h1>
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+        <div>
+            <p class="text-uppercase text-muted small mb-1">Admin / Products</p>
+            <h1 class="h3 mb-0">Chỉnh sửa Sản phẩm</h1>
         </div>
-        <div class="col-md-4 text-end">
-            <a href="{{ route('admin.products.index') }}" class="btn btn-secondary">
-                <i class="bi bi-arrow-left"></i> Quay lại
-            </a>
-        </div>
+        <a href="{{ route('admin.products.index') }}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Quay lại
+        </a>
     </div>
 
-    <div class="card shadow-sm">
+    <div class="card border-0 shadow-sm">
         <div class="card-body">
             <form id="productForm" method="POST">
                 @csrf
@@ -195,8 +195,6 @@
             </form>
         </div>
     </div>
-</div>
-
 @push('scripts')
 <script>
     // Thumbnail preview

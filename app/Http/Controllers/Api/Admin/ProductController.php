@@ -31,7 +31,7 @@ class ProductController extends ApiController
 
         $products = $query->paginate($perPage)->withQueryString();
 
-        return $this->paginated($products, 'Lấy danh sách sản phẩm thành công.');
+        return $this->paginated($products, 'Lay danh sach san pham thanh cong.');
     }
 
     public function store(Request $request): JsonResponse
@@ -39,13 +39,8 @@ class ProductController extends ApiController
         $validated = $this->validateProduct($request, null, false);
 
         $product = DB::transaction(function () use ($validated, $request) {
-<<<<<<< HEAD
-            // Handle thumbnail file upload
-            $thumbnailPath = $validated['thumbnail'];
-=======
-            
             $thumbnailPath = null;
->>>>>>> origin/main
+
             if ($request->hasFile('thumbnail')) {
                 $file = $request->file('thumbnail');
                 $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
@@ -69,37 +64,18 @@ class ProductController extends ApiController
                 'brand_id' => $validated['brand_id'],
             ]);
 
-            // Handle multiple product images
-            $images = $request->file('images', []);
-            if (!empty($images) && is_array($images)) {
-                foreach ($images as $index => $image) {
-                    if ($image && $image->isValid()) {
-                        $timestamp = time();
-                        $randomId = uniqid($index . '_', true);
-                        $filename = $timestamp . '_' . $randomId . '.' . $image->getClientOriginalExtension();
-                        $path = $image->storeAs('products/images', $filename, 'public');
-                        
-                        if ($path) {
-                            ProductImage::create([
-                                'product_id' => $product->id,
-                                'image_path' => '/storage/' . $path,
-                            ]);
-                        }
-                    }
-                }
-            }
-
-            $this->syncRelations($product, $validated);
+            $this->storeUploadedImages($request, $product);
+            $this->syncAttributes($product, $validated);
 
             return $product;
         });
 
-        return $this->success($product->load(['category', 'brand', 'images', 'attributes']), 'Tạo sản phẩm thành công.', 201);
+        return $this->success($product->load(['category', 'brand', 'images', 'attributes']), 'Tao san pham thanh cong.', 201);
     }
 
     public function show(Product $product): JsonResponse
     {
-        return $this->success($product->load(['category', 'brand', 'images', 'attributes']), 'Lấy chi tiết sản phẩm thành công.');
+        return $this->success($product->load(['category', 'brand', 'images', 'attributes']), 'Lay chi tiet san pham thanh cong.');
     }
 
     public function update(Request $request, Product $product): JsonResponse
@@ -107,15 +83,13 @@ class ProductController extends ApiController
         $validated = $this->validateProduct($request, $product->id, true);
 
         $product = DB::transaction(function () use ($validated, $product, $request) {
-            // Handle thumbnail file upload
             $thumbnailPath = $product->thumbnail;
+
             if ($request->hasFile('thumbnail')) {
                 $file = $request->file('thumbnail');
                 $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
                 $path = $file->storeAs('products/thumbnails', $filename, 'public');
                 $thumbnailPath = '/storage/' . $path;
-            } elseif (array_key_exists('thumbnail', $validated) && is_string($validated['thumbnail'])) {
-                $thumbnailPath = $validated['thumbnail'];
             }
 
             $product->update([
@@ -134,52 +108,24 @@ class ProductController extends ApiController
                 'brand_id' => $validated['brand_id'] ?? $product->brand_id,
             ]);
 
-<<<<<<< HEAD
-            // Handle multiple product images - check both 'images' and validate presence
-=======
-            // Handle multiple product images
->>>>>>> origin/main
-            $images = $request->file('images', []);
-            if (!empty($images) && is_array($images)) {
-                // Delete old images
+            if ($request->hasFile('images')) {
                 $product->images()->delete();
-                
-                // Store new images
-                foreach ($images as $index => $image) {
-                    if ($image && $image->isValid()) {
-                        $timestamp = time();
-                        $randomId = uniqid($index . '_', true);
-                        $filename = $timestamp . '_' . $randomId . '.' . $image->getClientOriginalExtension();
-                        $path = $image->storeAs('products/images', $filename, 'public');
-                        
-                        if ($path) {
-                            ProductImage::create([
-                                'product_id' => $product->id,
-                                'image_path' => '/storage/' . $path,
-                            ]);
-                        }
-                    }
-                }
+                $this->storeUploadedImages($request, $product);
             }
 
-<<<<<<< HEAD
-            $this->syncRelations($product, $validated, true);
-=======
-            // Sync attributes only (images are handled above via file upload)
-            $this->syncAttributesOnly($product, $validated, true);
->>>>>>> origin/main
+            $this->syncAttributes($product, $validated, true);
 
             return $product;
         });
 
-        return $this->success($product->fresh()->load(['category', 'brand', 'images', 'attributes']), 'Cập nhật sản phẩm thành công.');
+        return $this->success($product->fresh()->load(['category', 'brand', 'images', 'attributes']), 'Cap nhat san pham thanh cong.');
     }
 
     public function destroy(Product $product): JsonResponse
     {
         $product->delete();
 
-        return $this->success(null, 'Xóa sản phẩm thành công.');
+        return $this->success(null, 'Xoa san pham thanh cong.');
     }
 
     private function validateProduct(Request $request, ?int $ignoreId = null, bool $isUpdate = false): array
@@ -214,65 +160,47 @@ class ProductController extends ApiController
         ]);
     }
 
-<<<<<<< HEAD
-    private function syncRelations(Product $product, array $validated, bool $replaceExisting = false): void
+    private function storeUploadedImages(Request $request, Product $product): void
     {
-        if (array_key_exists('images', $validated)) {
-            if ($replaceExisting) {
-                $product->images()->delete();
-            }
+        $images = $request->file('images', []);
 
-            foreach ($validated['images'] as $imagePath) {
-                ProductImage::create([
-                    'product_id' => $product->id,
-                    'image_path' => $imagePath,
-                ]);
-            }
+        if (! is_array($images)) {
+            return;
         }
 
-=======
-    /**
-     * Dùng cho store(): sync cả images (path string) lẫn attributes
-     */
-    private function syncRelations(Product $product, array $validated, bool $replaceExisting = false): void
-    {
-        // Lưu ý: trong store(), images đã được upload và lưu trước khi gọi hàm này.
-        // syncRelations ở store chỉ được gọi khi validated['images'] là string paths (không dùng).
-        // Thực tế store() đã xử lý file images thủ công ở trên, nên bỏ qua ở đây.
-
-        if (array_key_exists('attributes', $validated)) {
-            if ($replaceExisting) {
-                $product->attributes()->delete();
+        foreach ($images as $index => $image) {
+            if (! $image || ! $image->isValid()) {
+                continue;
             }
 
-            foreach ($validated['attributes'] as $attribute) {
-                ProductAttribute::create([
+            $filename = time() . '_' . uniqid($index . '_', true) . '.' . $image->getClientOriginalExtension();
+            $path = $image->storeAs('products/images', $filename, 'public');
+
+            if ($path) {
+                ProductImage::create([
                     'product_id' => $product->id,
-                    'name' => $attribute['name'],
-                    'value' => $attribute['value'],
+                    'image_path' => '/storage/' . $path,
                 ]);
             }
         }
     }
 
-    /**
-     * Dùng cho update(): chỉ sync attributes (images được xử lý riêng qua file upload)
-     */
-    private function syncAttributesOnly(Product $product, array $validated, bool $replaceExisting = false): void
+    private function syncAttributes(Product $product, array $validated, bool $replaceExisting = false): void
     {
->>>>>>> origin/main
-        if (array_key_exists('attributes', $validated)) {
-            if ($replaceExisting) {
-                $product->attributes()->delete();
-            }
+        if (! array_key_exists('attributes', $validated)) {
+            return;
+        }
 
-            foreach ($validated['attributes'] as $attribute) {
-                ProductAttribute::create([
-                    'product_id' => $product->id,
-                    'name' => $attribute['name'],
-                    'value' => $attribute['value'],
-                ]);
-            }
+        if ($replaceExisting) {
+            $product->attributes()->delete();
+        }
+
+        foreach ($validated['attributes'] as $attribute) {
+            ProductAttribute::create([
+                'product_id' => $product->id,
+                'name' => $attribute['name'],
+                'value' => $attribute['value'],
+            ]);
         }
     }
 
@@ -283,9 +211,10 @@ class ProductController extends ApiController
         $index = 1;
 
         while (Product::query()
-            ->when($ignoreId, fn ($query) => $query->where('id', '!=', $ignoreId))
+            ->when($ignoreId, fn($query) => $query->where('id', '!=', $ignoreId))
             ->where('slug', $slug)
-            ->exists()) {
+            ->exists()
+        ) {
             $slug = $baseSlug . '-' . $index;
             $index++;
         }

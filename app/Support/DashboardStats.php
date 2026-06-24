@@ -43,26 +43,22 @@ class DashboardStats
         ];
     }
 
-<<<<<<< HEAD
-=======
+    private function completedRevenueToday(): mixed
+    {
+        return Order::where('status', 'completed')
+            ->whereDate('created_at', Carbon::today())
+            ->sum('total_amount');
+    }
 
->>>>>>> origin/main
-   private function completedRevenueToday(): mixed
-{
-    return Order::where('status', 'completed')
-        ->whereDate('created_at', Carbon::today())
-        ->sum('total_amount');
-}
+    private function completedRevenueThisMonth(): mixed
+    {
+        $now = Carbon::now();
 
-private function completedRevenueThisMonth(): mixed
-{
-    $now = Carbon::now();
-
-    return Order::where('status', 'completed')
-        ->whereBetween('created_at', [
-            $now->copy()->startOfMonth(),
-            $now->copy()->endOfMonth()
-        ])
-        ->sum('total_amount');
-}
+        return Order::where('status', 'completed')
+            ->whereBetween('created_at', [
+                $now->copy()->startOfMonth(),
+                $now->copy()->endOfMonth(),
+            ])
+            ->sum('total_amount');
+    }
 }

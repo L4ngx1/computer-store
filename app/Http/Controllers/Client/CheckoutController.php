@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class CheckoutController extends Controller
 {
@@ -35,7 +36,7 @@ class CheckoutController extends Controller
             'address'    => 'required|string',
             'city'       => 'required|string',
             'zip'        => 'required|string',
-            'phone'      => ['required','regex:/^[0-9]+$/'],
+            'phone'      => ['required', 'regex:/^[0-9]+$/'],
             'shipping'   => 'required|in:standard,pickup',
         ]);
 
@@ -49,7 +50,7 @@ class CheckoutController extends Controller
         $products = Product::whereIn('id', array_keys($cart))->get();
 
         $order = Order::create([
-            'user_id' => auth()->id(),
+            'user_id' => Auth::id(),
             'customer_name' => $request->first_name . ' ' . $request->last_name,
             'customer_email' => $request->email,
             'customer_phone' => $request->phone,

@@ -114,7 +114,7 @@
                         <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.faq') }}">Tìm kiếm</a></li>
                         <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.faq') }}">Điều khoản</a></li>
                         <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.account') }}">Đơn hàng & đổi trả</a></li>
-                        <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.contact') }}">Hỗ trợ</a></li>
+                        <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.faq') }}">Hỗ trợ</a></li>
                         <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.search') }}">Tìm kiếm nâng cao</a></li>
                     </ul>
                 </div>

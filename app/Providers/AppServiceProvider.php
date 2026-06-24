@@ -4,10 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\File;
-<<<<<<< HEAD
-=======
 use Illuminate\Pagination\Paginator;
->>>>>>> origin/main
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -24,12 +21,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-<<<<<<< HEAD
-=======
+        // Cấu hình sử dụng giao diện Bootstrap 5 cho hệ thống phân trang (Kéo từ main về)
         Paginator::useBootstrapFive();
 
->>>>>>> origin/main
-        // Ensure storage directories exist for product images
+        // Tự động kiểm tra và tạo các thư mục lưu trữ hình ảnh sản phẩm nếu chưa tồn tại
         $storagePaths = [
             storage_path('app/public/products/thumbnails'),
             storage_path('app/public/products/images'),

@@ -41,7 +41,7 @@
                 <span class="badge text-bg-primary rounded-3 fs-5 p-2"><i class="bi bi-layers-fill"></i></span>
             </a>
 
->>>>>>> origin/main
+
             <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#siteNavbar" aria-controls="siteNavbar" aria-expanded="false" aria-label="Mở menu">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -95,9 +95,9 @@
                 <div class="col-12 col-md-4">
                     <span class="badge text-bg-primary rounded-circle fs-4 p-3 mb-3"><i class="bi bi-person-circle"></i></span>
 
-=======
+
                     <h2 class="h6 fw-bold mb-2">Tài khoản cá nhân</h2>
->>>>>>> origin/main
+
                     <p class="text-secondary small mb-0 mx-auto w-75">Nhận ưu đãi lớn, giao hàng miễn phí và hỗ trợ riêng cho thành viên.</p>
                 </div>
                 <div class="col-12 col-md-4">
@@ -121,7 +121,7 @@
                         <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.faq') }}">Tìm kiếm</a></li>
                         <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.faq') }}">Điều khoản</a></li>
                         <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.account') }}">Đơn hàng & đổi trả</a></li>
-                        <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.contact') }}">Hỗ trợ</a></li>
+                        <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.faq') }}">Hỗ trợ</a></li>
                         <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.search') }}">Tìm kiếm nâng cao</a></li>
                     </ul>
                 </div>

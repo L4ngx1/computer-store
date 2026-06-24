@@ -38,7 +38,7 @@
 
                     <div class="d-flex flex-wrap align-items-center gap-3">
                         <button type="submit" class="btn btn-primary rounded-pill px-4 py-2">Đăng nhập</button>
-                        <a href="#" class="text-primary fw-semibold text-decoration-none">Quên mật khẩu?</a>
+                        <a href="{{ route('password.request') }}" class="text-primary fw-semibold text-decoration-none">Quên mật khẩu?</a>
                     </div>
                 </form>
             </section>

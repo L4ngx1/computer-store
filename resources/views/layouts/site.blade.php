@@ -34,12 +34,14 @@
         </div>
     </div>
 
-    <nav class="navbar navbar-expand-xl bg-white border-bottom shadow-sm py-2">
+
+    <nav class="navbar navbar-expand-xl bg-white border-bottom py-2">
         <div class="container-xxl">
-            <a class="navbar-brand fw-bold fs-3 text-primary text-decoration-none"
-   href="{{ route('home') }}">
-    TechStore
-</a>
+            <a class="navbar-brand me-xl-5" href="{{ route('home') }}" aria-label="Trang chủ">
+                <span class="badge text-bg-primary rounded-3 fs-5 p-2"><i class="bi bi-layers-fill"></i></span>
+            </a>
+
+>>>>>>> origin/main
             <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#siteNavbar" aria-controls="siteNavbar" aria-expanded="false" aria-label="Mở menu">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -57,14 +59,9 @@
                 </ul>
 
                 <div class="d-flex align-items-center gap-2">
-                   <form class="d-none d-lg-flex me-3">
-    <input
-        type="text"
-        class="form-control"
-        placeholder="Tìm laptop, linh kiện..."
-        style="width:260px">
-</form>
-            <i class="bi bi-search"></i></button>
+
+                    <button type="button" class="btn border-0 fs-5 p-2" aria-label="Tìm kiếm"><i class="bi bi-search"></i></button>
+
                     <a class="btn border-0 fs-5 p-2 position-relative" href="{{ route('client.cart') }}" aria-label="Giỏ hàng">
                         <span class="d-inline-block position-relative">
                             <i class="bi bi-cart3"></i>
@@ -97,7 +94,10 @@
                 </div>
                 <div class="col-12 col-md-4">
                     <span class="badge text-bg-primary rounded-circle fs-4 p-3 mb-3"><i class="bi bi-person-circle"></i></span>
-                    <h2 class="h6 fw-bold mb-2  ">Tài khoản cá nhân</h2>
+
+=======
+                    <h2 class="h6 fw-bold mb-2">Tài khoản cá nhân</h2>
+>>>>>>> origin/main
                     <p class="text-secondary small mb-0 mx-auto w-75">Nhận ưu đãi lớn, giao hàng miễn phí và hỗ trợ riêng cho thành viên.</p>
                 </div>
                 <div class="col-12 col-md-4">

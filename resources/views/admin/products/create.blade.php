@@ -100,6 +100,7 @@
                         </div>
                     </div>
 
+<<<<<<< HEAD
                     <!-- Ảnh Thumbnail -->
                     <div class="mb-4">
                         <label for="thumbnail" class="form-label">Ảnh Đại Diện (Ảnh Chính) <span class="text-danger">*</span></label>
@@ -123,6 +124,35 @@
                             <!-- Preview images will appear here -->
                         </div>
                     </div>
+=======
+           
+                    <!-- Ảnh Thumbnail -->
+                    
+                        
+                            <div class="mb-4">
+                            <label for="thumbnail" class="form-label">Ảnh Đại Diện (Ảnh Chính) <span class="text-danger">*</span></label>
+                            <input type="file" id="thumbnail" name="thumbnail" class="form-control @error('thumbnail') is-invalid @enderror" accept="image/png, image/jpeg , image/webp" required>
+                            <small class="text-muted d-block mt-1">Chọn ảnh chính của sản phẩm</small>
+                            @error('thumbnail')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                            
+                            <div id="thumbnailPreview" class="mt-3" style="display: none;">
+                                <img id="thumbnailImage" src="" alt="Thumbnail Preview" class="img-fluid rounded" style="max-width: 300px; max-height: 300px; object-fit: cover;">
+                            </div>
+                        </div>
+
+                        <!-- Ảnh Chi Tiết Sản Phẩm -->
+                        <div class="mb-4">
+                            <label for="images" class="form-label">Ảnh Chi Tiết Sản Phẩm</label>
+                            <input type="file" id="images" name="images[]" class="form-control @error('images') is-invalid @enderror" accept="image/png, image/jpeg , image/webp" multiple>
+                            <small class="text-muted d-block mt-1">Chọn nhiều ảnh chi tiết (có thể chọn 0 hoặc nhiều ảnh)</small>
+                            @error('images')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+
+                            <div id="imagesPreview" class="mt-3 d-flex gap-2 flex-wrap">
+                                <!-- Preview images will appear here -->
+                            </div>
+                        </div>
+                    
+>>>>>>> origin/main
                 </div>
 
                 <div class="mb-4">

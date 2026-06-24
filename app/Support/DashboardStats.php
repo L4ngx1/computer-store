@@ -43,6 +43,10 @@ class DashboardStats
         ];
     }
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/main
    private function completedRevenueToday(): mixed
 {
     return Order::where('status', 'completed')

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 @extends('layouts.app')
 
 @section('content')
@@ -14,6 +15,24 @@
     </div>
 
     <div class="card shadow-sm">
+=======
+@extends('admin.master')
+
+@section('title', 'Chỉnh sửa sản phẩm')
+
+@section('content')
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+        <div>
+            <p class="text-uppercase text-muted small mb-1">Admin / Products</p>
+            <h1 class="h3 mb-0">Chỉnh sửa Sản phẩm</h1>
+        </div>
+        <a href="{{ route('admin.products.index') }}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Quay lại
+        </a>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+>>>>>>> origin/main
         <div class="card-body">
             <form id="productForm" method="POST">
                 @csrf
@@ -195,8 +214,11 @@
             </form>
         </div>
     </div>
+<<<<<<< HEAD
 </div>
 
+=======
+>>>>>>> origin/main
 @push('scripts')
 <script>
     // Thumbnail preview
@@ -259,10 +281,18 @@
     async function submitForm() {
         const form = document.getElementById('productForm');
         const formData = new FormData(form);
+<<<<<<< HEAD
         
         try {
             const response = await fetch('/api/admin/products/{{ $product->id }}', {
                 method: 'PATCH',
+=======
+        formData.set('_method', 'PATCH');
+        
+        try {
+            const response = await fetch('/api/admin/products/{{ $product->id }}', {
+                method: 'POST',
+>>>>>>> origin/main
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                     'Accept': 'application/json'
@@ -285,4 +315,8 @@
     }
 </script>
 @endpush
+<<<<<<< HEAD
 @endsection
+=======
+@endsection
+>>>>>>> origin/main

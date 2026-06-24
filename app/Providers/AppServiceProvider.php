@@ -4,6 +4,10 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\File;
+<<<<<<< HEAD
+=======
+use Illuminate\Pagination\Paginator;
+>>>>>>> origin/main
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -20,6 +24,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+<<<<<<< HEAD
+=======
+        Paginator::useBootstrapFive();
+
+>>>>>>> origin/main
         // Ensure storage directories exist for product images
         $storagePaths = [
             storage_path('app/public/products/thumbnails'),

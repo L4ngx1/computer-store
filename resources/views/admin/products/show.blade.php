@@ -20,6 +20,7 @@
 
     <div class="row g-4">
         <div class="col-md-4">
+<<<<<<< HEAD
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-body text-center">
                     <img src="{{ $product->thumbnail }}" alt="{{ $product->name }}" class="img-fluid rounded mb-3" style="max-height: 400px;">
@@ -44,6 +45,50 @@
                     </div>
                 </div>
             @endif
+=======
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-3">
+
+                    {{-- Ảnh lớn chính --}}
+                    <div class="mb-3">
+                        <img id="mainImage"
+                             src="{{ $product->thumbnail }}"
+                             alt="{{ $product->name }}"
+                             class="img-fluid rounded"
+                             style="width: 100%; height: 280px; object-fit: cover;">
+                    </div>
+
+                    {{-- Thumbnail strip: thumbnail + ảnh chi tiết --}}
+                    <div class="d-flex gap-2 flex-wrap justify-content-center">
+                        {{-- Ảnh chính (thumbnail) --}}
+                        <div class="gallery-thumb active-thumb" onclick="switchImage(this, '{{ $product->thumbnail }}')"
+                             style="cursor:pointer; width:70px; height:70px; flex-shrink:0;">
+                            <img src="{{ $product->thumbnail }}"
+                                 class="img-fluid rounded"
+                                 style="width:100%; height:100%; object-fit:cover;">
+                        </div>
+
+                        {{-- Ảnh chi tiết --}}
+                        @foreach($product->images as $image)
+                        <div class="gallery-thumb" onclick="switchImage(this, '{{ $image->image_path }}')"
+                             style="cursor:pointer; width:70px; height:70px; flex-shrink:0;">
+                            <img src="{{ $image->image_path }}"
+                                 class="img-fluid rounded"
+                                 style="width:100%; height:100%; object-fit:cover;">
+                        </div>
+                        @endforeach
+                    </div>
+
+                    {{-- Info --}}
+                    <div class="text-center mt-3">
+                        <p class="text-muted small mb-1">ID sản phẩm: {{ $product->id }} &nbsp;|&nbsp; {{ $product->images->count() }} ảnh chi tiết</p>
+                        <h5 class="card-title mb-1">{{ $product->name }}</h5>
+                        <p class="text-muted mb-0"><code>{{ $product->sku }}</code></p>
+                    </div>
+
+                </div>
+            </div>
+>>>>>>> origin/main
         </div>
 
         <div class="col-md-8">
@@ -195,5 +240,50 @@
                 </div>
             </div>
         </div>
+<<<<<<< HEAD
     </div>
 @endsection
+=======
+@endsection
+
+@push('styles')
+<style>
+    .gallery-thumb {
+        border: 2px solid transparent;
+        border-radius: 6px;
+        overflow: hidden;
+        transition: border-color 0.2s, opacity 0.2s;
+        opacity: 0.75;
+    }
+    .gallery-thumb:hover {
+        border-color: #aaa;
+        opacity: 1;
+    }
+    .gallery-thumb.active-thumb {
+        border-color: #dc3545;
+        opacity: 1;
+    }
+    #mainImage {
+        transition: opacity 0.2s ease;
+    }
+</style>
+@endpush
+
+@push('scripts')
+<script>
+    function switchImage(el, src) {
+        // Đổi ảnh lớn
+        const main = document.getElementById('mainImage');
+        main.style.opacity = '0';
+        setTimeout(() => {
+            main.src = src;
+            main.style.opacity = '1';
+        }, 150);
+
+        // Bỏ active tất cả thumb, thêm cho thumb được click
+        document.querySelectorAll('.gallery-thumb').forEach(t => t.classList.remove('active-thumb'));
+        el.classList.add('active-thumb');
+    }
+</script>
+@endpush
+>>>>>>> origin/main

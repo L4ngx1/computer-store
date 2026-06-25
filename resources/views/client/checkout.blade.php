@@ -59,7 +59,7 @@
                             <div class="col-md-6 mb-3"><label>Tên *</label><input type="text" name="last_name" class="form-control" value="{{ old('last_name') }}" required></div>
                             <div class="col-md-6 mb-3"><label>Email *</label><input type="email" name="email" class="form-control" value="{{ old('email') }}" required></div>
                             <div class="col-md-6 mb-3"><label>Số điện thoại *</label><input type="text" name="phone" class="form-control" value="{{ old('phone') }}" required></div>
-                            <div class="col-md-6 mb-3"><label>Công ty *</label><input type="text" name="company" class="form-control" value="{{ old('company') }}" required></div>
+                            <div class="col-md-6 mb-3"><label>Công ty</label><input type="text" name="company" class="form-control" value="{{ old('company') }}"></div>
                             <div class="col-md-6 mb-3"><label>Mã ZIP *</label><input type="text" name="zip" class="form-control" value="{{ old('zip') }}" required></div>
                             <div class="col-12 mb-3"><label>Địa chỉ *</label><textarea name="address" class="form-control" required>{{ old('address') }}</textarea></div>
                             <div class="col-12 mb-3"><label>Thành phố *</label><input type="text" name="city" class="form-control" value="{{ old('city') }}" required></div>

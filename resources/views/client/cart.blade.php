@@ -40,7 +40,7 @@
                                 <div class="row align-items-center g-3">
                                     <div class="col-12 col-md-2 text-center">
                                         <a href="{{ route('client.product', $item->product->slug) }}">
-                                            <img src="{{ $item->product->thumbnail ? Storage::url($item->product->thumbnail) : 'https://via.placeholder.com/100' }}" alt="{{ $item->product->name }}" class="img-fluid rounded" style="max-height: 80px; object-fit: contain;">
+                                            <img src="{{ $item->product->thumbnail ? $item->product->thumbnail : 'https://via.placeholder.com/100' }}" alt="{{ $item->product->name }}" class="img-fluid rounded" style="max-height: 80px; object-fit: contain;">
                                         </a>
                                     </div>
                                     <div class="col-12 col-md-4">

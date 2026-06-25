@@ -24,7 +24,7 @@
                         </span>
                     @endif
                     @if($product->thumbnail)
-                        <img src="{{ Storage::url($product->thumbnail) }}" alt="{{ $product->name }}" class="main-product-image" id="mainProductImage">
+                        <img src="{{ $product->thumbnail }}" alt="{{ $product->name }}" class="main-product-image" id="mainProductImage">
                     @else
                         <div class="main-product-image-placeholder">
                             <i class="bi bi-image text-muted"></i>
@@ -37,15 +37,15 @@
                 <div class="row g-2" id="thumbnail-gallery">
                     @if($product->thumbnail)
                     <div class="col-auto">
-                        <div class="product-thumbnail-item active" onclick="changeImage('{{ Storage::url($product->thumbnail) }}', this)">
-                            <img src="{{ Storage::url($product->thumbnail) }}" alt="Thumbnail">
+                        <div class="product-thumbnail-item active" onclick="changeImage('{{ $product->thumbnail }}', this)">
+                            <img src="{{ $product->thumbnail }}" alt="Thumbnail">
                         </div>
                     </div>
                     @endif
                     @foreach($product->images as $img)
                         <div class="col-auto">
-                            <div class="product-thumbnail-item" onclick="changeImage('{{ Storage::url($img->image_path) }}', this)">
-                                <img src="{{ Storage::url($img->image_path) }}" alt="Image">
+                            <div class="product-thumbnail-item" onclick="changeImage('{{ $img->image_path }}', this)">
+                                <img src="{{ $img->image_path }}" alt="Image">
                             </div>
                         </div>
                     @endforeach
@@ -145,7 +145,7 @@
                         <a href="{{ route('client.product', $related->slug) }}" class="text-decoration-none text-dark">
                             <div class="product-image-container">
                                 @if($related->thumbnail)
-                                    <img src="{{ Storage::url($related->thumbnail) }}" class="product-image" alt="{{ $related->name }}">
+                                    <img src="{{$related->thumbnail }}" class="product-image" alt="{{ $related->name }}">
                                 @else
                                     <div class="product-image-placeholder">
                                         <i class="bi bi-image text-muted"></i>

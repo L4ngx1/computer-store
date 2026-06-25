@@ -17,7 +17,7 @@
                 <div class="carousel-inner rounded-4 shadow-lg">
                     @foreach($featuredProducts->take(3) as $key => $product)
                         <div class="carousel-item {{ $key == 0 ? 'active' : '' }}" style="height: 450px;">
-                            <img src="{{ $product->thumbnail ? Storage::url($product->thumbnail) : 'https://via.placeholder.com/1200x450' }}" class="d-block w-100 h-100" style="object-fit: cover;" alt="{{ $product->name }}">
+                            <img src="{{ $product->thumbnail ? $product->thumbnail : 'https://via.placeholder.com/1200x450' }}" class="d-block w-100 h-100" style="object-fit: cover;" alt="{{ $product->name }}">
                             <div class="carousel-caption d-none d-md-block text-start" style="background: rgba(0, 0, 0, 0.4); border-radius: 1rem; padding: 2rem; bottom: 10%; left: 5%; right: auto; max-width: 40%;">
                                 <h2 class="display-5 fw-bold">{{ $product->name }}</h2>
                                 <p class="lead">Sản phẩm nổi bật của chúng tôi</p>
@@ -135,7 +135,7 @@
                                         <a href="{{ route('client.product', $product->slug) }}" class="text-decoration-none text-dark">
                                             <div class="product-image-container">
                                                 @if($product->thumbnail)
-                                                    <img src="{{ Storage::url($product->thumbnail) }}" class="product-image" alt="{{ $product->name }}">
+                                                    <img src="{{ $product->thumbnail }}" class="product-image" alt="{{ $product->name }}">
                                                 @else
                                                     <div class="product-image-placeholder">
                                                         <i class="bi bi-image text-muted"></i>

@@ -40,15 +40,16 @@ Route::prefix('page')->name('client.')->group(function () {
     Route::get('catalog', [CatalogController::class, 'index'])->name('catalog');
     Route::get('product/{slug}', [CatalogController::class, 'show'])->name('product');
     Route::get('search', [SearchController::class, 'index'])->name('search');
-    
-    Route::post('cart/add', [CatalogController::class, 'addToCart'])->name('cart.add');
 
+    // Giỏ hàng: cho phép cả khách (guest) và user đã đăng nhập
+    Route::post('cart/add/{id}', [CartController::class, 'add'])->name('cart.add');
+    Route::get('cart', [CartController::class, 'index'])->name('cart');
+    Route::post('cart/update', [CartController::class, 'update'])->name('cart.update');
+    Route::delete('cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
+    Route::delete('cart/clear', [CartController::class, 'clear'])->name('cart.clear');
+
+    // Checkout yêu cầu đăng nhập
     Route::middleware('auth')->group(function () {
-        Route::get('cart', [CartController::class, 'index'])->name('cart');
-        Route::post('cart/update', [CartController::class, 'update'])->name('cart.update');
-        Route::delete('cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
-        Route::delete('cart/clear', [CartController::class, 'clear'])->name('cart.clear');
-
         Route::get('checkout', [CheckoutController::class, 'index'])->name('checkout');
         Route::post('checkout', [CheckoutController::class, 'store'])->name('checkout.store');
     });

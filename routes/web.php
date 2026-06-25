@@ -55,26 +55,19 @@ Route::prefix('page')->name('client.')->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | CART
+    | CART & CHECKOUT (Cần đăng nhập)
     |--------------------------------------------------------------------------
     */
+    Route::middleware('auth')->group(function () {
+        Route::get('cart', [CartController::class, 'index'])->name('cart');
+        Route::post('cart/add/{id}', [CartController::class, 'add'])->name('cart.add');
+        Route::post('cart/update', [CartController::class, 'update'])->name('cart.update');
+        Route::delete('cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
+        Route::delete('cart/clear', [CartController::class, 'clear'])->name('cart.clear');
 
-    Route::get('cart', [CartController::class, 'index'])->name('cart');
-    Route::post('cart/add/{id}', [CartController::class, 'add'])->name('cart.add');
-
-    Route::post('cart/update', [CartController::class, 'update'])->name('cart.update');
-
-    Route::delete('cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
-    Route::delete('cart/clear', [CartController::class, 'clear'])->name('cart.clear');
-
-    /*
-    |--------------------------------------------------------------------------
-    | CHECKOUT
-    |--------------------------------------------------------------------------
-    */
-
-    Route::get('checkout', [CheckoutController::class, 'index'])->name('checkout');
-    Route::post('checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+        Route::get('checkout', [CheckoutController::class, 'index'])->name('checkout');
+        Route::post('checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+    });
 });
 
 /*
@@ -92,7 +85,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::middleware('is_admin')->group(function () {
 
         Route::get('/', fn() => redirect()->route('admin.dashboard'));
-
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
         Route::prefix('users')->name('users.')->controller(UserController::class)->group(function () {

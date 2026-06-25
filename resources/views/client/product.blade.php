@@ -99,9 +99,14 @@
                     <input type="number" name="quantity" id="quantity" class="form-control text-center rounded-pill" value="1" min="1" max="{{ $product->stock }}" style="width: 100px;">
                 </div>
                 <div class="d-flex gap-3">
-                    <button type="button" class="btn btn-primary btn-lg rounded-pill px-5 fw-bold flex-grow-1" onclick="alert('Chức năng thêm giỏ hàng đang được phát triển!')" {{ $product->stock <= 0 ? 'disabled' : '' }}>
-                        <i class="bi bi-cart-plus me-2"></i> Thêm vào giỏ
-                    </button>
+                    <form action="{{ route('client.cart.add') }}" method="POST">
+    @csrf
+    <input type="hidden" name="product_id" value="{{ $product->id }}">
+
+    <button type="submit" class="btn btn-outline-primary w-100 rounded-pill fw-bold">
+        <i class="bi bi-cart-plus me-1"></i> Thêm vào giỏ
+    </button>
+</form>
                     <button type="button" class="btn btn-outline-danger btn-lg rounded-pill px-4" aria-label="Yêu thích">
                         <i class="bi bi-heart"></i>
                     </button>

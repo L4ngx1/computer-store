@@ -20,39 +20,37 @@ class CartController extends Controller
             }
             return $cart;
         }
+
         return session('cart', []);
     }
 
     public function index()
     {
         $cart = $this->getCart();
+
         $productIds = array_keys($cart);
+
         $products = Product::whereIn('id', $productIds)->get();
 
         $cartItems = $products->map(function ($product) use ($cart) {
             return (object) [
                 'product' => $product,
-                'quantity' => $cart[$product->id] ?? 0
+                'quantity' => $cart[(int)$product->id] ?? 0
             ];
         })->filter(function ($item) {
             return $item->quantity > 0;
         });
 
-        $total = $cartItems->sum(function($item) {
+        $total = $cartItems->sum(function ($item) {
             return ($item->product->sale_price ?? $item->product->price) * $item->quantity;
         });
 
         return view('client.cart', compact('cartItems', 'total'));
     }
 
-    // Hàm add nhận Request, xử lý xong sẽ redirect về giỏ hàng
-    public function add(Request $request)
+    public function add($id)
     {
-        $id = $request->input('product_id');
-
-        if (!$id) {
-            return redirect()->back()->with('error', 'Sản phẩm không hợp lệ!');
-        }
+        $id = (int) $id;
 
         $cart = $this->getCart();
         $quantity = ($cart[$id] ?? 0) + 1;
@@ -67,39 +65,67 @@ class CartController extends Controller
             session(['cart' => $cart]);
         }
 
-        return redirect()->route('client.cart')->with('cart_success', 'Đã thêm sản phẩm vào giỏ hàng!');
+        return redirect()->route('client.cart')
+            ->with('cart_success', 'Đã thêm sản phẩm vào giỏ hàng!');
     }
 
     public function update(Request $request)
     {
         $cart = $this->getCart();
+
         if ($request->has('quantities')) {
             foreach ($request->quantities as $id => $qty) {
+
+                $id = (int) $id;
+                $qty = (int) $qty;
+
                 if (Auth::check()) {
                     if ($qty > 0) {
-                        CartItem::updateOrCreate(['user_id' => Auth::id(), 'product_id' => $id], ['quantity' => $qty]);
+                        CartItem::updateOrCreate(
+                            ['user_id' => Auth::id(), 'product_id' => $id],
+                            ['quantity' => $qty]
+                        );
                     } else {
-                        CartItem::where(['user_id' => Auth::id(), 'product_id' => $id])->delete();
+                        CartItem::where([
+                            'user_id' => Auth::id(),
+                            'product_id' => $id
+                        ])->delete();
                     }
                 } else {
-                    if ($qty > 0) { $cart[$id] = $qty; } else { unset($cart[$id]); }
+                    if ($qty > 0) {
+                        $cart[$id] = $qty;
+                    } else {
+                        unset($cart[$id]);
+                    }
                 }
             }
         }
-        if (!Auth::check()) { session(['cart' => $cart]); }
-        return redirect()->route('client.cart')->with('cart_success', 'Giỏ hàng đã được cập nhật!');
+
+        if (!Auth::check()) {
+            session(['cart' => $cart]);
+        }
+
+        return redirect()->route('client.cart')
+            ->with('cart_success', 'Giỏ hàng đã được cập nhật!');
     }
 
     public function remove($id)
     {
+        $id = (int) $id;
+
         if (Auth::check()) {
-            CartItem::where(['user_id' => Auth::id(), 'product_id' => $id])->delete();
+            CartItem::where([
+                'user_id' => Auth::id(),
+                'product_id' => $id
+            ])->delete();
         } else {
             $cart = session('cart', []);
             unset($cart[$id]);
             session(['cart' => $cart]);
         }
-        return redirect()->route('client.cart')->with('cart_success', 'Đã xoá sản phẩm!');
+
+        return redirect()->route('client.cart')
+            ->with('cart_success', 'Đã xóa sản phẩm!');
     }
 
     public function clear()
@@ -109,6 +135,8 @@ class CartController extends Controller
         } else {
             session()->forget('cart');
         }
-        return redirect()->route('client.cart')->with('cart_success', 'Đã xoá giỏ hàng!');
+
+        return redirect()->route('client.cart')
+            ->with('cart_success', 'Đã xóa toàn bộ giỏ hàng!');
     }
 }

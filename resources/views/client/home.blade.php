@@ -159,9 +159,14 @@
                                                     @else
                                                         <div class="fw-bold text-primary fs-5 mb-2">{{ number_format($product->price, 0, ',', '.') }}đ</div>
                                                     @endif
-                                                    <button class="btn btn-outline-primary w-100 rounded-pill fw-bold" onclick="event.preventDefault(); alert('Chức năng thêm giỏ hàng sẽ được cập nhật!');">
-                                                        <i class="bi bi-cart-plus me-1"></i> Thêm vào giỏ
-                                                    </button>
+                                                    <form action="{{ route('client.cart.add') }}" method="POST">
+    @csrf
+    <input type="hidden" name="product_id" value="{{ $product->id }}">
+
+    <button type="submit" class="btn btn-outline-primary w-100 rounded-pill fw-bold">
+        <i class="bi bi-cart-plus me-1"></i> Thêm vào giỏ
+    </button>
+</form>
                                                 </div>
                                             </div>
                                         </a>
@@ -219,9 +224,14 @@
                                                     @else
                                                         <div class="fw-bold text-primary fs-5 mb-2">{{ number_format($product->price, 0, ',', '.') }}đ</div>
                                                     @endif
-                                                    <button class="btn btn-outline-primary w-100 rounded-pill fw-bold" onclick="event.preventDefault(); alert('Chức năng thêm giỏ hàng sẽ được cập nhật!');">
-                                                        <i class="bi bi-cart-plus me-1"></i> Thêm vào giỏ
-                                                    </button>
+                                                    <form action="{{ route('client.cart.add') }}" method="POST">
+    @csrf
+    <input type="hidden" name="product_id" value="{{ $product->id }}">
+
+    <button type="submit" class="btn btn-outline-primary w-100 rounded-pill fw-bold">
+        <i class="bi bi-cart-plus me-1"></i> Thêm vào giỏ
+    </button>
+</form>
                                                 </div>
                                             </div>
                                         </a>
@@ -244,7 +254,7 @@
             </button>
         </div>
     </div>
->>>>>>> e63510a2bdd1d963eadaf3fb7bcd3dac7e7eed6d
+
 
 @endsection
 

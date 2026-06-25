@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-
 use App\Http\Controllers\Auth\AdminAuthController;
 use App\Http\Controllers\Auth\ClientAuthController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -9,7 +8,6 @@ use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\UserController;
-
 use App\Http\Controllers\Client\ProfileController;
 use App\Http\Controllers\Client\CartController;
 use App\Http\Controllers\Client\CheckoutController;
@@ -42,10 +40,11 @@ Route::prefix('page')->name('client.')->group(function () {
     Route::get('catalog', [CatalogController::class, 'index'])->name('catalog');
     Route::get('product/{slug}', [CatalogController::class, 'show'])->name('product');
     Route::get('search', [SearchController::class, 'index'])->name('search');
+    
+    Route::post('cart/add', [CatalogController::class, 'addToCart'])->name('cart.add');
 
     Route::middleware('auth')->group(function () {
         Route::get('cart', [CartController::class, 'index'])->name('cart');
-        Route::post('cart/add', [CartController::class, 'add'])->name('cart.add');
         Route::post('cart/update', [CartController::class, 'update'])->name('cart.update');
         Route::delete('cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
         Route::delete('cart/clear', [CartController::class, 'clear'])->name('cart.clear');

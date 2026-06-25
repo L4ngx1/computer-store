@@ -69,7 +69,9 @@
                     <a class="btn border-0 fs-5 p-2 position-relative" href="{{ route('client.cart') }}" aria-label="Giỏ hàng">
                         <span class="d-inline-block position-relative">
                             <i class="bi bi-cart3"></i>
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary p-1">2</span>
+                            @if(($cartCount ?? 0) > 0)
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary">{{ $cartCount }}</span>
+                            @endif
                         </span>
                     </a>
                     @auth

@@ -33,8 +33,7 @@ Route::prefix('cart')->name('cart.')->middleware('api_token')->controller(CartCo
     Route::delete('/clear', 'clear')->name('clear');
 });
 
-Route::prefix('admin')->name('api.admin.')->group(function () {
-	// ->middleware('is_admin')
+Route::prefix('admin')->name('api.admin.')->middleware(['api_token', 'is_admin'])->group(function () {
 	Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 	Route::prefix('users')->name('users.')->controller(UserController::class)->group(function () {
 		Route::get('/', 'index')->name('index');

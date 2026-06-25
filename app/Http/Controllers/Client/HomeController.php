@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Client;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\Brand;
 
 class HomeController extends Controller
 {
@@ -24,6 +25,8 @@ class HomeController extends Controller
 
         $categories = Category::where('is_active', true)->take(6)->get();
 
-        return view('client.home', compact('featuredProducts', 'newProducts', 'categories'));
+        $brands = Brand::whereNotNull('logo')->take(12)->get();
+
+        return view('client.home', compact('featuredProducts', 'newProducts', 'categories', 'brands'));
     }
 }

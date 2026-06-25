@@ -9,6 +9,7 @@ use App\Models\ProductImage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class ProductController extends ApiController
@@ -39,18 +40,19 @@ class ProductController extends ApiController
         $validated = $this->validateProduct($request, null, false);
 
         $product = DB::transaction(function () use ($validated, $request) {
-            
+            $slug = $this->resolveSlug($validated['slug'] ?? $validated['name']);
+
             $thumbnailPath = null;
             if ($request->hasFile('thumbnail')) {
                 $file = $request->file('thumbnail');
-                $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $filename = $slug . '-thumbnail-' . time() . '.' . $file->getClientOriginalExtension();
                 $path = $file->storeAs('products/thumbnails', $filename, 'public');
                 $thumbnailPath = $path;
             }
 
             $product = Product::create([
                 'name' => $validated['name'],
-                'slug' => $this->resolveSlug($validated['slug'] ?? $validated['name']),
+                'slug' => $slug,
                 'sku' => $validated['sku'],
                 'summary' => $validated['summary'] ?? null,
                 'description' => $validated['description'] ?? null,
@@ -69,9 +71,8 @@ class ProductController extends ApiController
             if (!empty($images) && is_array($images)) {
                 foreach ($images as $index => $image) {
                     if ($image && $image->isValid()) {
-                        $timestamp = time();
-                        $randomId = uniqid($index . '_', true);
-                        $filename = $timestamp . '_' . $randomId . '.' . $image->getClientOriginalExtension();
+                        $timestamp = time() . '-' . ($index + 1);
+                        $filename = $slug . '-' . $timestamp . '.' . $image->getClientOriginalExtension();
                         $path = $image->storeAs('products/images', $filename, 'public');
                         
                         if ($path) {
@@ -100,19 +101,21 @@ class ProductController extends ApiController
     public function update(Request $request, Product $product): JsonResponse
     {
         $validated = $this->validateProduct($request, $product->id, true);
-
+ 
         $product = DB::transaction(function () use ($validated, $product, $request) {
             // Handle thumbnail file upload
-            $thumbnailPath = $product->thumbnail;
             if ($request->hasFile('thumbnail')) {
+                // Delete old thumbnail if it exists
+                if ($product->thumbnail) {
+                    Storage::disk('public')->delete($product->thumbnail);
+                }
+ 
                 $file = $request->file('thumbnail');
-                $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $filename = $product->slug . '-thumbnail-' . time() . '.' . $file->getClientOriginalExtension();
                 $path = $file->storeAs('products/thumbnails', $filename, 'public');
-                $thumbnailPath = $path;
-            } elseif (array_key_exists('thumbnail', $validated) && is_string($validated['thumbnail'])) {
-                $thumbnailPath = $validated['thumbnail'];
+                $product->thumbnail = $path;
             }
-
+ 
             $product->update([
                 'name' => $validated['name'] ?? $product->name,
                 'slug' => $this->resolveSlug($validated['slug'] ?? $validated['name'] ?? $product->name, $product->id),
@@ -122,27 +125,28 @@ class ProductController extends ApiController
                 'price' => $validated['price'] ?? $product->price,
                 'sale_price' => array_key_exists('sale_price', $validated) ? $validated['sale_price'] : $product->sale_price,
                 'stock' => $validated['stock'] ?? $product->stock,
-                'thumbnail' => $thumbnailPath,
                 'is_featured' => $validated['is_featured'] ?? $product->is_featured,
                 'is_active' => $validated['is_active'] ?? $product->is_active,
                 'category_id' => $validated['category_id'] ?? $product->category_id,
                 'brand_id' => $validated['brand_id'] ?? $product->brand_id,
             ]);
-
+ 
             // Handle multiple product images
-            $images = $request->file('images', []);
-            if (!empty($images) && is_array($images)) {
-                // Delete old images
+            if ($request->hasFile('images')) {
+                $images = $request->file('images');
+                // Delete old image files from storage
+                foreach ($product->images as $oldImage) {
+                    Storage::disk('public')->delete($oldImage->image_path);
+                }
                 $product->images()->delete();
-                
+ 
                 // Store new images
                 foreach ($images as $index => $image) {
                     if ($image && $image->isValid()) {
-                        $timestamp = time();
-                        $randomId = uniqid($index . '_', true);
-                        $filename = $timestamp . '_' . $randomId . '.' . $image->getClientOriginalExtension();
+                        $timestamp = time() . '-' . ($index + 1);
+                        $filename = $product->slug . '-' . $timestamp . '.' . $image->getClientOriginalExtension();
                         $path = $image->storeAs('products/images', $filename, 'public');
-                        
+ 
                         if ($path) {
                             ProductImage::create([
                                 'product_id' => $product->id,
@@ -152,21 +156,36 @@ class ProductController extends ApiController
                     }
                 }
             }
-
+ 
             // Sync attributes only (images are handled above via file upload)
             $this->syncAttributesOnly($product, $validated, true);
-
+ 
             return $product;
         });
-
+ 
         return $this->success($product->fresh()->load(['category', 'brand', 'images', 'attributes']), 'Cập nhật sản phẩm thành công.');
     }
 
     public function destroy(Product $product): JsonResponse
     {
-        $product->delete();
+        DB::transaction(function () use ($product) {
+            // 1. Delete thumbnail from storage
+            if ($product->thumbnail) {
+                Storage::disk('public')->delete($product->thumbnail);
+            }
 
-        return $this->success(null, 'Xóa sản phẩm thành công.');
+            // 2. Delete gallery images from storage
+            foreach ($product->images as $image) {
+                Storage::disk('public')->delete($image->image_path);
+            }
+            // Note: product_images and product_attributes will be deleted automatically
+            // because of the onDelete('cascade') in their migration files.
+
+            // 3. Delete the product record from the database
+            $product->delete();
+        });
+
+        return $this->success(null, 'Xóa sản phẩm và các ảnh liên quan thành công.');
     }
 
     private function validateProduct(Request $request, ?int $ignoreId = null, bool $isUpdate = false): array
@@ -186,7 +205,7 @@ class ProductController extends ApiController
             'summary' => 'nullable|string',
             'description' => 'nullable|string',
             'price' => $priceRule . '|numeric|min:0',
-            'sale_price' => 'nullable|numeric|min:0',
+            'sale_price' => 'nullable|numeric|min:0|lte:price',
             'stock' => 'nullable|integer|min:0',
             'thumbnail' => $thumbnailRule . '|image|mimes:jpeg,png,gif,webp|max:2048',
             'images' => 'nullable|array',

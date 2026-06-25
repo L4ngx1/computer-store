@@ -46,13 +46,13 @@
 
             <div class="collapse navbar-collapse" id="siteNavbar">
                 <ul class="navbar-nav align-items-xl-center gap-xl-1 me-xl-auto mb-3 mb-xl-0">
-                    <li class="nav-item"><a class="nav-link small fw-bold text-dark" href="{{ route('client.catalog') }}">Laptop</a></li>
-                    <li class="nav-item"><a class="nav-link small fw-bold text-dark" href="{{ route('client.catalog') }}">Máy tính bộ</a></li>
-                    <li class="nav-item"><a class="nav-link small fw-bold text-dark" href="{{ route('client.search') }}">Thiết bị mạng</a></li>
-                    <li class="nav-item"><a class="nav-link small fw-bold text-dark" href="{{ route('client.contact') }}">Máy in & Máy scan</a></li>
-                    <li class="nav-item"><a class="nav-link small fw-bold text-dark" href="{{ route('client.about') }}">Linh kiện PC</a></li>
-                    <li class="nav-item"><a class="nav-link small fw-bold text-dark" href="{{ route('client.faq') }}">Sản phẩm khác</a></li>
-                    <li class="nav-item"><a class="nav-link small fw-bold text-dark" href="{{ route('client.account') }}">Sửa chữa</a></li>
+                    <li class="nav-item"><a class="nav-link small fw-bold text-dark" href="{{ route('client.catalog', ['category' => 'laptop']) }}">Laptop</a></li>
+                    <li class="nav-item"><a class="nav-link small fw-bold text-dark" href="{{ route('client.catalog', ['category' => 'pc-dong-bo']) }}">PC đồng bộ</a></li>
+                    <li class="nav-item"><a class="nav-link small fw-bold text-dark" href="{{ route('client.catalog', ['category' => 'pc-gaming']) }}">PC gaming</a></li>
+                    <li class="nav-item"><a class="nav-link small fw-bold text-dark" href="{{ route('client.catalog', ['category' => 'thiet-bi-mang']) }}">Thiết bị mạng</a></li>
+                    <li class="nav-item"><a class="nav-link small fw-bold text-dark" href="{{ route('client.catalog', ['category' => 'linh-kien']) }}">Linh kiện PC</a></li>
+                    <li class="nav-item"><a class="nav-link small fw-bold text-dark" href="{{ route('client.catalog') }}">Sản phẩm khác</a></li>
+                    <li class="nav-item"><a class="nav-link small fw-bold text-dark" href="{{ route('client.contact') }}">Hỗ trợ</a></li>
                     <li class="nav-item ms-xl-2"><a class="btn btn-sm btn-outline-primary rounded-pill fw-bold px-4" href="{{ route('client.catalog') }}">Ưu đãi</a></li>
                 </ul>
 
@@ -115,7 +115,7 @@
                         <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.about') }}">Về chúng tôi</a></li>
                         <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.contact') }}">Liên hệ</a></li>
                         <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.faq') }}">Chính sách bảo mật</a></li>
-                        <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.faq') }}">Tìm kiếm</a></li>
+                        <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.search') }}">Tìm kiếm</a></li>
                         <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.faq') }}">Điều khoản</a></li>
                         <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.account') }}">Đơn hàng & đổi trả</a></li>
                         <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.contact') }}">Hỗ trợ</a></li>
@@ -125,36 +125,36 @@
                 <div class="col-6 col-lg">
                     <div class="text-white-50 fw-bold mb-2 small">Linh kiện PC</div>
                     <ul class="list-unstyled small mb-0">
-                        <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.catalog') }}">CPU</a></li>
-                        <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.catalog') }}">Card mở rộng</a></li>
-                        <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.catalog') }}">Ổ cứng trong</a></li>
-                        <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.catalog') }}">Card đồ họa</a></li>
-                        <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.catalog') }}">Bàn phím / Chuột</a></li>
-                        <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.catalog') }}">Nguồn / Vỏ máy / Tản nhiệt</a></li>
-                        <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.catalog') }}">RAM</a></li>
-                        <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.catalog') }}">Tai nghe / Loa</a></li>
+                        <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.catalog', ['category' => 'cpu']) }}">CPU</a></li>
+                        <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.catalog', ['category' => 'linh-kien']) }}">Card mở rộng</a></li>
+                        <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.catalog', ['category' => 'ssd-hdd']) }}">Ổ cứng trong</a></li>
+                        <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.catalog', ['category' => 'vga']) }}">Card đồ họa</a></li>
+                        <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.catalog', ['category' => 'linh-kien']) }}">Bàn phím / Chuột</a></li>
+                        <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.catalog', ['category' => 'linh-kien']) }}">Nguồn / Vỏ máy / Tản nhiệt</a></li>
+                        <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.catalog', ['category' => 'ram']) }}">RAM</a></li>
+                        <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.catalog', ['category' => 'linh-kien']) }}">Tai nghe / Loa</a></li>
                     </ul>
                 </div>
                 <div class="col-6 col-lg">
                     <div class="text-white-50 fw-bold mb-2 small">Máy tính đồng bộ</div>
                     <ul class="list-unstyled small mb-0">
-                        <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.catalog') }}">PC lắp sẵn</a></li>
-                        <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.catalog') }}">Máy chủ</a></li>
-                        <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.catalog') }}">MSI All-In-One</a></li>
-                        <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.catalog') }}">PC HP/Compaq</a></li>
-                        <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.catalog') }}">PC ASUS</a></li>
-                        <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.catalog') }}">PC Tecs</a></li>
+                        <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.catalog', ['category' => 'pc-dong-bo']) }}">PC lắp sẵn</a></li>
+                        <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.catalog', ['category' => 'pc-workstation']) }}">Máy chủ</a></li>
+                        <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.catalog', ['category' => 'pc-dong-bo', 'brand' => 'msi']) }}">MSI All-In-One</a></li>
+                        <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.catalog', ['category' => 'pc-dong-bo', 'brand' => 'hp']) }}">PC HP/Compaq</a></li>
+                        <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.catalog', ['category' => 'pc-dong-bo', 'brand' => 'asus']) }}">PC ASUS</a></li>
+                        <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.catalog', ['category' => 'pc-dong-bo']) }}">PC Tecs</a></li>
                     </ul>
                 </div>
                 <div class="col-6 col-lg">
                     <div class="text-white-50 fw-bold mb-2 small">Laptop</div>
                     <ul class="list-unstyled small mb-0">
-                        <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.catalog') }}">Laptop dùng hằng ngày</a></li>
-                        <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.catalog') }}">MSI Workstation</a></li>
-                        <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.catalog') }}">MSI Prestige</a></li>
-                        <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.catalog') }}">Máy tính bảng & Pad</a></li>
-                        <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.catalog') }}">Netbook</a></li>
-                        <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.catalog') }}">Laptop Gaming</a></li>
+                        <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.catalog', ['category' => 'laptop-van-phong']) }}">Laptop dùng hằng ngày</a></li>
+                        <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.catalog', ['category' => 'laptop-do-hoa', 'brand' => 'msi']) }}">MSI Workstation</a></li>
+                        <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.catalog', ['category' => 'laptop', 'brand' => 'msi']) }}">MSI Prestige</a></li>
+                        <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.catalog', ['category' => 'laptop']) }}">Máy tính bảng & Pad</a></li>
+                        <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.catalog', ['category' => 'laptop']) }}">Netbook</a></li>
+                        <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.catalog', ['category' => 'laptop-gaming']) }}">Laptop Gaming</a></li>
                     </ul>
                 </div>
                 <div class="col-12 col-lg">

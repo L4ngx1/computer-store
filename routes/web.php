@@ -31,6 +31,8 @@ Route::prefix('page')->name('client.')->middleware('auth')->group(function () {
     Route::get('account', [ProfileController::class, 'show'])->name('account');
     Route::put('account', [ProfileController::class, 'update'])->name('account.update');
 
+    Route::post('cart/add', [\App\Http\Controllers\Client\CartController::class, 'store'])->withoutMiddleware('auth')->name('cart.add');
+
     Route::get('cart', function () {
         return view('client.cart');
     })->withoutMiddleware('auth')->name('cart');

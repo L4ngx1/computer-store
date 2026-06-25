@@ -25,27 +25,29 @@
                         </span>
                     @endif
                     @if($product->thumbnail)
-                        <img src="{{ Storage::url($product->thumbnail) }}" alt="{{ $product->name }}" class="img-fluid w-100 p-4" style="object-fit: contain; max-height: 500px;" id="mainProductImage">
+                        <img src="{{ Storage::url($product->thumbnail) }}" alt="{{ $product->name }}" class="main-product-image" id="mainProductImage">
                     @else
-                        <div class="bg-light d-flex align-items-center justify-content-center" style="height: 400px;">
-                            <i class="bi bi-image text-muted" style="font-size: 5rem;"></i>
+                        <div class="main-product-image-placeholder">
+                            <i class="bi bi-image text-muted"></i>
                         </div>
                     @endif
                 </div>
             </div>
             
             <!-- Thumbnails -->
-            @if($product->images->count() > 0)
-                <div class="row g-2">
-                    <div class="col-3">
-                        <div class="card border border-primary cursor-pointer rounded-3 overflow-hidden p-2" onclick="changeImage('{{ Storage::url($product->thumbnail) }}', this)">
-                            <img src="{{ Storage::url($product->thumbnail) }}" class="img-fluid" alt="Thumbnail">
+            @if($product->images->count() > 0 || $product->thumbnail)
+                <div class="row g-2" id="thumbnail-gallery">
+                    @if($product->thumbnail)
+                    <div class="col-auto">
+                        <div class="product-thumbnail-item active" onclick="changeImage('{{ Storage::url($product->thumbnail) }}', this)">
+                            <img src="{{ Storage::url($product->thumbnail) }}" alt="Thumbnail">
                         </div>
                     </div>
+                    @endif
                     @foreach($product->images as $img)
-                        <div class="col-3">
-                            <div class="card border-0 cursor-pointer rounded-3 overflow-hidden shadow-sm opacity-75 hover-opacity-100 transition-all p-2" onclick="changeImage('{{ Storage::url($img->image_path) }}', this)">
-                                <img src="{{ Storage::url($img->image_path) }}" class="img-fluid" alt="Image">
+                        <div class="col-auto">
+                            <div class="product-thumbnail-item" onclick="changeImage('{{ Storage::url($img->image_path) }}', this)">
+                                <img src="{{ Storage::url($img->image_path) }}" alt="Image">
                             </div>
                         </div>
                     @endforeach
@@ -150,12 +152,12 @@
                 <div class="col">
                     <div class="card h-100 border-0 shadow-sm rounded-4 product-card overflow-hidden">
                         <a href="{{ route('client.product', $related->slug) }}" class="text-decoration-none text-dark">
-                            <div class="position-relative bg-white text-center">
+                            <div class="product-image-container">
                                 @if($related->thumbnail)
-                                    <img src="{{ Storage::url($related->thumbnail) }}" class="card-img-top p-3" alt="{{ $related->name }}" style="height: 200px; object-fit: contain;">
+                                    <img src="{{ Storage::url($related->thumbnail) }}" class="product-image" alt="{{ $related->name }}">
                                 @else
-                                    <div class="bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
-                                        <i class="bi bi-image text-muted" style="font-size: 3rem;"></i>
+                                    <div class="product-image-placeholder">
+                                        <i class="bi bi-image text-muted"></i>
                                     </div>
                                 @endif
                             </div>
@@ -179,29 +181,16 @@
     function changeImage(src, element) {
         document.getElementById('mainProductImage').src = src;
         
-        // Remove border from all
-        let thumbs = element.parentElement.parentElement.querySelectorAll('.card');
-        thumbs.forEach(el => {
-            el.classList.remove('border-primary');
-            el.classList.remove('border');
-            el.classList.add('border-0');
-            el.classList.add('opacity-75');
-        });
+        let thumbs = document.querySelectorAll('.product-thumbnail-item');
+        thumbs.forEach(el => el.classList.remove('active'));
         
-        // Add border to active
-        element.classList.remove('border-0');
-        element.classList.remove('opacity-75');
-        element.classList.add('border');
-        element.classList.add('border-primary');
+        element.classList.add('active');
     }
 </script>
 @endpush
 
 @push('styles')
 <style>
-    .cursor-pointer { cursor: pointer; }
-    .transition-all { transition: all 0.3s ease; }
-    .hover-opacity-100:hover { opacity: 1 !important; }
     .text-truncate-2 {
         display: -webkit-box;
         -webkit-line-clamp: 2;
@@ -212,5 +201,71 @@
     }
     .product-card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
     .product-card:hover { transform: translateY(-5px); box-shadow: 0 1rem 3rem rgba(0,0,0,.175)!important; }
+
+    .main-product-image {
+        width: 100%;
+        height: 450px;
+        object-fit: contain;
+        padding: 1rem;
+    }
+    .main-product-image-placeholder {
+        width: 100%;
+        height: 450px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 5rem;
+        background-color: #f8f9fa;
+    }
+    .product-thumbnail-item {
+        width: 80px;
+        height: 80px;
+        border: 2px solid transparent;
+        border-radius: 0.5rem;
+        overflow: hidden;
+        cursor: pointer;
+        transition: border-color 0.2s ease;
+    }
+    .product-thumbnail-item.active,
+    .product-thumbnail-item:hover {
+        border-color: var(--bs-primary);
+    }
+    .product-thumbnail-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .product-image-container {
+        position: relative;
+        width: 100%;
+        padding-top: 100%; /* 1:1 Aspect Ratio */
+        overflow: hidden;
+        background-color: #f8f9fa;
+    }
+    .product-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        padding: 1rem;
+        transition: transform 0.3s ease;
+    }
+    .product-card:hover .product-image {
+        transform: scale(1.05);
+    }
+    .product-image-placeholder {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+    }
 </style>
 @endpush

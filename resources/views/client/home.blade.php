@@ -14,18 +14,26 @@
                         <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="{{ $key }}" class="{{ $key == 0 ? 'active' : '' }}" aria-current="{{ $key == 0 ? 'true' : 'false' }}" aria-label="Slide {{ $key + 1 }}"></button>
                     @endforeach
                 </div>
-                <div class="carousel-inner rounded-4 shadow-lg">
-                    @foreach($featuredProducts->take(3) as $key => $product)
-                        <div class="carousel-item {{ $key == 0 ? 'active' : '' }}" style="height: 450px;">
-                            <img src="{{ $product->thumbnail ? $product->thumbnail : 'https://via.placeholder.com/1200x450' }}" class="d-block w-100 h-100" style="object-fit: cover;" alt="{{ $product->name }}">
-                            <div class="carousel-caption d-none d-md-block text-start" style="background: rgba(0, 0, 0, 0.4); border-radius: 1rem; padding: 2rem; bottom: 10%; left: 5%; right: auto; max-width: 40%;">
-                                <h2 class="display-5 fw-bold">{{ $product->name }}</h2>
-                                <p class="lead">Sản phẩm nổi bật của chúng tôi</p>
-                                <a href="{{ route('client.product', $product->slug) }}" class="btn btn-light btn-lg rounded-pill px-4 fw-bold text-primary">Xem chi tiết</a>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
+<div class="carousel-inner rounded-4 shadow-lg">
+    @foreach($featuredProducts->take(3) as $key => $product)
+        <div class="carousel-item {{ $key == 0 ? 'active' : '' }}" style="height: 450px; background-color: #f3f4f6;"> 
+            <!-- Thêm background-color màu xám nhạt cho khung slide để tạo chiều sâu nếu ảnh không tràn viền -->
+            
+            <img src="{{ $product->thumbnail ? $product->thumbnail : 'https://via.placeholder.com/1200x450' }}" 
+                 class="d-block w-100 h-100" 
+                 style="object-fit: contain; padding: 1.5rem;" 
+                 alt="{{ $product->name }}">
+            <!-- Thay thành object-fit: contain và thêm chút padding để ảnh sản phẩm không bị dính sát mép viền -->
+
+            <!-- Phần text caption phủ lên góc trái -->
+            <div class="carousel-caption d-none d-md-block text-start" style="background: rgba(0, 0, 0, 0.65); backdrop-filter: blur(4px); border-radius: 1rem; padding: 2rem; bottom: 10%; left: 5%; right: auto; max-width: 40%;">
+                <h2 class="display-6 fw-bold text-white mb-2">{{ $product->name }}</h2>
+                <p class="lead text-white-50 small mb-3">Sản phẩm nổi bật của chúng tôi</p>
+                <a href="{{ route('client.product', $product->slug) }}" class="btn btn-light btn-md rounded-pill px-4 fw-bold text-primary shadow-sm">Xem chi tiết</a>
+            </div>
+        </div>
+    @endforeach
+</div>
                 <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
                     <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                     <span class="visually-hidden">Previous</span>
@@ -196,7 +204,7 @@
                 @forelse($newProducts->chunk(4) as $key => $chunk)
                     <div class="carousel-item {{ $key == 0 ? 'active' : '' }}">
                         <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
-                            @foreach($chunk as $product)
+                            @foreach($chunk as $product)    
                                 <div class="col">
                                     <div class="card h-100 border-0 shadow-sm rounded-4 product-card overflow-hidden">
                                         <a href="{{ route('client.product', $product->slug) }}" class="text-decoration-none text-dark">

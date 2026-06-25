@@ -10,36 +10,87 @@ use Illuminate\Support\Facades\Auth;
 
 class CartController extends Controller
 {
-    private function getCart()
+    /**
+     * Lấy giỏ hàng hiện tại dưới dạng [product_id => quantity].
+     * - User đã đăng nhập: lưu trong bảng cart_items.
+     * - Khách (guest): lưu trong session.
+     */
+    private function getCart(): array
     {
         if (Auth::check()) {
-            $items = CartItem::where('user_id', Auth::id())->get();
-            $cart = [];
-            foreach ($items as $item) {
-                $cart[(int)$item->product_id] = (int)$item->quantity;
-            }
-            return $cart;
+            return CartItem::where('user_id', Auth::id())
+                ->pluck('quantity', 'product_id')
+                ->map(fn ($qty) => (int) $qty)
+                ->toArray();
         }
 
         return session('cart', []);
+    }
+
+    /**
+     * Giới hạn số lượng theo tồn kho của sản phẩm.
+     */
+    private function clampToStock(Product $product, int $quantity): int
+    {
+        $quantity = max(1, $quantity);
+
+        if ($product->stock > 0) {
+            $quantity = min($quantity, $product->stock);
+        }
+
+        return $quantity;
+    }
+
+    /**
+     * Lưu số lượng cho một sản phẩm vào giỏ (DB hoặc session).
+     */
+    private function persist(int $productId, int $quantity): void
+    {
+        if ($quantity <= 0) {
+            $this->forget($productId);
+            return;
+        }
+
+        if (Auth::check()) {
+            CartItem::updateOrCreate(
+                ['user_id' => Auth::id(), 'product_id' => $productId],
+                ['quantity' => $quantity]
+            );
+        } else {
+            $cart = session('cart', []);
+            $cart[$productId] = $quantity;
+            session(['cart' => $cart]);
+        }
+    }
+
+    /**
+     * Xóa một sản phẩm khỏi giỏ.
+     */
+    private function forget(int $productId): void
+    {
+        if (Auth::check()) {
+            CartItem::where('user_id', Auth::id())
+                ->where('product_id', $productId)
+                ->delete();
+        } else {
+            $cart = session('cart', []);
+            unset($cart[$productId]);
+            session(['cart' => $cart]);
+        }
     }
 
     public function index()
     {
         $cart = $this->getCart();
 
-        $productIds = array_keys($cart);
+        $products = Product::whereIn('id', array_keys($cart))->get();
 
-        $products = Product::whereIn('id', $productIds)->get();
-
-        $cartItems = $products->map(function ($product) use ($cart) {
+        $cartItems = $products->map(function (Product $product) use ($cart) {
             return (object) [
-                'product' => $product,
-                'quantity' => $cart[(int)$product->id] ?? 0
+                'product'  => $product,
+                'quantity' => $cart[$product->id] ?? 0,
             ];
-        })->filter(function ($item) {
-            return $item->quantity > 0;
-        });
+        })->filter(fn ($item) => $item->quantity > 0)->values();
 
         $total = $cartItems->sum(function ($item) {
             return ($item->product->sale_price ?? $item->product->price) * $item->quantity;
@@ -48,22 +99,18 @@ class CartController extends Controller
         return view('client.cart', compact('cartItems', 'total'));
     }
 
-    public function add($id)
+    public function add(Request $request, $id)
     {
-        $id = (int) $id;
+        $product = Product::where('is_active', true)->findOrFail((int) $id);
+
+        if ($product->stock <= 0) {
+            return redirect()->back()->with('cart_error', 'Sản phẩm đã hết hàng!');
+        }
 
         $cart = $this->getCart();
-        $quantity = ($cart[$id] ?? 0) + 1;
+        $quantity = $this->clampToStock($product, ($cart[$product->id] ?? 0) + 1);
 
-        if (Auth::check()) {
-            CartItem::updateOrCreate(
-                ['user_id' => Auth::id(), 'product_id' => $id],
-                ['quantity' => $quantity]
-            );
-        } else {
-            $cart[$id] = $quantity;
-            session(['cart' => $cart]);
-        }
+        $this->persist($product->id, $quantity);
 
         return redirect()->route('client.cart')
             ->with('cart_success', 'Đã thêm sản phẩm vào giỏ hàng!');
@@ -71,38 +118,24 @@ class CartController extends Controller
 
     public function update(Request $request)
     {
-        $cart = $this->getCart();
+        $validated = $request->validate([
+            'quantities'   => 'required|array',
+            'quantities.*' => 'integer|min:0',
+        ]);
 
-        if ($request->has('quantities')) {
-            foreach ($request->quantities as $id => $qty) {
+        $products = Product::whereIn('id', array_keys($validated['quantities']))->get()->keyBy('id');
 
-                $id = (int) $id;
-                $qty = (int) $qty;
+        foreach ($validated['quantities'] as $id => $qty) {
+            $id  = (int) $id;
+            $qty = (int) $qty;
+            $product = $products->get($id);
 
-                if (Auth::check()) {
-                    if ($qty > 0) {
-                        CartItem::updateOrCreate(
-                            ['user_id' => Auth::id(), 'product_id' => $id],
-                            ['quantity' => $qty]
-                        );
-                    } else {
-                        CartItem::where([
-                            'user_id' => Auth::id(),
-                            'product_id' => $id
-                        ])->delete();
-                    }
-                } else {
-                    if ($qty > 0) {
-                        $cart[$id] = $qty;
-                    } else {
-                        unset($cart[$id]);
-                    }
-                }
+            if (!$product) {
+                continue;
             }
-        }
 
-        if (!Auth::check()) {
-            session(['cart' => $cart]);
+            $qty = $qty > 0 ? $this->clampToStock($product, $qty) : 0;
+            $this->persist($id, $qty);
         }
 
         return redirect()->route('client.cart')
@@ -111,18 +144,7 @@ class CartController extends Controller
 
     public function remove($id)
     {
-        $id = (int) $id;
-
-        if (Auth::check()) {
-            CartItem::where([
-                'user_id' => Auth::id(),
-                'product_id' => $id
-            ])->delete();
-        } else {
-            $cart = session('cart', []);
-            unset($cart[$id]);
-            session(['cart' => $cart]);
-        }
+        $this->forget((int) $id);
 
         return redirect()->route('client.cart')
             ->with('cart_success', 'Đã xóa sản phẩm!');
@@ -138,5 +160,31 @@ class CartController extends Controller
 
         return redirect()->route('client.cart')
             ->with('cart_success', 'Đã xóa toàn bộ giỏ hàng!');
+    }
+
+    /**
+     * Hợp nhất giỏ hàng trong session (guest) vào DB sau khi user đăng nhập.
+     * Gọi hàm này trong luồng đăng nhập (ClientAuthController@store).
+     */
+    public static function mergeSessionCart(int $userId): void
+    {
+        $cart = session('cart', []);
+
+        foreach ($cart as $productId => $qty) {
+            $productId = (int) $productId;
+            $qty = (int) $qty;
+            if ($qty <= 0) {
+                continue;
+            }
+
+            $item = CartItem::firstOrNew([
+                'user_id'    => $userId,
+                'product_id' => $productId,
+            ]);
+            $item->quantity = ($item->quantity ?? 0) + $qty;
+            $item->save();
+        }
+
+        session()->forget('cart');
     }
 }

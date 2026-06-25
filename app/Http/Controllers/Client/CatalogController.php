@@ -64,32 +64,4 @@ class CatalogController extends Controller
         return view('client.product', compact('product', 'relatedProducts'));
     }
 
-    public function addToCart(Request $request)
-{
-    if (!Auth::check()) {
-        return redirect()->route('login.form')
-            ->with('error', 'Vui lòng đăng nhập để thêm vào giỏ hàng.');
-    }
-
-    $request->validate([
-        'product_id' => 'required|exists:products,id'
-    ]);
-
-    $item = CartItem::where('user_id', Auth::id())
-        ->where('product_id', $request->product_id)
-        ->first();
-
-    if ($item) {
-        $item->quantity += 1;
-        $item->save();
-    } else {
-        CartItem::create([
-            'user_id' => Auth::id(),
-            'product_id' => $request->product_id,
-            'quantity' => 1
-        ]);
-    }
-
-    return redirect()->back()->with('success', 'Đã thêm sản phẩm vào giỏ hàng!');
-}
 }

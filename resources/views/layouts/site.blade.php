@@ -47,7 +47,7 @@
             <div class="collapse navbar-collapse" id="siteNavbar">
                 <ul class="navbar-nav align-items-xl-center gap-xl-1 me-xl-auto mb-3 mb-xl-0">
                     <li class="nav-item"><a class="nav-link small fw-bold text-dark" href="{{ route('client.catalog') }}">Laptop</a></li>
-                    <li class="nav-item"><a class="nav-link small fw-bold text-dark" href="{{ route('client.product') }}">Máy tính bộ</a></li>
+                    <li class="nav-item"><a class="nav-link small fw-bold text-dark" href="{{ route('client.catalog') }}">Máy tính bộ</a></li>
                     <li class="nav-item"><a class="nav-link small fw-bold text-dark" href="{{ route('client.search') }}">Thiết bị mạng</a></li>
                     <li class="nav-item"><a class="nav-link small fw-bold text-dark" href="{{ route('client.contact') }}">Máy in & Máy scan</a></li>
                     <li class="nav-item"><a class="nav-link small fw-bold text-dark" href="{{ route('client.about') }}">Linh kiện PC</a></li>
@@ -57,7 +57,11 @@
                 </ul>
 
                 <div class="d-flex align-items-center gap-2">
-                    <button type="button" class="btn border-0 fs-5 p-2" aria-label="Tìm kiếm"><i class="bi bi-search"></i></button>
+                    <form action="{{ route('client.search') }}" method="GET" class="d-none d-lg-flex align-items-center bg-light rounded-pill px-2 border">
+                        <input type="text" name="q" class="form-control border-0 bg-transparent shadow-none py-1" placeholder="Tìm sản phẩm..." value="{{ request('q') }}" style="width: 150px; font-size: 0.9rem;" required>
+                        <button type="submit" class="btn border-0 p-1 text-primary"><i class="bi bi-search"></i></button>
+                    </form>
+                    <a href="{{ route('client.search') }}" class="btn border-0 fs-5 p-2 d-lg-none" aria-label="Tìm kiếm"><i class="bi bi-search"></i></a>
                     <a class="btn border-0 fs-5 p-2 position-relative" href="{{ route('client.cart') }}" aria-label="Giỏ hàng">
                         <span class="d-inline-block position-relative">
                             <i class="bi bi-cart3"></i>
@@ -134,12 +138,12 @@
                 <div class="col-6 col-lg">
                     <div class="text-white-50 fw-bold mb-2 small">Máy tính đồng bộ</div>
                     <ul class="list-unstyled small mb-0">
-                        <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.product') }}">PC lắp sẵn</a></li>
-                        <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.product') }}">Máy chủ</a></li>
-                        <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.product') }}">MSI All-In-One</a></li>
-                        <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.product') }}">PC HP/Compaq</a></li>
-                        <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.product') }}">PC ASUS</a></li>
-                        <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.product') }}">PC Tecs</a></li>
+                        <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.catalog') }}">PC lắp sẵn</a></li>
+                        <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.catalog') }}">Máy chủ</a></li>
+                        <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.catalog') }}">MSI All-In-One</a></li>
+                        <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.catalog') }}">PC HP/Compaq</a></li>
+                        <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.catalog') }}">PC ASUS</a></li>
+                        <li class="mb-1"><a class="link-light text-decoration-none" href="{{ route('client.catalog') }}">PC Tecs</a></li>
                     </ul>
                 </div>
                 <div class="col-6 col-lg">

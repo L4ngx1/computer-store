@@ -45,7 +45,7 @@ class ProductController extends ApiController
                 $file = $request->file('thumbnail');
                 $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
                 $path = $file->storeAs('products/thumbnails', $filename, 'public');
-                $thumbnailPath = '/storage/' . $path;
+                $thumbnailPath = $path;
             }
 
             $product = Product::create([
@@ -77,7 +77,7 @@ class ProductController extends ApiController
                         if ($path) {
                             ProductImage::create([
                                 'product_id' => $product->id,
-                                'image_path' => '/storage/' . $path,
+                                'image_path' => $path,
                             ]);
                         }
                     }
@@ -108,7 +108,7 @@ class ProductController extends ApiController
                 $file = $request->file('thumbnail');
                 $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
                 $path = $file->storeAs('products/thumbnails', $filename, 'public');
-                $thumbnailPath = '/storage/' . $path;
+                $thumbnailPath = $path;
             } elseif (array_key_exists('thumbnail', $validated) && is_string($validated['thumbnail'])) {
                 $thumbnailPath = $validated['thumbnail'];
             }
@@ -146,7 +146,7 @@ class ProductController extends ApiController
                         if ($path) {
                             ProductImage::create([
                                 'product_id' => $product->id,
-                                'image_path' => '/storage/' . $path,
+                                'image_path' => $path,
                             ]);
                         }
                     }

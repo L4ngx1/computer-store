@@ -3,29 +3,23 @@
 namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
+use App\Models\CartItem;
 use App\Models\Order;
 use App\Models\OrderItem;
-use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class CheckoutController extends Controller
 {
-    // =====================
-    // SHOW CHECKOUT PAGE (FIX THIẾU)
-    // =====================
     public function index()
     {
-        $cart = session('cart', []);
+        $cartItems = CartItem::with('product')
+            ->where('user_id', Auth::id())
+            ->get();
 
-        $products = Product::whereIn('id', array_keys($cart))->get();
-
-        return view('client.checkout', compact('products'));
+        return view('client.checkout', compact('cartItems'));
     }
 
-    // =====================
-    // STORE ORDER
-    // =====================
     public function store(Request $request)
     {
         $request->validate([
@@ -40,14 +34,15 @@ class CheckoutController extends Controller
             'shipping'   => 'required|in:standard,pickup',
         ]);
 
-        $cart = session('cart', []);
+        $cartItems = CartItem::with('product')
+            ->where('user_id', Auth::id())
+            ->get();
 
-        if (empty($cart)) {
-            return redirect()->route('client.cart')
+        if ($cartItems->isEmpty()) {
+            return redirect()
+                ->route('client.cart')
                 ->with('cart_error', 'Giỏ hàng trống!');
         }
-
-        $products = Product::whereIn('id', array_keys($cart))->get();
 
         $order = Order::create([
             'user_id' => Auth::id(),
@@ -62,24 +57,24 @@ class CheckoutController extends Controller
 
         $total = 0;
 
-        foreach ($products as $product) {
-            $qty = $cart[$product->id];
-            $subtotal = $product->price * $qty;
+        foreach ($cartItems as $item) {
 
             OrderItem::create([
                 'order_id' => $order->id,
-                'product_id' => $product->id,
-                'product_name' => $product->name,
-                'quantity' => $qty,
-                'price' => $product->price,
+                'product_id' => $item->product_id,
+                'product_name' => $item->product->name,
+                'quantity' => $item->quantity,
+                'price' => $item->product->price,
             ]);
 
-            $total += $subtotal;
+            $total += $item->product->price * $item->quantity;
         }
 
-        $order->update(['total_amount' => $total]);
+        $order->update([
+            'total_amount' => $total
+        ]);
 
-        session()->forget('cart');
+        CartItem::where('user_id', Auth::id())->delete();
 
         return redirect()
             ->route('client.cart')

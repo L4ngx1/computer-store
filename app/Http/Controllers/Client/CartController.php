@@ -10,37 +10,59 @@ use Illuminate\Support\Facades\Auth;
 
 class CartController extends Controller
 {
-    private function getCart()
-    {
-        if (Auth::check()) {
-            return CartItem::where('user_id', Auth::id())->pluck('quantity', 'product_id')->toArray();
+    /**
+     * Lấy dữ liệu giỏ hàng (từ Database nếu đã đăng nhập, từ Session nếu là khách)
+     */
+   private function getCart()
+{
+    if (Auth::check()) {
+        // Lấy dữ liệu trực tiếp từ DB cho user hiện tại
+        $items = \App\Models\CartItem::where('user_id', Auth::id())->get();
+        
+        // Chuyển thành mảng [product_id => quantity]
+        // Chúng ta ép kiểu (int) để đảm bảo khớp với Product ID
+        $cart = [];
+        foreach ($items as $item) {
+            $cart[(int)$item->product_id] = (int)$item->quantity;
         }
-        return session('cart', []);
+        
+        return $cart;
     }
-
+    return session('cart', []);
+}
+    /**
+     * Hiển thị trang giỏ hàng
+     */
     public function index()
-    {
-        $cart = $this->getCart();
+{
+    $cart = $this->getCart(); // Lấy mảng [product_id => quantity]
+    $productIds = array_keys($cart);
 
-        if (env('CART_DEMO') && empty($cart)) {
-            $cart = [
-                1 => 1,
-                2 => 2,
-                3 => 1,
-            ];
-            if (! Auth::check()) {
-                session(['cart' => $cart]);
-            }
-        }
+    // 1. Lấy sản phẩm từ DB
+    $products = Product::whereIn('id', $productIds)->get();
 
-        $products = Product::whereIn('id', array_keys($cart))->get();
+    // 2. Map dữ liệu an toàn
+    $cartItems = $products->map(function ($product) use ($cart) {
+        return (object) [
+            'product' => $product,
+            'quantity' => $cart[$product->id] ?? 0
+        ];
+    })->filter(function ($item) {
+        // Chỉ lấy những sản phẩm có quantity > 0
+        return $item->quantity > 0;
+    });
 
-        return view('client.cart', compact('cart', 'products'));
-    }
+    // 3. Tính tổng tiền
+    $total = $cartItems->sum(function($item) {
+        return ($item->product->sale_price ?? $item->product->price) * $item->quantity;
+    });
 
-    // =====================
-    // ADD TO CART
-    // =====================
+    return view('client.cart', compact('cartItems', 'total'));
+}
+
+    /**
+     * Thêm sản phẩm vào giỏ hàng
+     */
     public function add($id)
     {
         $cart = $this->getCart();
@@ -61,9 +83,9 @@ class CartController extends Controller
             ->with('cart_success', 'Đã thêm sản phẩm vào giỏ hàng!');
     }
 
-    // =====================
-    // UPDATE CART
-    // =====================
+    /**
+     * Cập nhật số lượng giỏ hàng
+     */
     public function update(Request $request)
     {
         $cart = $this->getCart();
@@ -88,6 +110,7 @@ class CartController extends Controller
                 }
             }
         }
+        
         if (!Auth::check()) {
             session(['cart' => $cart]);
         }
@@ -97,9 +120,9 @@ class CartController extends Controller
             ->with('cart_success', 'Giỏ hàng đã được cập nhật!');
     }
 
-    // =====================
-    // REMOVE ITEM
-    // =====================
+    /**
+     * Xóa một sản phẩm
+     */
     public function remove($id)
     {
         if (Auth::check()) {
@@ -115,9 +138,9 @@ class CartController extends Controller
             ->with('cart_success', 'Đã xoá sản phẩm khỏi giỏ hàng!');
     }
 
-    // =====================
-    // CLEAR CART
-    // =====================
+    /**
+     * Xóa toàn bộ giỏ hàng
+     */
     public function clear()
     {
         if (Auth::check()) {

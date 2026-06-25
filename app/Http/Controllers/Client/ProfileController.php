@@ -12,6 +12,11 @@ class ProfileController extends Controller
     public function show(): View
     {
         $user = auth()->user();
+        if ($user) {
+            $user->load(['orders' => function ($query) {
+                $query->with('items')->orderBy('created_at', 'desc');
+            }]);
+        }
         return view('client.account', compact('user'));
     }
 

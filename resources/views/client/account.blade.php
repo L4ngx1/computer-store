@@ -176,6 +176,15 @@
                             <i class="bi bi-box"></i> Lịch sử đơn hàng
                         </h5>
                     </div>
+                    @php
+                        $statusLabels = [
+                            'pending' => ['Chờ xử lý', 'warning'],
+                            'processing' => ['Đang xử lý', 'info'],
+                            'shipping' => ['Đang giao', 'primary'],
+                            'completed' => ['Hoàn thành', 'success'],
+                            'cancelled' => ['Đã hủy', 'danger'],
+                        ];
+                    @endphp
                     <div class="table-responsive">
                         <table class="table table-hover mb-0">
                             <thead class="table-light">
@@ -188,20 +197,20 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse ($user->orders()->orderBy('created_at', 'desc')->get() as $order)
+                                @forelse ($user->orders as $order)
                                     <tr>
                                         <td><strong>#{{ $order->id }}</strong></td>
                                         <td>{{ $order->created_at->format('d/m/Y') }}</td>
                                         <td>{{ number_format($order->total_price, 0, ',', '.') }} ₫</td>
                                         <td>
-                                            <span class="badge {{ $order->completed_at ? 'bg-success' : 'bg-warning' }}">
-                                                {{ $order->completed_at ? 'Hoàn thành' : 'Chờ xử lý' }}
+                                            <span class="badge bg-{{ $statusLabels[$order->status][1] ?? 'secondary' }}">
+                                                {{ $statusLabels[$order->status][0] ?? $order->status }}
                                             </span>
                                         </td>
                                         <td>
-                                            <a href="#" class="btn btn-sm btn-outline-primary">
+                                            <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#orderModal{{ $order->id }}">
                                                 <i class="bi bi-eye"></i> Chi tiết
-                                            </a>
+                                            </button>
                                         </td>
                                     </tr>
                                 @empty
@@ -217,6 +226,87 @@
                 </div>
             </div>
         </div>
+
+        @if ($user && $user->orders->isNotEmpty())
+            @foreach ($user->orders as $order)
+                <!-- Modal Chi tiết đơn hàng #{{ $order->id }} -->
+                <div class="modal fade" id="orderModal{{ $order->id }}" tabindex="-1" aria-labelledby="orderModalLabel{{ $order->id }}" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content border-0 shadow-lg">
+                            <div class="modal-header bg-light">
+                                <h5 class="modal-title fw-bold" id="orderModalLabel{{ $order->id }}">
+                                    <i class="bi bi-receipt"></i> Chi tiết đơn hàng #{{ $order->id }}
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row mb-4">
+                                    <div class="col-md-6 mb-3 mb-md-0">
+                                        <h6 class="fw-bold text-primary mb-2"><i class="bi bi-person"></i> Thông tin giao nhận</h6>
+                                        <div class="p-3 bg-light rounded-3 small">
+                                            <p class="mb-1"><strong>Họ tên:</strong> {{ $order->customer_name }}</p>
+                                            <p class="mb-1"><strong>Điện thoại:</strong> {{ $order->customer_phone }}</p>
+                                            <p class="mb-1"><strong>Email:</strong> {{ $order->customer_email }}</p>
+                                            <p class="mb-0"><strong>Địa chỉ:</strong> {{ $order->shipping_address }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6 class="fw-bold text-primary mb-2"><i class="bi bi-info-circle"></i> Thông tin đơn hàng</h6>
+                                        <div class="p-3 bg-light rounded-3 small">
+                                            <p class="mb-1"><strong>Ngày đặt:</strong> {{ $order->created_at->format('d/m/Y H:i') }}</p>
+                                            <p class="mb-1"><strong>Trạng thái:</strong> 
+                                                <span class="badge bg-{{ $statusLabels[$order->status][1] ?? 'secondary' }}">
+                                                    {{ $statusLabels[$order->status][0] ?? $order->status }}
+                                                </span>
+                                            </p>
+                                            <p class="mb-1"><strong>Thanh toán:</strong> {{ $order->payment_method }}</p>
+                                            @if($order->note)
+                                                <p class="mb-0 text-muted"><strong>Ghi chú:</strong> {{ $order->note }}</p>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <h6 class="fw-bold text-primary mb-2"><i class="bi bi-box-seam"></i> Danh sách sản phẩm</h6>
+                                <div class="table-responsive border rounded-3">
+                                    <table class="table table-hover mb-0 align-middle">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Sản phẩm</th>
+                                                <th class="text-center" style="width: 80px;">SL</th>
+                                                <th class="text-end" style="width: 140px;">Đơn giá</th>
+                                                <th class="text-end" style="width: 160px;">Thành tiền</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($order->items as $item)
+                                                <tr>
+                                                    <td>
+                                                        <div class="fw-semibold">{{ $item->product_name }}</div>
+                                                    </td>
+                                                    <td class="text-center">{{ $item->quantity }}</td>
+                                                    <td class="text-end">{{ number_format($item->price, 0, ',', '.') }} ₫</td>
+                                                    <td class="text-end fw-semibold">{{ number_format($item->price * $item->quantity, 0, ',', '.') }} ₫</td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                        <tfoot class="table-light">
+                                            <tr class="fw-bold">
+                                                <td colspan="3" class="text-end text-uppercase small">Tổng tiền thanh toán:</td>
+                                                <td class="text-end text-danger fs-5">{{ number_format($order->total_amount, 0, ',', '.') }} ₫</td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="modal-footer bg-light-subtle">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        @endif
     </div>
 
     <script>

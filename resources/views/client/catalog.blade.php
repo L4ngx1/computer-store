@@ -99,11 +99,9 @@
                                             @else
                                                 <div class="fw-bold text-primary fs-5 mb-2">{{ number_format($product->price, 0, ',', '.') }}đ</div>
                                             @endif
-                                            <form action="{{ route('client.cart.add') }}" method="POST">
+                                            <form action="{{ route('client.cart.add', $product->id) }}" method="POST">
     @csrf
-    <input type="hidden" name="product_id" value="{{ $product->id }}">
-
-    <button type="submit" class="btn btn-outline-primary w-100 rounded-pill fw-bold">
+    <button type="submit" class="btn btn-outline-primary w-100 rounded-pill fw-bold" {{ $product->stock <= 0 ? 'disabled' : '' }}>
         <i class="bi bi-cart-plus me-1"></i> Thêm vào giỏ
     </button>
 </form>

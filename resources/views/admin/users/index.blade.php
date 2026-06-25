@@ -4,13 +4,28 @@
 
 @section('content')
 <div class="container-fluid mt-4">
-    <div class="row mb-4">
-        <div class="col-md-6">
-            <h2 class="fw-semibold">
+    <div class="row mb-4 align-items-center">
+        <div class="col-md-4">
+            <h2 class="fw-semibold mb-0">
                 <i class="bi bi-people-fill"></i> Quản lý Người dùng
             </h2>
         </div>
-        <div class="col-md-6 text-end">
+        <div class="col-md-5">
+            <form action="{{ route('admin.users.index') }}" method="GET" class="d-flex">
+                <div class="input-group">
+                    <input type="text" name="search" class="form-control" placeholder="Tìm tên, email, số điện thoại..." value="{{ request('search') }}">
+                    <button class="btn btn-outline-secondary" type="submit">
+                        <i class="bi bi-search"></i> Tìm
+                    </button>
+                    @if (request('search'))
+                        <a href="{{ route('admin.users.index') }}" class="btn btn-outline-danger" title="Xóa tìm kiếm">
+                            <i class="bi bi-x-lg"></i>
+                        </a>
+                    @endif
+                </div>
+            </form>
+        </div>
+        <div class="col-md-3 text-end">
             <a href="{{ route('admin.users.create') }}" class="btn btn-primary">
                 <i class="bi bi-plus-circle"></i> Tạo người dùng mới
             </a>

@@ -6,7 +6,8 @@ use App\Http\Controllers\ApiController;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class AuthController extends ApiController
 {
@@ -17,25 +18,36 @@ class AuthController extends ApiController
             'password' => 'required|string',
         ]);
 
-        if (! Auth::attempt($credentials)) {
-            return $this->error('Tài khoản hoặc mật khẩu không chính xác.');
+        $user = User::query()
+            ->where('email', $credentials['email'])
+            ->first();
+
+        if (! $user || ! Hash::check($credentials['password'], $user->password)) {
+            return $this->error('Tai khoan hoac mat khau khong chinh xac.', 401);
         }
 
-        $request->session()->regenerate();
+        $token = $this->refreshApiToken($user);
 
         return $this->success([
-            'user' => Auth::user(),
-        ], 'Đăng nhập thành công.');
+            'user' => $user->fresh(),
+            'api_token' => $token,
+            'token_type' => 'Bearer',
+        ], 'Dang nhap thanh cong.');
     }
 
     public function logout(Request $request): JsonResponse
     {
-        Auth::logout();
+        $user = $request->user();
 
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+        if (! $user) {
+            return $this->error('Ban chua dang nhap.', 401);
+        }
 
-        return $this->success(null, 'Đăng xuất thành công.');
+        $user->forceFill([
+            'api_token' => null,
+        ])->save();
+
+        return $this->success(null, 'Dang xuat thanh cong.');
     }
 
     public function register(Request $request): JsonResponse
@@ -57,23 +69,33 @@ class AuthController extends ApiController
             'role' => 'customer',
         ]);
 
-        Auth::login($user);
+        $token = $this->refreshApiToken($user);
 
         return $this->success([
-            'user' => $user,
-        ], 'Đăng ký thành công.', 201);
+            'user' => $user->fresh(),
+            'api_token' => $token,
+            'token_type' => 'Bearer',
+        ], 'Dang ky thanh cong.', 201);
     }
 
     public function me(Request $request): JsonResponse
     {
+        if (! $request->user()) {
+            return $this->error('Ban chua dang nhap.', 401);
+        }
+
         return $this->success([
             'user' => $request->user(),
-        ], 'Lấy thông tin người dùng hiện tại thành công.');
+        ], 'Lay thong tin nguoi dung hien tai thanh cong.');
     }
 
     public function updateProfile(Request $request): JsonResponse
     {
         $user = $request->user();
+
+        if (! $user) {
+            return $this->error('Ban chua dang nhap.', 401);
+        }
 
         $validated = $request->validate([
             'name' => 'sometimes|required|string|max:255',
@@ -85,24 +107,43 @@ class AuthController extends ApiController
 
         return $this->success([
             'user' => $user->fresh(),
-        ], 'Cập nhật hồ sơ thành công.');
+        ], 'Cap nhat ho so thanh cong.');
     }
 
     public function changePassword(Request $request): JsonResponse
     {
+        $user = $request->user();
+
+        if (! $user) {
+            return $this->error('Ban chua dang nhap.', 401);
+        }
+
         $validated = $request->validate([
             'current_password' => 'required|string',
             'password' => 'required|string|min:8|confirmed',
         ]);
 
-        if (! Auth::attempt(['email' => $request->user()->email, 'password' => $validated['current_password']])) {
-            return $this->error('Mật khẩu hiện tại không đúng.');
+        if (! Hash::check($validated['current_password'], $user->password)) {
+            return $this->error('Mat khau hien tai khong dung.');
         }
 
-        $request->user()->update([
+        $user->update([
             'password' => $validated['password'],
         ]);
 
-        return $this->success(null, 'Đổi mật khẩu thành công.');
+        return $this->success(null, 'Doi mat khau thanh cong.');
+    }
+
+    private function refreshApiToken(User $user): string
+    {
+        do {
+            $token = Str::random(80);
+        } while (User::query()->where('api_token', $token)->exists());
+
+        $user->forceFill([
+            'api_token' => $token,
+        ])->save();
+
+        return $token;
     }
 }

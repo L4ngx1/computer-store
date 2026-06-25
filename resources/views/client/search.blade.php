@@ -1,5 +1,6 @@
 @extends('layouts.site')
 
+
 @section('title', 'Tìm kiếm sản phẩm')
 
 @section('content')

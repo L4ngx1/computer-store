@@ -7,6 +7,9 @@ use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\Brand;
+use App\Models\CartItem;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class CatalogController extends Controller
 {
@@ -28,25 +31,16 @@ class CatalogController extends Controller
 
         if ($request->filled('sort')) {
             switch ($request->sort) {
-                case 'price_asc':
-                    $query->orderBy('price', 'asc');
-                    break;
-                case 'price_desc':
-                    $query->orderBy('price', 'desc');
-                    break;
-                case 'newest':
-                    $query->orderBy('created_at', 'desc');
-                    break;
-                default:
-                    $query->orderBy('created_at', 'desc');
-                    break;
+                case 'price_asc': $query->orderBy('price', 'asc'); break;
+                case 'price_desc': $query->orderBy('price', 'desc'); break;
+                case 'newest': $query->orderBy('created_at', 'desc'); break;
+                default: $query->orderBy('created_at', 'desc'); break;
             }
         } else {
             $query->orderBy('created_at', 'desc');
         }
 
         $products = $query->paginate(12)->withQueryString();
-        
         $categories = Category::where('is_active', true)->get();
         $brands = Brand::all();
 
@@ -69,4 +63,5 @@ class CatalogController extends Controller
 
         return view('client.product', compact('product', 'relatedProducts'));
     }
+
 }

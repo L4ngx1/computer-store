@@ -20,6 +20,32 @@
 
     <div class="row g-4">
         <div class="col-md-4">
+<<<<<<< HEAD
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <img src="{{ $product->thumbnail }}" alt="{{ $product->name }}" class="img-fluid rounded mb-3" style="max-height: 400px;">
+                    <h5 class="card-title mb-1">{{ $product->name }}</h5>
+                    <p class="text-muted mb-0"><code>{{ $product->sku }}</code></p>
+                </div>
+            </div>
+
+            @if($product->images && $product->images->count() > 0)
+                <div class="card border-0 shadow-sm mt-3">
+                    <div class="card-header bg-white">
+                        <h6 class="mb-0">Ảnh thêm</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-2">
+                            @foreach($product->images as $image)
+                            <div class="col-md-6">
+                                <img src="{{ asset('storage/' . $image->image_path) }}" alt="Product image" class="img-fluid rounded">
+                            </div>
+                            @endforeach
+</div>
+                    </div>
+                </div>
+            @endif
+=======
             <div class="card border-0 shadow-sm">
                 <div class="card-body p-3">
 
@@ -62,6 +88,7 @@
 
                 </div>
             </div>
+>>>>>>> origin/main
         </div>
 
         <div class="col-md-8">
@@ -213,6 +240,10 @@
                 </div>
             </div>
         </div>
+<<<<<<< HEAD
+    </div>
+@endsection
+=======
 @endsection
 
 @push('styles')
@@ -255,3 +286,4 @@
     }
 </script>
 @endpush
+>>>>>>> origin/main

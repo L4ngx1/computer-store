@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Client\CartController;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -41,6 +42,9 @@ class ClientAuthController extends Controller
                 'email' => 'Tài khoản quản trị phải đăng nhập tại /admin/login.',
             ])->onlyInput('email');
         }
+
+        // Hợp nhất giỏ hàng của khách (session) vào tài khoản sau khi đăng nhập
+        CartController::mergeSessionCart(Auth::id());
 
         return redirect()->route('home');
     }

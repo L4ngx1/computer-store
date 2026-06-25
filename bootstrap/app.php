@@ -14,6 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'is_admin' => \App\Http\Middleware\AdminMiddleware::class,
+            'api_token' => \App\Http\Middleware\ApiTokenMiddleware::class,
         ]);
 
         $middleware->redirectGuestsTo(function ($request) {

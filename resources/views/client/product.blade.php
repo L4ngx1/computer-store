@@ -10,18 +10,17 @@
             @if($product->category)
                 <li class="breadcrumb-item"><a href="{{ route('client.catalog', ['category' => $product->category->slug]) }}" class="text-decoration-none">{{ $product->category->name }}</a></li>
             @endif
-            <li class="breadcrumb-item active" aria-current="page">{{ $product->name }}</li>
+            <li class="breadcrumb-item active">{{ $product->name }}</li>
         </ol>
     </nav>
 
     <div class="row g-5 mb-5">
-        <!-- Product Images -->
         <div class="col-12 col-md-6">
             <div class="card border-0 rounded-4 overflow-hidden shadow-sm bg-white mb-3">
                 <div class="card-body p-0 text-center position-relative">
                     @if($product->sale_price)
                         <span class="position-absolute top-0 start-0 badge bg-danger m-3 px-3 py-2 rounded-pill shadow-sm fs-6 z-1">
-                            Sale {{ round((($product->price - $product->sale_price) / $product->price) * 100) }}%
+                            Sale {{ round(((($product->price - $product->sale_price) / $product->price) * 100)) }}%
                         </span>
                     @endif
                     @if($product->thumbnail)
@@ -33,8 +32,7 @@
                     @endif
                 </div>
             </div>
-            
-            <!-- Thumbnails -->
+
             @if($product->images->count() > 0 || $product->thumbnail)
                 <div class="row g-2" id="thumbnail-gallery">
                     @if($product->thumbnail)
@@ -55,16 +53,15 @@
             @endif
         </div>
 
-        <!-- Product Info -->
         <div class="col-12 col-md-6">
             <h1 class="h2 fw-bold mb-3">{{ $product->name }}</h1>
-            
-            <div class="d-flex align-items-center gap-3 mb-4 small text-secondary">
+
+            <div class="d-flex align-items-center gap-3 mb-4 small text-secondary flex-wrap">
                 <div>Thương hiệu: <a href="{{ route('client.catalog', ['brand' => $product->brand->slug ?? '']) }}" class="fw-bold text-decoration-none">{{ $product->brand->name ?? 'Đang cập nhật' }}</a></div>
                 <div class="vr"></div>
                 <div>SKU: <span class="fw-bold text-dark">{{ $product->sku ?? 'N/A' }}</span></div>
                 <div class="vr"></div>
-                <div>Tình trạng: 
+                <div>Tình trạng:
                     @if($product->stock > 0)
                         <span class="badge bg-success rounded-pill px-2">Còn hàng ({{ $product->stock }})</span>
                     @else
@@ -90,25 +87,20 @@
                 </div>
             </div>
 
-            <form action="#" method="POST" class="mb-5">
-                @csrf
-                <div class="d-flex gap-3 align-items-center mb-4">
-                    <label for="quantity" class="fw-bold mb-0 text-nowrap">Số lượng:</label>
-                    <input type="number" name="quantity" id="quantity" class="form-control text-center rounded-pill" value="1" min="1" max="{{ $product->stock }}" style="width: 100px;">
-                </div>
-                <div class="d-flex gap-3">
-                    <button type="button" class="btn btn-primary btn-lg rounded-pill px-5 fw-bold flex-grow-1" onclick="alert('Chức năng thêm giỏ hàng đang được phát triển!')" {{ $product->stock <= 0 ? 'disabled' : '' }}>
-                        <i class="bi bi-cart-plus me-2"></i> Thêm vào giỏ
+            <div class="d-flex gap-3 mb-5">
+                <form action="{{ route('client.cart.add', $product->id) }}" method="POST" class="flex-grow-1">
+                    @csrf
+                    <button type="submit" class="btn btn-primary btn-lg w-100 rounded-pill fw-bold" {{ $product->stock <= 0 ? 'disabled' : '' }}>
+                        <i class="bi bi-cart-plus me-1"></i> Thêm vào giỏ
                     </button>
-                    <button type="button" class="btn btn-outline-danger btn-lg rounded-pill px-4" aria-label="Yêu thích">
-                        <i class="bi bi-heart"></i>
-                    </button>
-                </div>
-            </form>
+                </form>
+                <button type="button" class="btn btn-outline-danger btn-lg rounded-pill px-4" aria-label="Yêu thích">
+                    <i class="bi bi-heart"></i>
+                </button>
+            </div>
         </div>
     </div>
 
-    <!-- Product Details Tabs -->
     <div class="row mb-5">
         <div class="col-12">
             <ul class="nav nav-pills mb-4 border-bottom pb-3 gap-2" id="pills-tab" role="tablist">
@@ -122,16 +114,16 @@
                 @endif
             </ul>
             <div class="tab-content bg-white p-4 rounded-4 shadow-sm" id="pills-tabContent">
-                <div class="tab-pane fade show active lh-lg" id="pills-desc" role="tabpanel" aria-labelledby="pills-desc-tab">
+                <div class="tab-pane fade show active lh-lg" id="pills-desc" role="tabpanel">
                     {!! $product->description ?? 'Chưa có mô tả chi tiết cho sản phẩm này.' !!}
                 </div>
                 @if($product->attributes->count() > 0)
-                <div class="tab-pane fade" id="pills-attr" role="tabpanel" aria-labelledby="pills-attr-tab">
-                    <table class="table table-striped table-hover border">
+                <div class="tab-pane fade" id="pills-attr" role="tabpanel">
+                    <table class="table table-striped table-hover border mb-0">
                         <tbody>
                             @foreach($product->attributes as $attr)
                             <tr>
-                                <th scope="row" class="w-25 bg-light">{{ $attr->name }}</th>
+                                <th class="w-25 bg-light">{{ $attr->name }}</th>
                                 <td>{{ $attr->value }}</td>
                             </tr>
                             @endforeach
@@ -143,7 +135,6 @@
         </div>
     </div>
 
-    <!-- Related Products -->
     @if($relatedProducts->count() > 0)
     <div class="mb-5">
         <h2 class="h4 fw-bold mb-4 border-bottom pb-2">Sản phẩm liên quan</h2>
@@ -180,10 +171,7 @@
 <script>
     function changeImage(src, element) {
         document.getElementById('mainProductImage').src = src;
-        
-        let thumbs = document.querySelectorAll('.product-thumbnail-item');
-        thumbs.forEach(el => el.classList.remove('active'));
-        
+        document.querySelectorAll('.product-thumbnail-item').forEach(el => el.classList.remove('active'));
         element.classList.add('active');
     }
 </script>
@@ -227,19 +215,13 @@
         transition: border-color 0.2s ease;
     }
     .product-thumbnail-item.active,
-    .product-thumbnail-item:hover {
-        border-color: var(--bs-primary);
-    }
-    .product-thumbnail-item img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
+    .product-thumbnail-item:hover { border-color: var(--bs-primary); }
+    .product-thumbnail-item img { width: 100%; height: 100%; object-fit: cover; }
 
     .product-image-container {
         position: relative;
         width: 100%;
-        padding-top: 100%; /* 1:1 Aspect Ratio */
+        padding-top: 100%;
         overflow: hidden;
         background-color: #f8f9fa;
     }
@@ -253,9 +235,7 @@
         padding: 1rem;
         transition: transform 0.3s ease;
     }
-    .product-card:hover .product-image {
-        transform: scale(1.05);
-    }
+    .product-card:hover .product-image { transform: scale(1.05); }
     .product-image-placeholder {
         position: absolute;
         top: 0;

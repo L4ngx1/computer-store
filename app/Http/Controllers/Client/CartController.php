@@ -99,7 +99,7 @@ class CartController extends Controller
         return view('client.cart', compact('cartItems', 'total'));
     }
 
-    public function add(Request $request, $id)
+    public function add(Request $request, int|string $id)
     {
         $product = Product::where('is_active', true)->findOrFail((int) $id);
 
@@ -107,12 +107,15 @@ class CartController extends Controller
             return redirect()->back()->with('cart_error', 'Sản phẩm đã hết hàng!');
         }
 
+        $addQuantity = max(1, (int) $request->input('quantity', 1));
         $cart = $this->getCart();
-        $quantity = $this->clampToStock($product, ($cart[$product->id] ?? 0) + 1);
+        $currentQuantity = $cart[$product->id] ?? 0;
+
+        $quantity = $this->clampToStock($product, $currentQuantity + $addQuantity);
 
         $this->persist($product->id, $quantity);
 
-        return redirect()->route('client.cart')
+        return redirect()->back()
             ->with('cart_success', 'Đã thêm sản phẩm vào giỏ hàng!');
     }
 
@@ -124,10 +127,17 @@ class CartController extends Controller
         ]);
 
         $products = Product::whereIn('id', array_keys($validated['quantities']))->get()->keyBy('id');
+        $currentCart = $this->getCart();
 
         foreach ($validated['quantities'] as $id => $qty) {
             $id  = (int) $id;
             $qty = (int) $qty;
+
+            // Chỉ cập nhật nếu số lượng thực sự thay đổi để tối ưu
+            if (($currentCart[$id] ?? 0) === $qty) {
+                continue;
+            }
+
             $product = $products->get($id);
 
             if (!$product) {
@@ -142,7 +152,7 @@ class CartController extends Controller
             ->with('cart_success', 'Giỏ hàng đã được cập nhật!');
     }
 
-    public function remove($id)
+    public function remove(int|string $id)
     {
         $this->forget((int) $id);
 

@@ -42,6 +42,10 @@ class AdminAuthController extends Controller
             ])->onlyInput('email');
         }
 
+        $user = Auth::user();
+        $user->api_token = \Illuminate\Support\Str::random(60);
+        $user->save();
+
         return redirect()->route('admin.dashboard');
     }
 

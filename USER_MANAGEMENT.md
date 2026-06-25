@@ -76,6 +76,7 @@ Protected by `auth` middleware
 - Hiển thị tất cả người dùng với phân trang (15 người/trang)
 - Hiển thị: ID, Tên, Email, Điện thoại, Vai trò
 - Hành động: Xem, Chỉnh sửa, Xóa
+- **Tìm kiếm**: theo tên hoặc email
 
 **Tạo Người Dùng Mới** (`/admin/users/create`)
 - Form tạo user với các trường:
@@ -132,7 +133,7 @@ Protected by `auth` middleware
 
 ```php
 // Xem danh sách người dùng
-public function index(): View
+public function index(Request $request): View
 // Trả về danh sách người dùng phân trang
 
 // Hiển thị form tạo mới

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model
@@ -40,5 +41,24 @@ class Product extends Model
     public function attributes()
     {
         return $this->hasMany(ProductAttribute::class);
+    }
+
+    /**
+     * Lấy URL đầy đủ cho ảnh đại diện của sản phẩm.
+     *
+     * @param  string|null  $value
+     * @return string|null
+     */
+    public function getThumbnailAttribute($value)
+    {
+        if ($value) {
+            // Nếu giá trị đã là một URL, trả về luôn
+            if (filter_var($value, FILTER_VALIDATE_URL)) {
+                return $value;
+            }
+            // Ngược lại, tạo URL từ đường dẫn lưu trữ
+            return Storage::url($value);
+        }
+        return null; // Hoặc trả về một ảnh placeholder: asset('images/placeholder.png')
     }
 }

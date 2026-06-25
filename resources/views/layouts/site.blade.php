@@ -70,7 +70,7 @@
                         <span class="d-inline-block position-relative">
                             <i class="bi bi-cart3"></i>
                             @if(($cartCount ?? 0) > 0)
-                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary">{{ $cartCount }}</span>
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary" style="font-size:13px; padding:3px 6px;">{{ $cartCount }} </span>
                             @endif
                         </span>
                     </a>

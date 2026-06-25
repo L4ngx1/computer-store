@@ -20,39 +20,13 @@
 
     <div class="row g-4">
         <div class="col-md-4">
-<<<<<<< HEAD
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body text-center">
-                    <img src="{{ $product->thumbnail }}" alt="{{ $product->name }}" class="img-fluid rounded mb-3" style="max-height: 400px;">
-                    <h5 class="card-title mb-1">{{ $product->name }}</h5>
-                    <p class="text-muted mb-0"><code>{{ $product->sku }}</code></p>
-                </div>
-            </div>
-
-            @if($product->images && $product->images->count() > 0)
-                <div class="card border-0 shadow-sm mt-3">
-                    <div class="card-header bg-white">
-                        <h6 class="mb-0">Ảnh thêm</h6>
-                    </div>
-                    <div class="card-body">
-                        <div class="row g-2">
-                            @foreach($product->images as $image)
-                            <div class="col-md-6">
-                                <img src="{{ asset('storage/' . $image->image_path) }}" alt="Product image" class="img-fluid rounded">
-                            </div>
-                            @endforeach
-</div>
-                    </div>
-                </div>
-            @endif
-=======
             <div class="card border-0 shadow-sm">
                 <div class="card-body p-3">
 
                     {{-- Ảnh lớn chính --}}
                     <div class="mb-3">
                         <img id="mainImage"
-                             src="{{ $product->thumbnail ? Storage::url($product->thumbnail) : '' }}"
+                             src="{{ $product->thumbnail }}"
                              alt="{{ $product->name }}"
                              class="img-fluid rounded"
                              style="width: 100%; height: 280px; object-fit: cover;">
@@ -61,18 +35,18 @@
                     {{-- Thumbnail strip: thumbnail + ảnh chi tiết --}}
                     <div class="d-flex gap-2 flex-wrap justify-content-center">
                         {{-- Ảnh chính (thumbnail) --}}
-                        <div class="gallery-thumb active-thumb" onclick="switchImage(this, '{{ $product->thumbnail ? Storage::url($product->thumbnail) : '' }}')"
+                        <div class="gallery-thumb active-thumb" onclick="switchImage(this, '{{ $product->thumbnail }}')"
                              style="cursor:pointer; width:70px; height:70px; flex-shrink:0;">
-                            <img src="{{ $product->thumbnail ? Storage::url($product->thumbnail) : '' }}"
+                            <img src="{{ $product->thumbnail }}"
                                  class="img-fluid rounded"
                                  style="width:100%; height:100%; object-fit:cover;">
                         </div>
 
                         {{-- Ảnh chi tiết --}}
                         @foreach($product->images as $image)
-                        <div class="gallery-thumb" onclick="switchImage(this, '{{ Storage::url($image->image_path) }}')"
+                        <div class="gallery-thumb" onclick="switchImage(this, '{{ $image->image_path }}')"
                              style="cursor:pointer; width:70px; height:70px; flex-shrink:0;">
-                            <img src="{{ Storage::url($image->image_path) }}"
+                            <img src="{{ $image->image_path }}"
                                  class="img-fluid rounded"
                                  style="width:100%; height:100%; object-fit:cover;">
                         </div>
@@ -88,7 +62,6 @@
 
                 </div>
             </div>
->>>>>>> origin/main
         </div>
 
         <div class="col-md-8">
@@ -240,10 +213,6 @@
                 </div>
             </div>
         </div>
-<<<<<<< HEAD
-    </div>
-@endsection
-=======
 @endsection
 
 @push('styles')
@@ -286,4 +255,3 @@
     }
 </script>
 @endpush
->>>>>>> origin/main

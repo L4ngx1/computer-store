@@ -192,7 +192,7 @@
                                     <tr>
                                         <td><strong>#{{ $order->id }}</strong></td>
                                         <td>{{ $order->created_at->format('d/m/Y') }}</td>
-                                        <td>{{ number_format($order->total_price, 0, ',', '.') }} ₫</td>
+                                        <td>{{ number_format($order->total_amount, 0, ',', '.') }} ₫</td>
                                         <td>
                                             <span class="badge {{ $order->completed_at ? 'bg-success' : 'bg-warning' }}">
                                                 {{ $order->completed_at ? 'Hoàn thành' : 'Chờ xử lý' }}
@@ -219,40 +219,32 @@
         </div>
     </div>
 
+@push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const menuItems = document.querySelectorAll('.list-group [data-section]');
-            const sections = document.querySelectorAll('[data-section-id]');
-            
+            const profileForm = document.getElementById('profileForm');
+            const ordersSection = document.querySelector('[data-section-id="orders"]').closest('.row');
+            const formCards = profileForm.querySelectorAll('.card');
+
             function showSection(sectionName) {
-                // Hide all sections
-                sections.forEach(section => {
-                    const sectionIds = section.getAttribute('data-section-id');
-                    // Hide section unless it's multi-section (for Save Button)
-                    if (sectionIds && sectionIds.includes(' ')) {
-                        // Multi-section element (like Save Button) - only hide if current section is orders
-                        if (sectionName === 'orders') {
-                            section.style.display = 'none';
-                        } else {
-                            section.style.display = 'block';
-                        }
-                    } else {
-                        // Single section element
-                        section.style.display = 'none';
-                    }
-                });
-                
-                // Show the selected section
-                const selectedSection = document.querySelector(`[data-section-id="${sectionName}"]`);
-                if (selectedSection) {
-                    selectedSection.style.display = 'block';
-                    
-                    // Scroll to section smoothly
-                    setTimeout(() => {
-                        selectedSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }, 100);
+                const isFormSection = ['account', 'contact', 'address', 'password'].includes(sectionName);
+
+                if (isFormSection) {
+                    profileForm.style.display = 'block';
+                    ordersSection.style.display = 'none';
+
+                    formCards.forEach(card => {
+                        const cardId = card.getAttribute('data-section-id');
+                        const isTargetCard = cardId === sectionName;
+                        const isSaveButtonCard = cardId && cardId.includes(' ');
+                        card.style.display = (isTargetCard || isSaveButtonCard) ? 'block' : 'none';
+                    });
+                } else { // 'orders' section
+                    profileForm.style.display = 'none';
+                    ordersSection.style.display = 'block';
                 }
-                
+
                 // Update active menu item
                 menuItems.forEach(item => {
                     item.classList.remove('active');
@@ -262,18 +254,27 @@
                     activeItem.classList.add('active');
                 }
             }
-            
+
             // Add click handlers to menu items
             menuItems.forEach(item => {
                 item.addEventListener('click', function(e) {
                     e.preventDefault();
                     const sectionName = this.getAttribute('data-section');
+                    history.pushState(null, null, '#' + sectionName);
                     showSection(sectionName);
                 });
             });
-            
-            // Initialize - show only account section by default
-            showSection('account');
+
+            // Handle back/forward browser buttons
+            window.addEventListener('popstate', () => {
+                const sectionName = window.location.hash.substring(1) || 'account';
+                showSection(sectionName);
+            });
+
+            // Initial load from URL hash
+            const initialSection = window.location.hash.substring(1) || 'account';
+            showSection(initialSection);
         });
     </script>
+@endpush
 @endsection

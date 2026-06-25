@@ -1,21 +1,3 @@
-<<<<<<< HEAD
-@extends('layouts.app')
-
-@section('content')
-<div class="container-fluid py-4">
-    <div class="row mb-4">
-        <div class="col-md-8">
-            <h1 class="h3 mb-0"> Chỉnh sửa Sản phẩm</h1>
-        </div>
-        <div class="col-md-4 text-end">
-            <a href="{{ route('admin.products.index') }}" class="btn btn-secondary">
-                <i class="bi bi-arrow-left"></i> Quay lại
-            </a>
-        </div>
-    </div>
-
-    <div class="card shadow-sm">
-=======
 @extends('admin.master')
 
 @section('title', 'Chỉnh sửa sản phẩm')
@@ -32,7 +14,6 @@
     </div>
 
     <div class="card border-0 shadow-sm">
->>>>>>> origin/main
         <div class="card-body">
             <form id="productForm" method="POST">
                 @csrf
@@ -146,7 +127,7 @@
                         @error('thumbnail')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                         
                         <div id="thumbnailPreview" class="mt-3">
-                            <img id="thumbnailImage" src="{{ $product->thumbnail ? Storage::url($product->thumbnail) : '' }}" alt="Thumbnail Preview" class="img-fluid rounded" style="max-width: 300px; max-height: 300px; object-fit: cover;">
+                            <img id="thumbnailImage" src="{{ $product->thumbnail }}" alt="Thumbnail Preview" class="img-fluid rounded" style="max-width: 300px; max-height: 300px; object-fit: cover;">
                         </div>
                     </div>
 
@@ -162,7 +143,7 @@
                             <div id="existingImagesPreview" class="d-flex gap-2 flex-wrap">
                                 @forelse($product->images as $image)
                                     <div class="position-relative" style="width: 100px; height: 100px;">
-                                        <img src="{{ Storage::url($image->image_path) }}" alt="Product image" class="img-fluid rounded border" style="width: 100%; height: 100%; object-fit: cover;">
+                                        <img src="{{ $image->image_path }}" alt="Product image" class="img-fluid rounded border" style="width: 100%; height: 100%; object-fit: cover;">
                                     </div>
                                 @empty
                                     <p class="text-muted">Chưa có ảnh chi tiết</p>
@@ -214,11 +195,6 @@
             </form>
         </div>
     </div>
-<<<<<<< HEAD
-</div>
-
-=======
->>>>>>> origin/main
 @push('scripts')
 <script>
     // Thumbnail preview
@@ -281,18 +257,10 @@
     async function submitForm() {
         const form = document.getElementById('productForm');
         const formData = new FormData(form);
-<<<<<<< HEAD
         
         try {
-            const response = await fetch('/api/admin/products/{{ $product->id }}', {
-                method: 'PATCH',
-=======
-        formData.set('_method', 'PATCH');
-        
-        try {
-            const response = await fetch('/api/admin/products/{{ $product->id }}', {
+            const response = await fetch('{{ route("admin.products.api.update", $product->id) }}', {
                 method: 'POST',
->>>>>>> origin/main
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                     'Accept': 'application/json'
@@ -315,8 +283,4 @@
     }
 </script>
 @endpush
-<<<<<<< HEAD
 @endsection
-=======
-@endsection
->>>>>>> origin/main

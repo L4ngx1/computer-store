@@ -11,9 +11,16 @@ use Illuminate\View\View;
 
 class BrandController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
-        $brands = Brand::withCount('products')->latest()->paginate(15);
+        $query = Brand::query()->withCount('products');
+
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where('name', 'like', "%{$search}%");
+        }
+
+        $brands = $query->latest()->paginate(15)->withQueryString();
 
         return view('admin.brands.index', compact('brands'));
     }

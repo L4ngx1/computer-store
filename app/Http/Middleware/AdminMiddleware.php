@@ -19,6 +19,6 @@ class AdminMiddleware
             return $next($request);
         }
 
-        return redirect('/')->with('error', 'Bạn không có quyền truy cập vào trang quản trị.');
+        return back()->with('error', 'Bạn không có quyền truy cập vào trang quản trị.');
     }
 }

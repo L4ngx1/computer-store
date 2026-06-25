@@ -3,10 +3,34 @@
 @section('title', 'Thương hiệu')
 
 @section('content')
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h3 mb-0">Quản lý thương hiệu</h1>
-    <a href="{{ route('admin.brands.create') }}" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i>Thêm thương hiệu</a>
-</div>
+<div class="container-fluid mt-4">
+    <div class="row mb-4 align-items-center">
+        <div class="col-md-4">
+            <h2 class="fw-semibold mb-0">
+                <i class="bi bi-tag-fill"></i> Quản lý Thương hiệu
+            </h2>
+        </div>
+        <div class="col-md-5">
+            <form action="{{ route('admin.brands.index') }}" method="GET" class="d-flex">
+                <div class="input-group">
+                    <input type="text" name="search" class="form-control" placeholder="Tìm kiếm thương hiệu..." value="{{ request('search') }}">
+                    <button class="btn btn-outline-secondary" type="submit">
+                        <i class="bi bi-search"></i> Tìm
+                    </button>
+                    @if (request('search'))
+                        <a href="{{ route('admin.brands.index') }}" class="btn btn-outline-danger" title="Xóa tìm kiếm">
+                            <i class="bi bi-x-lg"></i>
+                        </a>
+                    @endif
+                </div>
+            </form>
+        </div>
+        <div class="col-md-3 text-end">
+            <a href="{{ route('admin.brands.create') }}" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Thêm mới
+            </a>
+        </div>
+    </div>
 
 @if(session('success'))
     <div class="alert alert-success alert-dismissible fade show">{{ session('success') }}<button class="btn-close" data-bs-dismiss="alert"></button></div>
@@ -57,5 +81,6 @@
         </div>
         {{ $brands->links() }}
     </div>
+</div>
 </div>
 @endsection

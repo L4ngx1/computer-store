@@ -80,8 +80,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::prefix('products')->name('products.')->controller(ProductController::class)->group(function () {
             Route::get('/', 'index')->name('index');
             Route::get('/create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
             Route::get('/{product}', 'show')->name('show');
             Route::get('/{product}/edit', 'edit')->name('edit');
+            Route::put('/{product}', 'update')->name('update');
+            Route::delete('/{product}', 'destroy')->name('destroy');
         });
 
         Route::prefix('categories')->name('categories.')->controller(AdminCategoryController::class)->group(function () {
@@ -109,6 +112,18 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::get('/{order}', 'show')->name('show');
             Route::patch('/{order}/status', 'updateStatus')->name('updateStatus');
             Route::delete('/{order}', 'destroy')->name('destroy');
+        });
+
+        // API routes for admin product management (AJAX)
+        Route::group([
+            'prefix' => 'products-api',
+            'as' => 'products.api.',
+            'controller' => \App\Http\Controllers\Api\Admin\ProductController::class
+        ], function () {
+            // This is for AJAX from create.blade.php
+            Route::post('/', 'store')->name('store');
+            Route::patch('/{product}', 'update')->name('update'); // Use PATCH to match the spoofed method from the form
+            Route::delete('/{product}', 'destroy')->name('destroy');
         });
     });
 });

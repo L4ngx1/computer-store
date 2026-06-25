@@ -15,11 +15,27 @@ class CheckoutController extends Controller
 {
     public function index()
     {
-        $cartItems = CartItem::with('product')
-            ->where('user_id', Auth::id())
-            ->get();
+        // Logic tương tự CartController để đảm bảo tính nhất quán.
+        $cart = CartItem::where('user_id', Auth::id())
+            ->pluck('quantity', 'product_id')
+            ->all();
 
-        return view('client.checkout', compact('cartItems'));
+        if (empty($cart)) {
+            return redirect()->route('client.cart')->with('cart_error', 'Giỏ hàng của bạn trống để thanh toán.');
+        }
+
+        $products = Product::find(array_keys($cart));
+
+        $cartItems = $products->map(function ($product) use ($cart) {
+            return (object) [
+                'product'  => $product,
+                'quantity' => $cart[$product->id] ?? 0,
+            ];
+        })->filter()->values();
+
+        $total = $cartItems->sum(fn($item) => ($item->product->sale_price ?? $item->product->price) * $item->quantity);
+
+        return view('client.checkout', compact('cartItems', 'total'));
     }
 
     public function store(Request $request)
@@ -96,7 +112,7 @@ class CheckoutController extends Controller
             return $order;
         });
 
-        return redirect()->route('client.cart')
-            ->with('checkout_success', 'Đặt hàng thành công! Mã đơn: #' . $order->id);
+        return redirect()->route('client.account', ['#orders'])
+            ->with('success', 'Đặt hàng thành công! Mã đơn hàng của bạn là #' . $order->id);
     }
 }

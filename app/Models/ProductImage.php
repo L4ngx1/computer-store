@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Model;
 
 class ProductImage extends Model
@@ -11,5 +12,22 @@ class ProductImage extends Model
     public function product()
     {
         return $this->belongsTo(Product::class);
+    }
+
+    /**
+     * Lấy URL đầy đủ cho ảnh chi tiết.
+     *
+     * @param  string|null  $value
+     * @return string|null
+     */
+    public function getImagePathAttribute($value)
+    {
+        if ($value) {
+            if (filter_var($value, FILTER_VALIDATE_URL)) {
+                return $value;
+            }
+            return Storage::url($value);
+        }
+        return null;
     }
 }

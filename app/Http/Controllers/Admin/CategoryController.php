@@ -11,9 +11,16 @@ use Illuminate\View\View;
 
 class CategoryController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
-        $categories = Category::withCount('products')->latest()->paginate(15);
+        $query = Category::query()->withCount('products');
+
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where('name', 'like', "%{$search}%");
+        }
+
+        $categories = $query->latest()->paginate(15)->withQueryString();
 
         return view('admin.categories.index', compact('categories'));
     }

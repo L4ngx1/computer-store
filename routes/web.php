@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AdminAuthController;
 use App\Http\Controllers\Auth\ClientAuthController;
 use App\Http\Controllers\Auth\RegisterController;
-
+use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\UserController;
@@ -13,35 +13,25 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Client\ProfileController;
 use App\Http\Controllers\Client\CartController;
 use App\Http\Controllers\Client\CheckoutController;
+use App\Http\Controllers\Client\HomeController;
+use App\Http\Controllers\Client\CatalogController;
+use App\Http\Controllers\Client\SearchController;
 
-/*
-|--------------------------------------------------------------------------
-| CLIENT ROUTES
-|--------------------------------------------------------------------------
-*/
-
-Route::get('/', function () {
-    return view('client.home');
-})->name('home');
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::get('/login', [ClientAuthController::class, 'create'])->name('login.form');
 Route::post('/login', [ClientAuthController::class, 'store'])->name('login.store');
-
 Route::get('/register', [RegisterController::class, 'create'])->name('register.form');
 Route::post('/register', [RegisterController::class, 'store'])->name('register.store');
 
-Route::post('/logout', [ClientAuthController::class, 'destroy'])
-    ->middleware('auth')
-    ->name('logout');
+Route::get('/forgot-password', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
+Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetCodeEmail'])->name('password.email');
+Route::get('/reset-password', [ForgotPasswordController::class, 'showResetForm'])->name('password.reset');
+Route::post('/reset-password', [ForgotPasswordController::class, 'reset'])->name('password.update');
 
-/*
-|--------------------------------------------------------------------------
-| CLIENT PAGE ROUTES
-|--------------------------------------------------------------------------
-*/
+Route::post('/logout', [ClientAuthController::class, 'destroy'])->middleware('auth')->name('logout');
 
 Route::prefix('page')->name('client.')->group(function () {
-
     Route::get('about', fn() => view('client.about'))->name('about');
     Route::get('contact', fn() => view('client.contact'))->name('contact');
     Route::get('faq', fn() => view('client.faq'))->name('faq');
@@ -49,18 +39,13 @@ Route::prefix('page')->name('client.')->group(function () {
     Route::get('account', [ProfileController::class, 'show'])->name('account');
     Route::put('account', [ProfileController::class, 'update'])->name('account.update');
 
-    Route::get('catalog', fn() => view('client.catalog'))->name('catalog');
-    Route::get('product', fn() => view('client.product'))->name('product');
-    Route::get('search', fn() => view('client.search'))->name('search');
+    Route::get('catalog', [CatalogController::class, 'index'])->name('catalog');
+    Route::get('product/{slug}', [CatalogController::class, 'show'])->name('product');
+    Route::get('search', [SearchController::class, 'index'])->name('search');
 
-    /*
-    |--------------------------------------------------------------------------
-    | CART & CHECKOUT (Cần đăng nhập)
-    |--------------------------------------------------------------------------
-    */
     Route::middleware('auth')->group(function () {
         Route::get('cart', [CartController::class, 'index'])->name('cart');
-        Route::post('cart/add/{id}', [CartController::class, 'add'])->name('cart.add');
+        Route::post('cart/add', [CartController::class, 'add'])->name('cart.add');
         Route::post('cart/update', [CartController::class, 'update'])->name('cart.update');
         Route::delete('cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
         Route::delete('cart/clear', [CartController::class, 'clear'])->name('cart.clear');
@@ -70,20 +55,12 @@ Route::prefix('page')->name('client.')->group(function () {
     });
 });
 
-/*
-|--------------------------------------------------------------------------
-| ADMIN ROUTES
-|--------------------------------------------------------------------------
-*/
-
 Route::prefix('admin')->name('admin.')->group(function () {
-
     Route::get('/login', [AdminAuthController::class, 'create'])->name('login');
     Route::post('/login', [AdminAuthController::class, 'store'])->name('login.store');
     Route::post('/logout', [AdminAuthController::class, 'destroy'])->name('logout');
 
     Route::middleware('is_admin')->group(function () {
-
         Route::get('/', fn() => redirect()->route('admin.dashboard'));
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
@@ -119,7 +96,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         });
 
         Route::prefix('orders')->name('orders.')->group(function () {
-            Route::get('/', fn() => view('admin.orders.index'))->name('index');
+            Route::get('/', fn() => redirect()->route('admin.orders.index'))->name('index');
             Route::get('/create', fn() => redirect()->route('admin.orders.index'))->name('create');
             Route::get('/{id}', fn() => redirect()->route('admin.orders.index'))->name('show');
             Route::get('/{id}/edit', fn() => redirect()->route('admin.orders.index'))->name('edit');

@@ -52,7 +52,7 @@
                     {{-- Ảnh lớn chính --}}
                     <div class="mb-3">
                         <img id="mainImage"
-                             src="{{ $product->thumbnail }}"
+                             src="{{ $product->thumbnail ? Storage::url($product->thumbnail) : '' }}"
                              alt="{{ $product->name }}"
                              class="img-fluid rounded"
                              style="width: 100%; height: 280px; object-fit: cover;">
@@ -61,18 +61,18 @@
                     {{-- Thumbnail strip: thumbnail + ảnh chi tiết --}}
                     <div class="d-flex gap-2 flex-wrap justify-content-center">
                         {{-- Ảnh chính (thumbnail) --}}
-                        <div class="gallery-thumb active-thumb" onclick="switchImage(this, '{{ $product->thumbnail }}')"
+                        <div class="gallery-thumb active-thumb" onclick="switchImage(this, '{{ $product->thumbnail ? Storage::url($product->thumbnail) : '' }}')"
                              style="cursor:pointer; width:70px; height:70px; flex-shrink:0;">
-                            <img src="{{ $product->thumbnail }}"
+                            <img src="{{ $product->thumbnail ? Storage::url($product->thumbnail) : '' }}"
                                  class="img-fluid rounded"
                                  style="width:100%; height:100%; object-fit:cover;">
                         </div>
 
                         {{-- Ảnh chi tiết --}}
                         @foreach($product->images as $image)
-                        <div class="gallery-thumb" onclick="switchImage(this, '{{ $image->image_path }}')"
+                        <div class="gallery-thumb" onclick="switchImage(this, '{{ Storage::url($image->image_path) }}')"
                              style="cursor:pointer; width:70px; height:70px; flex-shrink:0;">
-                            <img src="{{ $image->image_path }}"
+                            <img src="{{ Storage::url($image->image_path) }}"
                                  class="img-fluid rounded"
                                  style="width:100%; height:100%; object-fit:cover;">
                         </div>

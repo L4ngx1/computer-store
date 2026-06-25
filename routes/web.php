@@ -8,6 +8,9 @@ use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
+use App\Http\Controllers\Admin\BrandController as AdminBrandController;
+use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Client\ProfileController;
 use App\Http\Controllers\Client\CartController;
 use App\Http\Controllers\Client\CheckoutController;
@@ -81,25 +84,31 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::get('/{product}/edit', 'edit')->name('edit');
         });
 
-        Route::prefix('categories')->name('categories.')->group(function () {
-            Route::get('/', fn() => view('admin.categories.index'))->name('index');
-            Route::get('/create', fn() => view('admin.categories.form'))->name('create');
-            Route::get('/{id}', fn() => view('admin.categories.show'))->name('show');
-            Route::get('/{id}/edit', fn() => view('admin.categories.form'))->name('edit');
+        Route::prefix('categories')->name('categories.')->controller(AdminCategoryController::class)->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('/{category}', 'show')->name('show');
+            Route::get('/{category}/edit', 'edit')->name('edit');
+            Route::put('/{category}', 'update')->name('update');
+            Route::delete('/{category}', 'destroy')->name('destroy');
         });
 
-        Route::prefix('brands')->name('brands.')->group(function () {
-            Route::get('/', fn() => view('admin.brands.index'))->name('index');
-            Route::get('/create', fn() => view('admin.brands.form'))->name('create');
-            Route::get('/{id}', fn() => view('admin.brands.show'))->name('show');
-            Route::get('/{id}/edit', fn() => view('admin.brands.form'))->name('edit');
+        Route::prefix('brands')->name('brands.')->controller(AdminBrandController::class)->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('/{brand}', 'show')->name('show');
+            Route::get('/{brand}/edit', 'edit')->name('edit');
+            Route::put('/{brand}', 'update')->name('update');
+            Route::delete('/{brand}', 'destroy')->name('destroy');
         });
 
-        Route::prefix('orders')->name('orders.')->group(function () {
-            Route::get('/', fn() => redirect()->route('admin.orders.index'))->name('index');
-            Route::get('/create', fn() => redirect()->route('admin.orders.index'))->name('create');
-            Route::get('/{id}', fn() => redirect()->route('admin.orders.index'))->name('show');
-            Route::get('/{id}/edit', fn() => redirect()->route('admin.orders.index'))->name('edit');
+        Route::prefix('orders')->name('orders.')->controller(AdminOrderController::class)->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/{order}', 'show')->name('show');
+            Route::patch('/{order}/status', 'updateStatus')->name('updateStatus');
+            Route::delete('/{order}', 'destroy')->name('destroy');
         });
     });
 });

@@ -202,7 +202,7 @@
                                         <a href="{{ route('client.product', $product->slug) }}" class="text-decoration-none text-dark">
                                             <div class="product-image-container">
                                                 @if($product->thumbnail)
-                                                    <img src="{{ Storage::url($product->thumbnail) }}" class="product-image" alt="{{ $product->name }}">
+                                                    <img src="{{ $product->thumbnail}}" class="product-image" alt="{{ $product->name }}">
                                                 @else
                                                     <div class="product-image-placeholder">
                                                         <i class="bi bi-image text-muted"></i>

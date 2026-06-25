@@ -10,9 +10,11 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Client\ProfileController;
 
-Route::get('/', function () {
-    return view('client.home');
-})->name('home');
+use App\Http\Controllers\Client\HomeController;
+use App\Http\Controllers\Client\CatalogController;
+use App\Http\Controllers\Client\SearchController;
+
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::get('/login', [ClientAuthController::class, 'create'])->name('login.form');
 Route::post('/login', [ClientAuthController::class, 'store'])->name('login.store');
@@ -35,13 +37,13 @@ Route::prefix('page')->name('client.')->middleware('auth')->group(function () {
     Route::get('account', [ProfileController::class, 'show'])->name('account');
     Route::put('account', [ProfileController::class, 'update'])->name('account.update');
 
+    Route::post('cart/add', [\App\Http\Controllers\Client\CartController::class, 'store'])->withoutMiddleware('auth')->name('cart.add');
+
     Route::get('cart', function () {
         return view('client.cart');
     })->withoutMiddleware('auth')->name('cart');
 
-    Route::get('catalog', function () {
-        return view('client.catalog');
-    })->withoutMiddleware('auth')->name('catalog');
+    Route::get('catalog', [CatalogController::class, 'index'])->withoutMiddleware('auth')->name('catalog');
 
     Route::get('checkout', function () {
         return view('client.checkout');
@@ -55,13 +57,9 @@ Route::prefix('page')->name('client.')->middleware('auth')->group(function () {
         return view('client.faq');
     })->withoutMiddleware('auth')->name('faq');
 
-    Route::get('product', function () {
-        return view('client.product');
-    })->withoutMiddleware('auth')->name('product');
+    Route::get('product/{slug}', [CatalogController::class, 'show'])->withoutMiddleware('auth')->name('product');
 
-    Route::get('search', function () {
-        return view('client.search');
-    })->withoutMiddleware('auth')->name('search');
+    Route::get('search', [SearchController::class, 'index'])->withoutMiddleware('auth')->name('search');
 });
 
 // Tạm comment middleware để test

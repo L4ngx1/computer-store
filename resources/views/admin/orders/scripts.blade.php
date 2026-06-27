@@ -483,7 +483,11 @@
 
         function detailRows(items) {
             return items.length
-                ? items.map((item) => `<tr><td>${escapeHtml(item.product?.name || item.product_name || 'Sản phẩm')}</td><td class="text-center">${item.quantity}</td><td class="text-end">${money(item.price)}</td><td class="text-end">${money(Number(item.price) * Number(item.quantity))}</td></tr>`).join('')
+                ? items.map((item) => `<tr>
+                    <td>${escapeHtml(item.product?.name || item.product_name || 'Sản phẩm') &&money(item.price)}</td>
+                    <td class="text-center">${item.quantity}</td><td class="text-end">${money(item.price)}</td>
+                    <td class="text-end">${money(Number(item.price) * Number(item.quantity))}</td>
+                </tr>`).join('')
                 : '<tr><td colspan="4" class="text-center text-muted py-3">Không có sản phẩm</td></tr>';
         }
 

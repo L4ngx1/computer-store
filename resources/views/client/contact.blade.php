@@ -1,227 +1,119 @@
 @extends('layouts.site')
 
-@section('title', 'Về Chúng Tôi')
+@section('title', 'Liên Hệ')
 
 @section('content')
 
-<!-- Banner -->
-<section class="py-5 bg-light">
-    <div class="container text-center">
-        <h1 class="fw-bold display-5">Về Chúng Tôi</h1>
-        <p class="text-muted mt-3">
-            Chuyên cung cấp linh kiện máy tính, laptop và thiết bị công nghệ chính hãng.
-        </p>
-    </div>
-</section>
-
-<!-- Section 1 -->
-<section class="py-5 bg-dark text-white">
-    <div class="container">
-        <div class="row align-items-center">
-
-            <div class="col-lg-6">
-                <h2 class="fw-bold mb-4">
-                    Một Doanh Nghiệp Không Ngừng Phát Triển
-                </h2>
-
-                <p class="lead">
-                    Chúng tôi bắt đầu từ một cửa hàng nhỏ chuyên cung cấp linh kiện máy tính.
-                    Sau nhiều năm phát triển, chúng tôi đã trở thành địa chỉ đáng tin cậy
-                    của hàng nghìn khách hàng trên toàn quốc.
-                </p>
-
-                <p>
-                    Mục tiêu của chúng tôi là mang đến những sản phẩm công nghệ chất lượng cao,
-                    giá cả hợp lý cùng dịch vụ chăm sóc khách hàng chuyên nghiệp.
-                </p>
-            </div>
-
-            <div class="col-lg-6 text-center">
-                <img src="{{ asset('images/about/about1.jpg') }}"
-                     class="img-fluid rounded shadow"
-                     alt="Giới thiệu">
-            </div>
-
+    <!-- Banner -->
+    <section class="py-5 bg-light">
+        <div class="container text-center">
+            <h1 class="fw-bold display-5">Liên Hệ</h1>
+            <p class="text-muted mt-3">
+                Chúng tôi luôn sẵn sàng lắng nghe bạn. Hãy liên hệ khi bạn cần hỗ trợ.
+            </p>
         </div>
-    </div>
-</section>
+    </section>
 
-<!-- Section 2 -->
-<section class="py-5 bg-white">
-    <div class="container">
-        <div class="row align-items-center">
+    <!-- Contact Section -->
+    <section class="py-5">
+        <div class="container">
+            <div class="row g-5">
+ 
+                <!-- Contact Info -->
+                <div class="col-lg-5">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body p-4">
+                            <h3 class="fw-bold mb-4">Thông Tin Liên Hệ</h3>
 
-            <div class="col-lg-6 text-center">
-                <img src="/storage/about2.jpg"
-                     class="img-fluid rounded"
-                     alt="Shop">
-            </div>
+                            <div class="d-flex align-items-start mb-4">
+                                <i class="bi bi-geo-alt-fill fs-4 text-primary me-3"></i>
+                                <div>
+                                    <h6 class="fw-bold mb-1">Địa chỉ</h6>
+                                    <p class="text-muted mb-0">175 Tây Sơn, Đống Đa, Hà Nội</p>
+                                </div>
+                            </div>
 
-            <div class="col-lg-6">
-                <h2 class="fw-bold mb-4">
-                    Cửa Hàng Công Nghệ Hàng Đầu
-                </h2>
+                            <div class="d-flex align-items-start mb-4">
+                                <i class="bi bi-telephone-fill fs-4 text-primary me-3"></i>
+                                <div>
+                                    <h6 class="fw-bold mb-1">Điện thoại</h6>
+                                    <p class="text-muted mb-0">(+84) 0364 939 939</p>
+                                </div>
+                            </div>
 
-                <p class="lead">
-                    Chúng tôi cung cấp đầy đủ linh kiện PC, laptop, màn hình,
-                    thiết bị gaming và phụ kiện công nghệ.
-                </p>
+                            <div class="d-flex align-items-start mb-4">
+                                <i class="bi bi-envelope-fill fs-4 text-primary me-3"></i>
+                                <div>
+                                    <h6 class="fw-bold mb-1">Email</h6>
+                                    <p class="text-muted mb-0">support@shop.com</p>
+                                </div>
+                            </div>
 
-                <p>
-                    Tất cả sản phẩm đều được nhập khẩu chính hãng từ những thương hiệu
-                    nổi tiếng như ASUS, MSI, Gigabyte, Dell, HP, Lenovo...
-                </p>
-            </div>
+                            <div class="d-flex align-items-start">
+                                <i class="bi bi-clock-fill fs-4 text-primary me-3"></i>
+                                <div>
+                                    <h6 class="fw-bold mb-1">Giờ làm việc</h6>
+                                    <p class="text-muted mb-0">Thứ 2 - Chủ Nhật: 8:00 - 22:00</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-        </div>
-    </div>
-</section>
+                <!-- Policies & Social -->
+                <div class="col-lg-7">
+                    <!-- Chính sách nổi bật -->
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-body p-4">
+                            <h4 class="fw-bold mb-3">Chính Sách Nổi Bật</h4>
+                            <ul class="list-unstyled mb-0">
+                                <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Miễn phí giao hàng cho đơn từ 5 triệu đồng</li>
+                                <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Hỗ trợ đổi trả trong vòng 7 ngày</li>
+                                <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Cam kết hàng chính hãng 100%</li>
+                                <li><i class="bi bi-check-circle-fill text-success me-2"></i>Hỗ trợ kỹ thuật và tư vấn 24/7</li>
+                            </ul>
+                        </div>
+                    </div>
 
-<!-- Section 3 -->
-<section class="py-5 bg-dark text-white">
-    <div class="container">
-        <div class="row align-items-center">
-
-            <div class="col-lg-6">
-                <h2 class="fw-bold mb-4">
-                    Bạn Luôn Được Đảm Bảo An Toàn
-                </h2>
-
-                <p class="lead">
-                    Sự hài lòng của khách hàng là ưu tiên hàng đầu của chúng tôi.
-                </p>
-
-                <p>
-                    Đội ngũ kỹ thuật viên giàu kinh nghiệm luôn kiểm tra sản phẩm kỹ lưỡng
-                    trước khi giao tới khách hàng, đảm bảo chất lượng và độ ổn định cao nhất.
-                </p>
-            </div>
-
-            <div class="col-lg-6 text-center">
-                <img src="/storage/about3.jpg"
-                     class="img-fluid rounded shadow"
-                     alt="An toàn">
-            </div>
-
-        </div>
-    </div>
-</section>
-
-<!-- Section 4 -->
-<section class="py-5 bg-white">
-    <div class="container">
-        <div class="row align-items-center">
-
-            <div class="col-lg-6 text-center">
-                <img src="/storage/about4.jpg"
-                     class="img-fluid rounded"
-                     alt="Chất lượng">
-            </div>
-
-            <div class="col-lg-6">
-                <h2 class="fw-bold mb-4">
-                    Chất Lượng Sản Phẩm Cao Nhất
-                </h2>
-
-                <p class="lead">
-                    Chúng tôi cam kết chỉ phân phối sản phẩm chính hãng 100%.
-                </p>
-
-                <p>
-                    Mỗi sản phẩm đều trải qua quy trình kiểm tra nghiêm ngặt,
-                    đảm bảo hiệu năng, độ bền và sự ổn định khi sử dụng.
-                </p>
-            </div>
-
-        </div>
-    </div>
-</section>
-
-<!-- Section 5 -->
-<section class="py-5 bg-dark text-white">
-    <div class="container">
-        <div class="row align-items-center">
-
-            <div class="col-lg-6">
-                <h2 class="fw-bold mb-4">
-                    Giao Hàng Toàn Quốc
-                </h2>
-
-                <p class="lead">
-                    Dù bạn ở bất cứ đâu, chúng tôi đều có thể giao hàng tận nơi.
-                </p>
-
-                <p>
-                    Hệ thống vận chuyển chuyên nghiệp giúp đơn hàng đến tay khách hàng
-                    nhanh chóng, an toàn và đúng thời gian cam kết.
-                </p>
-            </div>
-
-            <div class="col-lg-6 text-center">
-                <img src="/storage/about5.jpg"
-                     class="img-fluid rounded shadow"
-                     alt="Giao hàng">
-            </div>
-
-        </div>
-    </div>
-</section>
-
-<!-- Thống kê -->
-<section class="py-5 bg-primary text-white">
-    <div class="container">
-        <div class="row text-center">
-
-            <div class="col-md-3">
-                <h2 class="fw-bold">10.000+</h2>
-                <p>Khách Hàng</p>
-            </div>
-
-            <div class="col-md-3">
-                <h2 class="fw-bold">5.000+</h2>
-                <p>Sản Phẩm</p>
-            </div>
-
-            <div class="col-md-3">
-                <h2 class="fw-bold">100+</h2>
-                <p>Thương Hiệu</p>
-            </div>
-
-            <div class="col-md-3">
-                <h2 class="fw-bold">24/7</h2>
-                <p>Hỗ Trợ</p>
-            </div>
-
-        </div>
-    </div>
-</section>
-
-<!-- Khách hàng nói gì -->
-<section class="py-5 bg-light">
-    <div class="container">
-
-        <div class="text-center mb-5">
-            <h2 class="fw-bold">Khách Hàng Nói Gì?</h2>
-        </div>
-
-        <div class="card border-0 shadow">
-            <div class="card-body p-5 text-center">
-
-                <i class="fas fa-quote-left fa-3x text-primary mb-4"></i>
-
-                <p class="lead">
-                    "Sản phẩm chất lượng, giao hàng nhanh và đội ngũ hỗ trợ rất nhiệt tình.
-                    Tôi sẽ tiếp tục mua sắm tại đây."
-                </p>
-
-                <h6 class="fw-bold mt-4">
-                    Nguyễn Văn A
-                </h6>
+                    <!-- Kết nối với chúng tôi -->
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body p-4">
+                            <h4 class="fw-bold mb-3">Kết Nối Với Chúng Tôi</h4>
+                            <p class="text-muted">Theo dõi chúng tôi trên các nền tảng mạng xã hội để cập nhật những thông tin và ưu đãi mới nhất.</p>
+                            <div class="d-flex gap-3">
+                                <a href="#" class="btn btn-primary btn-lg rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                    <i class="bi bi-facebook"></i>
+                                </a>
+                                <a href="#" class="btn btn-danger btn-lg rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                    <i class="bi bi-youtube"></i>
+                                </a>
+                                <a href="#" class="btn btn-info text-white btn-lg rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                    <i class="bi bi-twitter"></i>
+                                </a>
+                                <a href="#" class="btn btn-dark btn-lg rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                    <i class="bi bi-tiktok"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
             </div>
         </div>
+    </section>
 
-    </div>
-</section>
+    <!-- Map Section -->
+    <section class="py-5">
+        <div class="container">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="card-body p-0">
+                    <iframe
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3724.564595138596!2d105.82218951540296!3d21.01009419377701!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3135ab7c15633b23%3A0x42725025737333b8!2zMTc1IFAuIFTDonkgU8ahbiwgVHJ1bmcgTGnhu4d0LCDEkOG7kW5nIMSQYSwgSMOgIE7hu5lpLCBWaeG7h3QgTmFt!5e0!3m2!1svi!2s!4v1685000000000!5m2!1svi!2s"
+                        width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy"
+                        referrerpolicy="no-referrer-when-downgrade"></iframe>
+                </div>
+            </div>
+        </div>
+    </section>
 
 @endsection

@@ -14,16 +14,20 @@ class ApiTokenMiddleware
     {
         $token = $request->bearerToken();
 
-        if ($token) {
-            $user = User::query()
-                ->where('api_token', $token)
-                ->first();
-
-            if ($user) {
-                Auth::setUser($user);
-                $request->setUserResolver(fn () => $user);
-            }
+        if (! $token) {
+            return response()->json(['message' => 'Unauthenticated.'], 401);
         }
+
+        $user = User::query()
+            ->where('api_token', $token)
+            ->first();
+
+        if (! $user || $user->is_locked) {
+            return response()->json(['message' => 'Invalid API token.'], 401);
+        }
+
+        Auth::setUser($user);
+        $request->setUserResolver(fn () => $user);
 
         return $next($request);
     }

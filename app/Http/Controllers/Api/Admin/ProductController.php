@@ -105,42 +105,70 @@ class ProductController extends Controller
             'brand_id' => 'required|exists:brands,id',
             'is_active' => 'required|boolean',
             'is_featured' => 'required|boolean',
-            'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048', // Nullable on update
+            'thumbnail' => 'required_if:delete_thumbnail,1|nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'delete_thumbnail' => 'nullable|boolean',
+            'delete_images' => 'nullable|array',
+            'delete_images.*' => 'integer',
+            'replace_images' => 'nullable|array',
+            'replace_images.*' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'images' => 'nullable|array',
             'images.*' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
 
         DB::beginTransaction();
         try {
             $updateData = $validated;
+            unset($updateData['delete_images'], $updateData['replace_images'], $updateData['images'], $updateData['delete_thumbnail']);
 
             // 1. Handle Thumbnail update
             if ($request->hasFile('thumbnail')) {
                 // Delete old thumbnail
-                if ($product->thumbnail && Storage::disk('public')->exists($product->thumbnail)) {
-                    Storage::disk('public')->delete($product->thumbnail);
+                $oldThumbnail = $product->getRawOriginal('thumbnail');
+                if ($oldThumbnail && Storage::disk('public')->exists($oldThumbnail)) {
+                    Storage::disk('public')->delete($oldThumbnail);
                 }
                 // Store new one
                 $updateData['thumbnail'] = $request->file('thumbnail')->store('products/thumbnails', 'public');
             }
 
-            // 2. Handle Detail Images update (replace logic)
-            if ($request->hasFile('images')) {
-                // Delete all old images and their files
-                foreach ($product->images as $oldImage) {
-                    if (Storage::disk('public')->exists($oldImage->image_path)) {
-                        Storage::disk('public')->delete($oldImage->image_path);
-                    }
-                    $oldImage->delete();
+            // 2. Remove only the existing images selected in the editor.
+            $imagesToDelete = $product->images()
+                ->whereIn('id', $validated['delete_images'] ?? [])
+                ->get();
+
+            foreach ($imagesToDelete as $image) {
+                $imagePath = $image->getRawOriginal('image_path');
+                if ($imagePath && Storage::disk('public')->exists($imagePath)) {
+                    Storage::disk('public')->delete($imagePath);
+                }
+                $image->delete();
+            }
+
+            // 3. Replace only the gallery items whose thumbnails were clicked.
+            foreach ($request->file('replace_images', []) as $imageId => $replacementFile) {
+                $image = $product->images()->whereKey($imageId)->first();
+                if (!$image || in_array((int) $imageId, $validated['delete_images'] ?? [], true)) {
+                    continue;
                 }
 
-                // Store new images
+                $oldPath = $image->getRawOriginal('image_path');
+                $newPath = $replacementFile->store('products/images', 'public');
+                $image->update(['image_path' => $newPath]);
+
+                if ($oldPath && Storage::disk('public')->exists($oldPath)) {
+                    Storage::disk('public')->delete($oldPath);
+                }
+            }
+
+            // 4. Add new images to the current gallery.
+            if ($request->hasFile('images')) {
                 foreach ($request->file('images') as $imageFile) {
                     $imagePath = $imageFile->store('products/images', 'public');
                     $product->images()->create(['image_path' => $imagePath]);
                 }
             }
 
-            // 3. Update Product
+            // 5. Update Product
             if (empty($updateData['slug'])) {
                 $updateData['slug'] = $this->uniqueSlug($updateData['name'], $product->id);
             }
@@ -161,8 +189,14 @@ class ProductController extends Controller
      */
     public function destroy(Product $product): JsonResponse
     {
-        // You might want to add logic to prevent deleting products with active orders
-        $product->delete(); // This will trigger model events to delete images if set up
+        $thumbnail = $product->getRawOriginal('thumbnail');
+        $imagePaths = $product->images()->pluck('image_path')->all();
+        foreach (array_filter(array_merge([$thumbnail], $imagePaths)) as $path) {
+            Storage::disk('public')->delete($path);
+        }
+        $product->images()->delete();
+        $product->attributes()->delete();
+        $product->delete();
         return response()->json(['success' => true, 'message' => 'Sản phẩm đã được xóa.']);
     }
 

@@ -15,7 +15,7 @@ class OrderController extends ApiController
     public function index(Request $request): JsonResponse
     {
         $query = Order::query()
-            ->with(['user:id,name,email,phone', 'items.product'])
+            ->with('user:id,name,email,phone')
             ->withCount('items')
             ->latest();
 
@@ -49,7 +49,7 @@ class OrderController extends ApiController
     {
         $validated = $this->validateOrderPayload($request);
 
-        $order = DB::transaction(function () use ($validated) {
+        $order = DB::transaction(function () use ($validated, $request) {
             $customer = $this->resolveCustomer($validated);
             $order = Order::create($this->buildOrderAttributes($validated, $customer));
 
@@ -58,6 +58,11 @@ class OrderController extends ApiController
             if (! array_key_exists('total_amount', $validated)) {
                 $order->update(['total_amount' => $calculatedTotal]);
             }
+            $order->statusHistories()->create([
+                'to_status' => $order->status,
+                'changed_by' => $request->user()?->id,
+                'note' => 'Đơn hàng được tạo từ khu vực quản trị',
+            ]);
 
             return $order->load(['user:id,name,email,phone', 'items.product']);
         });
@@ -105,11 +110,20 @@ class OrderController extends ApiController
             'status' => 'required|in:pending,processing,shipping,completed,cancelled',
         ]);
 
+        $previousStatus = $order->status;
         $order->update([
             'status' => $validated['status'],
         ]);
 
-        return $this->success($order->fresh()->load('items.product'), 'Cập nhật trạng thái đơn hàng thành công!');
+        if ($previousStatus !== $validated['status']) {
+            $order->statusHistories()->create([
+                'from_status' => $previousStatus,
+                'to_status' => $validated['status'],
+                'changed_by' => $request->user()?->id,
+            ]);
+        }
+
+        return $this->success($order->fresh(), 'Cập nhật trạng thái đơn hàng thành công!');
     }
 
     private function validateOrderPayload(Request $request, bool $isUpdate = false): array
@@ -169,12 +183,23 @@ class OrderController extends ApiController
 
     private function syncItems(Order $order, array $items): float
     {
+        foreach ($order->items()->lockForUpdate()->get() as $oldItem) {
+            if ($oldItem->product_id) {
+                Product::query()->whereKey($oldItem->product_id)->increment('stock', $oldItem->quantity);
+            }
+        }
         $order->items()->delete();
         $total = 0;
 
         foreach ($items as $item) {
-            $product = Product::query()->find($item['product_id']);
+            $product = Product::query()
+                ->whereKey($item['product_id'])
+                ->lockForUpdate()
+                ->firstOrFail();
             $quantity = (int) $item['quantity'];
+            if (! $product->is_active || $product->stock < $quantity) {
+                abort(422, "Sản phẩm {$product->name} không đủ tồn kho hoặc không còn kinh doanh.");
+            }
             $price = array_key_exists('price', $item) && $item['price'] !== null
                 ? (float) $item['price']
                 : (float) ($product?->sale_price ?? $product?->price ?? 0);
@@ -187,6 +212,14 @@ class OrderController extends ApiController
             ]);
 
             $total += $price * $quantity;
+            $product->decrement('stock', $quantity);
+            $product->inventoryMovements()->create([
+                'quantity' => -$quantity,
+                'type' => 'sale',
+                'reference_type' => Order::class,
+                'reference_id' => $order->id,
+                'note' => 'Bán hàng qua API',
+            ]);
         }
 
         return $total;

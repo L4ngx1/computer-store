@@ -53,6 +53,11 @@ class Product extends Model
         return $this->hasMany(ProductAttribute::class);
     }
 
+    public function inventoryMovements()
+    {
+        return $this->hasMany(InventoryMovement::class);
+    }
+
     /**
      * Lấy URL đầy đủ cho ảnh đại diện của sản phẩm.
      *

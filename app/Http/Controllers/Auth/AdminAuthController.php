@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\AuditLog;
 use Illuminate\View\View;
 
 class AdminAuthController extends Controller
@@ -26,6 +27,11 @@ class AdminAuthController extends Controller
             'password' => ['required', 'string'],
         ]);
 
+        $user = \App\Models\User::where('email', $credentials['email'])->first();
+        if ($user?->is_locked) {
+            return back()->withErrors(['email' => 'Tài khoản đã bị khóa.'])->onlyInput('email');
+        }
+
         if (! Auth::attempt($credentials)) {
             return back()->withErrors([
                 'email' => 'Email hoặc mật khẩu không chính xác.',
@@ -43,6 +49,18 @@ class AdminAuthController extends Controller
         }
 
         $user = Auth::user();
+        $user->update([
+            'last_login_at' => now(),
+            'last_login_ip' => $request->ip(),
+        ]);
+        AuditLog::create([
+            'user_id' => $user->id,
+            'actor_id' => $user->id,
+            'action' => 'login',
+            'description' => 'Đăng nhập khu vực quản trị',
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
         $user->api_token = \Illuminate\Support\Str::random(60);
         $user->save();
 

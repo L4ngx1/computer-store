@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\Admin\ProductController;
 use App\Http\Controllers\Api\Admin\UserController;
 use Illuminate\Support\Facades\Route;
 
+Route::middleware('throttle:api')->group(function () {
 Route::post('login', [AuthController::class, 'login'])->name('api.login');
 Route::post('register', [AuthController::class, 'register'])->name('api.register');
 Route::post('logout', [AuthController::class, 'logout'])->middleware('api_token')->name('api.logout');
@@ -23,6 +24,8 @@ Route::get('brands', [ClientController::class, 'brands'])->name('brands.index');
 Route::get('products', [ClientController::class, 'products'])->name('products.index');
 Route::get('products/featured', [ClientController::class, 'featured'])->name('products.featured');
 Route::get('products/{product:slug}', [ClientController::class, 'show'])->name('products.show');
+Route::post('cart/summary', [ClientController::class, 'cartSummary'])->middleware('api_token')->name('cart.summary');
+Route::post('checkout', [ClientController::class, 'checkout'])->middleware('api_token')->name('checkout.store');
 
 Route::prefix('cart')->name('cart.')->middleware('api_token')->controller(CartController::class)->group(function () {
     Route::get('/', 'index')->name('index');
@@ -76,4 +79,5 @@ Route::prefix('admin')->name('api.admin.')->middleware(['api_token', 'is_admin']
 		Route::delete('{order}', 'destroy')->name('destroy');
 		Route::patch('{order}/status', 'updateStatus')->name('updateStatus');
 	});
+});
 });

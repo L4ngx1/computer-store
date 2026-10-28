@@ -80,7 +80,7 @@
                                 <a href="{{ route('client.product', $product->slug) }}" class="text-decoration-none text-dark">
                                     <div class="product-image-container">
                                         @if($product->thumbnail)
-                                            <img src="{{ $product->thumbnail }}" class="product-image" alt="{{ $product->name }}">
+                                            <img src="{{ $product->thumbnail }}" class="product-image" loading="lazy" decoding="async" alt="{{ $product->name }}">
                                         @else
                                             <div class="product-image-placeholder">
                                                 <i class="bi bi-image text-muted"></i>

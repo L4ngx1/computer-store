@@ -15,31 +15,28 @@
 
     <div class="card border-0 shadow-sm">
         <div class="card-body">
-            <form id="productForm" method="POST">
+            <form id="productForm" method="POST" onsubmit="event.preventDefault(); submitForm();">
                 @csrf
                 @method('PATCH')
-                
+
                
-                <div class="mb-4">
+                <div class="mb-4 product-edit-section--basic">
                     <h5 class="border-bottom pb-2 mb-3"> Thông tin cơ bản</h5>
                     
                     <div class="row">
-                        <div class="col-md-6 mb-3">
+                        <div class="col-md-4 mb-3">
                             <label for="name" class="form-label">Tên Sản phẩm <span class="text-danger">*</span></label>
                             <input type="text" id="name" name="name" class="form-control " 
                                    value="{{ $product->name }}" required>
                             @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
-                        <div class="col-md-6 mb-3">
+                        <div class="col-md-4 mb-3">
                             <label for="sku" class="form-label">SKU <span class="text-danger">*</span></label>
                             <input type="text" id="sku" name="sku" class="form-control @error('sku') is-invalid @enderror" 
                                    value="{{ $product->sku }}" required>
                             @error('sku')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
+                        <div class="col-md-4 mb-3">
                             <label for="slug" class="form-label">Slug (URL thân thiện)</label>
                             <input type="text" id="slug" name="slug" class="form-control @error('slug') is-invalid @enderror" 
                                    value="{{ $product->slug }}" placeholder="Để trống tự động tạo từ tên">
@@ -47,23 +44,25 @@
                         </div>
                     </div>
 
-                    <div class="mb-3">
+                    <div class="row g-3">
+                    <div class="col-md-6 mb-3">
                         <label for="summary" class="form-label">Mô tả ngắn</label>
                         <textarea id="summary" name="summary" class="form-control @error('summary') is-invalid @enderror" 
-                                  rows="3" placeholder="Mô tả ngắn về sản phẩm">{{ $product->summary }}</textarea>
+                                  rows="2" placeholder="Mô tả ngắn về sản phẩm">{{ $product->summary }}</textarea>
                         @error('summary')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                     </div>
 
-                    <div class="mb-3">
+                    <div class="col-md-6 mb-3">
                         <label for="description" class="form-label">Mô tả chi tiết</label>
                         <textarea id="description" name="description" class="form-control @error('description') is-invalid @enderror" 
-                                  rows="5" placeholder="Mô tả chi tiết sản phẩm">{{ $product->description }}</textarea>
+                                  rows="2" placeholder="Mô tả chi tiết sản phẩm">{{ $product->description }}</textarea>
                         @error('description')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                    </div>
                     </div>
                 </div>
 
                 <!-- Giá & Kho -->
-                <div class="mb-4">
+                <div class="mb-4 product-edit-section--pricing">
                     <h5 class="border-bottom pb-2 mb-3"> Giá & Kho hàng</h5>
                     
                     <div class="row">
@@ -88,7 +87,7 @@
                     </div>
                 </div>
 
-                <div class="mb-4">
+                <div class="mb-4 product-edit-section--warranty">
                     <h5 class="border-bottom pb-2 mb-3">Bảo hành</h5>
                     <div class="row">
                         <div class="col-md-6 mb-3">
@@ -109,7 +108,7 @@
                 </div>
 
                 <!-- Phân loại & Ảnh -->
-                <div class="mb-4">
+                <div class="mb-4 product-edit-section--classification">
                     <h5 class="border-bottom pb-2 mb-3"> Phân loại & Ảnh</h5>
                     
                     <div class="row">
@@ -139,49 +138,61 @@
                         </div>
                     </div>
 
-                    <!-- Ảnh Thumbnail -->
-                    <div class="mb-4">
-                        <label for="thumbnail" class="form-label">Ảnh Đại Diện (Ảnh Chính)</label>
-                        <input type="file" id="thumbnail" name="thumbnail" class="form-control @error('thumbnail') is-invalid @enderror" accept="image/*">
-                        <small class="text-muted d-block mt-1">Chọn ảnh chính mới (để trống giữ ảnh cũ)</small>
-                        @error('thumbnail')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
-                        
-                        <div id="thumbnailPreview" class="mt-3">
-                            <img id="thumbnailImage" src="{{ $product->thumbnail }}" alt="Thumbnail Preview" class="img-fluid rounded" style="max-width: 300px; max-height: 300px; object-fit: cover;">
-                        </div>
-                    </div>
-
-                    <!-- Ảnh Chi Tiết Sản Phẩm -->
-                    <div class="mb-4">
-                        <label for="images" class="form-label">Ảnh Chi Tiết Sản Phẩm</label>
-                        <input type="file" id="images" name="images[]" class="form-control @error('images') is-invalid @enderror" accept="image/*" multiple>
-                        <small class="text-muted d-block mt-1"><strong>Ghi chú:</strong> Chọn ảnh chi tiết mới sẽ <strong>thay thế toàn bộ</strong> ảnh cũ. Để giữ ảnh cũ, không chọn ảnh gì.</small>
-                        @error('images')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
-
-                        <div class="mt-3">
-                            <h6>📸 Ảnh chi tiết hiện tại:</h6>
-                            <div id="existingImagesPreview" class="d-flex gap-2 flex-wrap">
-                                @forelse($product->images as $image)
-                                    <div class="position-relative" style="width: 100px; height: 100px;">
-                                        <img src="{{ $image->image_path }}" alt="Product image" class="img-fluid rounded border" style="width: 100%; height: 100%; object-fit: cover;">
+                    <div class="product-media-grid row g-3 mb-4">
+                        <div class="col-lg-6">
+                            <section class="border rounded-3 p-3 bg-white h-100">
+                                <div class="mb-2">
+                                    <div>
+                                        <h6 class="mb-0">Ảnh đại diện</h6>
                                     </div>
-                                @empty
-                                    <p class="text-muted">Chưa có ảnh chi tiết</p>
-                                @endforelse
-                            </div>
+                                </div>
+                                <input type="file" id="thumbnail" name="thumbnail" class="form-control @error('thumbnail') is-invalid @enderror" accept="image/png,image/jpeg,image/webp" onchange="previewProductThumbnail(this)">
+                                <input type="hidden" id="deleteThumbnailFlag" name="delete_thumbnail" value="0">
+                                @error('thumbnail')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+
+                                <div id="thumbnailPreview" class="product-gallery-grid mt-2">
+                                    @if($product->getRawOriginal('thumbnail'))
+                                        <article class="product-gallery-item is-current" id="currentThumbnailCard">
+                                            <img src="{{ $product->thumbnail }}" alt="Ảnh đại diện hiện tại" onerror="this.hidden=true; this.nextElementSibling.hidden=false;">
+                                            <span class="product-image-placeholder" hidden>Không tải được</span>
+                                            <label class="product-image-replace" for="thumbnail">Thay ảnh</label>
+                                            <button type="button" class="product-image-remove js-delete-thumbnail" aria-label="Xoá ảnh này" title="Xoá ảnh này">×</button>
+                                            <span class="product-gallery-item__status">Sẽ xoá · cần ảnh thay thế</span>
+                                        </article>
+                                    @endif
+                                </div>
+                            </section>
                         </div>
 
-                        <div class="mt-3">
-                            <h6 id="newImagesLabel" style="display:none;">✨ Ảnh mới được chọn (sẽ thay thế ảnh cũ):</h6>
-                            <div id="imagesPreview" class="d-flex gap-2 flex-wrap">
-                                <!-- New selected images will appear here -->
-                            </div>
+                        <div class="col-lg-6">
+                            <section class="border rounded-3 p-3 bg-white h-100">
+                                <div class="mb-2">
+                                    <div>
+                                        <h6 class="mb-0">Ảnh chi tiết</h6>
+                                    </div>
+                                </div>
+                                <input type="file" id="images" name="images[]" class="form-control @error('images') is-invalid @enderror" accept="image/png,image/jpeg,image/webp" multiple onchange="previewProductGallery(this)">
+                                @error('images')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                                <div id="imagesPreview" class="product-gallery-grid mt-2">
+                                        @foreach($product->images as $image)
+                                            <article class="product-gallery-item is-current" data-image-id="{{ $image->id }}">
+                                                <input type="hidden" name="delete_images[]" value="{{ $image->id }}" disabled>
+                                                <input type="file" id="replaceImage{{ $image->id }}" name="replace_images[{{ $image->id }}]" class="product-replace-input" accept="image/png,image/jpeg,image/webp" onchange="previewExistingGalleryImage(this)">
+                                                <img src="{{ $image->image_path }}" alt="Ảnh chi tiết hiện tại" onerror="this.hidden=true; this.nextElementSibling.hidden=false;">
+                                                <span class="product-image-placeholder" hidden>Không tải được</span>
+                                                <label class="product-image-replace" for="replaceImage{{ $image->id }}">Thay ảnh</label>
+                                                <button type="button" class="product-image-remove js-remove-existing-image" aria-label="Xoá ảnh này" title="Xoá ảnh này">×</button>
+                                                <span class="product-gallery-item__status">Sẽ xoá</span>
+                                            </article>
+                                        @endforeach
+                                </div>
+                            </section>
                         </div>
                     </div>
                 </div>
 
                 <!-- Trạng thái -->
-                <div class="mb-4">
+                <div class="mb-4 product-edit-section--status">
                     <h5 class="border-bottom pb-2 mb-3"> Trạng thái</h5>
                     
                     <div class="form-check form-switch">
@@ -204,79 +215,67 @@
                 </div>
 
                 <!-- Nút hành động -->
-                <div class="mb-3">
-                    <button type="button" class="btn btn-primary btn-lg" onclick="submitForm()">
-                        <i class="bi bi-check-circle"></i> Cập nhật Sản phẩm
+                <div class="mb-3 product-edit-actions d-flex flex-wrap gap-2">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        Cập nhật sản phẩm
                     </button>
-                    <a href="{{ route('admin.products.index') }}" class="btn btn-secondary btn-lg">
-                        <i class="bi bi-x-circle"></i> Hủy
-                    </a>
+                    <button type="button" class="btn btn-secondary btn-lg" data-bs-dismiss="modal">
+                        Đóng
+                    </button>
                 </div>
             </form>
         </div>
     </div>
-@push('scripts')
+
 <script>
-    // Thumbnail preview
-    document.getElementById('thumbnail').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                document.getElementById('thumbnailImage').src = event.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
+    document.querySelectorAll('.js-delete-thumbnail').forEach((button) => {
+        button.addEventListener('click', () => {
+            const form = button.closest('form');
+            const card = button.closest('.product-gallery-item');
+            const flag = form?.querySelector('#deleteThumbnailFlag');
+            const input = form?.querySelector('#thumbnail');
+            if (!form || !card || !flag || !input) return;
+
+            const shouldDelete = !card.classList.contains('is-marked-for-deletion');
+            card.classList.toggle('is-marked-for-deletion', shouldDelete);
+            flag.value = shouldDelete ? '1' : '0';
+            input.required = shouldDelete && input.files.length === 0;
+            button.title = shouldDelete ? 'Hoàn tác xoá' : 'Xoá ảnh này';
+            button.setAttribute('aria-label', button.title);
+        });
     });
 
-    // Multiple images preview
-    document.getElementById('images').addEventListener('change', function(e) {
-        const previewContainer = document.getElementById('imagesPreview');
-        const newImagesLabel = document.getElementById('newImagesLabel');
-        previewContainer.innerHTML = '';
+    document.querySelectorAll('.js-remove-existing-image').forEach((button) => {
+        button.addEventListener('click', () => {
+            const card = button.closest('.product-gallery-item');
+            const deleteInput = card?.querySelector('input[name="delete_images[]"]');
+            const replacementInput = card?.querySelector('input[name^="replace_images["]');
+            if (!card || !deleteInput) return;
 
-        const files = Array.from(e.target.files);
-        if (files.length === 0) {
-            newImagesLabel.style.display = 'none';
-        } else {
-            newImagesLabel.style.display = 'block';
-            files.forEach((file, index) => {
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    const imgWrapper = document.createElement('div');
-                    imgWrapper.className = 'position-relative';
-                    imgWrapper.style.cssText = 'width: 100px; height: 100px;';
-                    
-                    const img = document.createElement('img');
-                    img.src = event.target.result;
-                    img.className = 'img-fluid rounded border';
-                    img.style.cssText = 'width: 100%; height: 100%; object-fit: cover; border: 3px solid #28a745 !important;';
-                    
-                    const removeBtn = document.createElement('button');
-                    removeBtn.type = 'button';
-                    removeBtn.className = 'btn btn-sm btn-warning position-absolute top-0 end-0';
-                    removeBtn.innerHTML = '&times;';
-                    removeBtn.style.cssText = 'width: 24px; height: 24px; padding: 0; border-radius: 50%; margin: -5px -5px 0 0;';
-                    removeBtn.onclick = function(e) {
-                        e.preventDefault();
-                        imgWrapper.remove();
-                        if (previewContainer.children.length === 0) {
-                            newImagesLabel.style.display = 'none';
-                        }
-                    };
-
-                    imgWrapper.appendChild(img);
-                    imgWrapper.appendChild(removeBtn);
-                    previewContainer.appendChild(imgWrapper);
-                };
-                reader.readAsDataURL(file);
-            });
-        }
+            const shouldDelete = !card.classList.contains('is-marked-for-deletion');
+            card.classList.toggle('is-marked-for-deletion', shouldDelete);
+            deleteInput.disabled = !shouldDelete;
+            if (replacementInput) {
+                replacementInput.disabled = shouldDelete;
+                if (shouldDelete) {
+                    replacementInput.value = '';
+                    card.parentElement?.querySelector(`[data-replacement-preview="${CSS.escape(replacementInput.id)}"]`)?.remove();
+                }
+            }
+            button.title = shouldDelete ? 'Hoàn tác xoá' : 'Xoá ảnh';
+            button.setAttribute('aria-label', button.title);
+        });
     });
 
     async function submitForm() {
         const form = document.getElementById('productForm');
+        if (!form) return;
+        if (!form.reportValidity()) return;
         const formData = new FormData(form);
+        // PHP only parses multipart form bodies on POST. Keep the intended
+        // Laravel PATCH route through method spoofing so fields and files are
+        // available to validation.
+        formData.set('_method', 'PATCH');
         
         try {
             const response = await fetch('{{ route("admin.products.api.update", $product->id) }}', {
@@ -288,19 +287,37 @@
                 body: formData
             });
             
-            const data = await response.json();
+            const data = await response.json().catch(() => ({}));
             
             if (response.ok && data.success) {
-                window.location.href = '{{ route("admin.products.index") }}';
+                sessionStorage.setItem('admin-notification', JSON.stringify({
+                    message: data.message || 'Sản phẩm đã được cập nhật thành công.',
+                    type: 'success'
+                }));
+                window.location.reload();
             } else {
-                const errors = data.data?.errors || data.message || 'Lỗi không xác định';
-                alert(typeof errors === 'string' ? errors : JSON.stringify(errors));
+                let errorMsg = 'Lỗi không xác định khi cập nhật sản phẩm.';
+                if (data.errors) {
+                    errorMsg = Object.values(data.errors).flat().join(' | ');
+                } else if (data.data?.errors) {
+                    errorMsg = typeof data.data.errors === 'string' ? data.data.errors : Object.values(data.data.errors).flat().join(' | ');
+                } else if (data.message) {
+                    errorMsg = data.message;
+                }
+                if (typeof window.adminNotify === 'function') {
+                    window.adminNotify(errorMsg, 'error');
+                } else {
+                    alert(errorMsg);
+                }
             }
         } catch (error) {
             console.error('Error:', error);
-            alert('Lỗi khi cập nhật sản phẩm');
+            if (typeof window.adminNotify === 'function') {
+                window.adminNotify('Có lỗi hệ thống xảy ra khi cập nhật sản phẩm.', 'error');
+            } else {
+                alert('Có lỗi hệ thống xảy ra khi cập nhật sản phẩm.');
+            }
         }
     }
 </script>
-@endpush
 @endsection

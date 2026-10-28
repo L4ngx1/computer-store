@@ -27,6 +27,14 @@ class ProductController extends Controller
             });
         }
 
+        if ($request->filled('status')) {
+            $query->where('is_active', $request->input('status') === 'active');
+        }
+
+        if ($request->input('stock') === 'low') {
+            $query->where('stock', '<=', 5);
+        }
+
         $products = $query->latest()->paginate(15)->withQueryString();
 
 
@@ -38,8 +46,8 @@ class ProductController extends Controller
      */
     public function create()
     {
-        $categories = Category::all();
-        $brands = Brand::all();
+        $categories = Category::query()->select(['id', 'name'])->orderBy('name')->get();
+        $brands = Brand::query()->select(['id', 'name'])->orderBy('name')->get();
 
         return view('admin.products.create', compact('categories', 'brands'));
     }
@@ -60,8 +68,8 @@ class ProductController extends Controller
     public function edit(Product $product)
     {
         $product->load(['category', 'brand', 'images', 'attributes']);
-        $categories = Category::all();
-        $brands = Brand::all();
+        $categories = Category::query()->select(['id', 'name'])->orderBy('name')->get();
+        $brands = Brand::query()->select(['id', 'name'])->orderBy('name')->get();
 
         return view('admin.products.edit', compact('product', 'categories', 'brands'));
     }
@@ -140,7 +148,13 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
-        // ToDo: Implement deletion logic
+        $thumbnail = $product->getRawOriginal('thumbnail');
+        $imagePaths = $product->images()->pluck('image_path')->all();
+        foreach (array_filter(array_merge([$thumbnail], $imagePaths)) as $path) {
+            Storage::disk('public')->delete($path);
+        }
+        $product->images()->delete();
+        $product->attributes()->delete();
         $product->delete();
 
         return redirect()->route('admin.products.index')->with('success', 'Product deleted successfully.');

@@ -18,6 +18,9 @@ class User extends Authenticatable
         'address',
         'role',
         'api_token',
+        'is_locked',
+        'locked_at',
+        'locked_reason',
     ];
 
     protected $hidden = [
@@ -31,6 +34,9 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'last_login_at' => 'datetime',
+            'locked_at' => 'datetime',
+            'is_locked' => 'boolean',
         ];
     }
 
@@ -47,5 +53,15 @@ class User extends Authenticatable
     public function isAdmin()
     {
         return $this->role === 'admin';
+    }
+
+    public function auditLogs()
+    {
+        return $this->hasMany(AuditLog::class);
+    }
+
+    public function performedAuditLogs()
+    {
+        return $this->hasMany(AuditLog::class, 'actor_id');
     }
 }

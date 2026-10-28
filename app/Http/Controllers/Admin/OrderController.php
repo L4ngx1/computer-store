@@ -38,7 +38,7 @@ class OrderController extends Controller
 
     public function show(Order $order): View
     {
-        $order->load('items', 'user');
+        $order->load('items', 'user', 'statusHistories.user');
         $statuses = self::STATUSES;
 
         return view('admin.orders.show', compact('order', 'statuses'));
@@ -50,7 +50,15 @@ class OrderController extends Controller
             'status' => 'required|in:' . implode(',', self::STATUSES),
         ]);
 
+        $previousStatus = $order->status;
         $order->update(['status' => $data['status']]);
+        if ($previousStatus !== $data['status']) {
+            $order->statusHistories()->create([
+                'from_status' => $previousStatus,
+                'to_status' => $data['status'],
+                'changed_by' => $request->user()?->id,
+            ]);
+        }
 
         return redirect()->back()->with('success', 'Cập nhật trạng thái đơn hàng thành công!');
     }

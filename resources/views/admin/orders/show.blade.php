@@ -19,11 +19,6 @@
                 class="bi bi-arrow-left me-1"></i>Quay lại</a>
     </div>
 
-    @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show">{{ session('success') }}<button class="btn-close"
-                data-bs-dismiss="alert"></button></div>
-    @endif
-
     <div class="row g-4">
         <div class="col-lg-8">
             <div class="card border-0 shadow-sm mb-4">

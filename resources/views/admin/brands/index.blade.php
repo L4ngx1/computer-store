@@ -5,12 +5,7 @@
 @section('content')
     <div class="container-fluid mt-4">
         <div class="row mb-4 align-items-center">
-            <div class="col-md-4">
-                <h2 class="fw-semibold mb-0">
-                    <i class="bi bi-tag-fill"></i> Quản lý Thương hiệu
-                </h2>
-            </div>
-            <div class="col-md-5">
+            <div class="col-12">
                 <form action="{{ route('admin.brands.index') }}" method="GET" class="d-flex">
                     <div class="input-group">
                         <input type="text" name="search" class="form-control" placeholder="Tìm kiếm thương hiệu..."
@@ -26,21 +21,13 @@
                     </div>
                 </form>
             </div>
-            <div class="col-md-3 text-end">
-                <a href="{{ route('admin.brands.create') }}" class="btn btn-primary">
-                    <i class="bi bi-plus-circle"></i> Thêm mới
-                </a>
-            </div>
         </div>
 
-        @if(session('success'))
-            <div class="alert alert-success alert-dismissible fade show">{{ session('success') }}<button class="btn-close"
-                    data-bs-dismiss="alert"></button></div>
-        @endif
-        @if(session('error'))
-            <div class="alert alert-danger alert-dismissible fade show">{{ session('error') }}<button class="btn-close"
-                    data-bs-dismiss="alert"></button></div>
-        @endif
+        <div class="d-flex justify-content-end mb-3">
+            <a data-admin-modal data-modal-title="Thêm thương hiệu" href="{{ route('admin.brands.create') }}" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Thêm mới
+            </a>
+        </div>
 
         <div class="card border-0 shadow-sm">
             <div class="card-body">
@@ -60,8 +47,8 @@
                                 <tr>
                                     <td>
                                         @if($brand->logo)
-                                            <img src="{{ Storage::url($brand->logo)  }}" alt="{{ $brand->name }}" width="40"
-                                                height="40" style="object-fit:contain;">
+                                            <img src="{{ Storage::url($brand->logo) }}" alt="{{ $brand->name }}" width="40"
+                                                height="40" loading="lazy" decoding="async" style="object-fit:contain;">
                                         @else
                                             <span class="text-muted">—</span>
                                         @endif
@@ -70,7 +57,9 @@
                                     <td class="text-muted">{{ $brand->slug }}</td>
                                     <td>{{ $brand->products_count }}</td>
                                     <td class="text-end">
-                                        <a href="{{ route('admin.brands.edit', $brand->id) }}"
+                                        <a data-admin-modal data-modal-title="Chi tiết thương hiệu" href="{{ route('admin.brands.show', $brand->id) }}"
+                                            class="btn btn-sm btn-outline-secondary"><i class="bi bi-eye"></i></a>
+                                        <a data-admin-modal data-modal-title="Chỉnh sửa thương hiệu" href="{{ route('admin.brands.edit', $brand->id) }}"
                                             class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
                                         <form action="{{ route('admin.brands.destroy', $brand->id) }}" method="POST"
                                             class="d-inline" onsubmit="return confirm('Xóa thương hiệu này?')">

@@ -65,7 +65,7 @@
                         <div class="card h-100 border-0 shadow-sm rounded-4 hover-shadow transition-all bg-white">
                             <div class="card-body p-4 d-flex flex-column align-items-center justify-content-center">
                                 @if($category->image)
-                                    <img src="{{ Storage::url($category->image) }}" alt="{{ $category->name }}" class="img-fluid mb-2" style="max-height: 50px;">
+                                    <img src="{{ Storage::url($category->image) }}" alt="{{ $category->name }}" class="img-fluid mb-2" loading="lazy" decoding="async" width="50" height="50" style="max-height: 50px;">
                                 @else
                                     <i class="bi bi-laptop display-4 text-primary mb-2"></i>
                                 @endif
@@ -86,7 +86,7 @@
             @foreach($brands as $brand)
                 <div class="col text-center">
                     <a href="{{ route('client.catalog', ['brand' => $brand->slug]) }}">
-                        <img src="{{ Storage::url($brand->logo) }}" alt="{{ $brand->name }}" class="img-fluid" style="max-height: 60px; filter: grayscale(100%); transition: filter 0.3s;" onmouseover="this.style.filter='none'" onmouseout="this.style.filter='grayscale(100%)'">
+                        <img src="{{ Storage::url($brand->logo) }}" alt="{{ $brand->name }}" class="img-fluid" loading="lazy" decoding="async" width="120" height="60" style="max-height: 60px; filter: grayscale(100%); transition: filter 0.3s;" onmouseover="this.style.filter='none'" onmouseout="this.style.filter='grayscale(100%)'">
                     </a>
                 </div>
             @endforeach
@@ -143,7 +143,7 @@
                                         <a href="{{ route('client.product', $product->slug) }}" class="text-decoration-none text-dark">
                                             <div class="product-image-container">
                                                 @if($product->thumbnail)
-                                                    <img src="{{ $product->thumbnail }}" class="product-image" alt="{{ $product->name }}">
+                                                    <img src="{{ $product->thumbnail }}" class="product-image" loading="lazy" decoding="async" alt="{{ $product->name }}">
                                                 @else
                                                     <div class="product-image-placeholder">
                                                         <i class="bi bi-image text-muted"></i>
@@ -210,7 +210,7 @@
                                         <a href="{{ route('client.product', $product->slug) }}" class="text-decoration-none text-dark">
                                             <div class="product-image-container">
                                                 @if($product->thumbnail)
-                                                    <img src="{{ $product->thumbnail}}" class="product-image" alt="{{ $product->name }}">
+                                                    <img src="{{ $product->thumbnail}}" class="product-image" loading="lazy" decoding="async" alt="{{ $product->name }}">
                                                 @else
                                                     <div class="product-image-placeholder">
                                                         <i class="bi bi-image text-muted"></i>

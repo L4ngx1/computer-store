@@ -26,7 +26,7 @@ class ProductImage extends Model
             if (filter_var($value, FILTER_VALIDATE_URL)) {
                 return $value;
             }
-            return Storage::url($value);
+            return Storage::disk('public')->url($value);
         }
         return null;
     }

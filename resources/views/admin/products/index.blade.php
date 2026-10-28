@@ -3,37 +3,20 @@
 @section('title', 'Sản phẩm')
 
 @section('content')
-<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
-    <div>
-        <p class="text-uppercase text-muted small mb-1">Admin / Products</p>
-        <h1 class="h3 mb-0">Quản lý Kho Sản phẩm</h1>
-    </div>
-    <div class="col-md-5">
-        <form action="{{ route('admin.products.index') }}" method="GET" class="d-flex">
-            <div class="input-group">
-                <input type="text" name="search" class="form-control" placeholder="Tìm kiếm danh mục..." value="{{ request('search') }}">
-                <button class="btn btn-outline-secondary" type="submit">
-                    <i class="bi bi-search"></i> Tìm
-                </button>
-                @if (request('search'))
-                <a href="{{ route('admin.products.index') }}" class="btn btn-outline-danger" title="Xóa tìm kiếm">
-                    <i class="bi bi-x-lg"></i>
-                </a>
-                @endif
-            </div>
-        </form>
-    </div>
-    <a href="{{ route('admin.products.create') }}" class="btn btn-primary">
-        <i class="bi bi-plus-lg"></i> Thêm Sản phẩm
+<div class="card admin-filter-card"><div class="card-body">
+    <form action="{{ route('admin.products.index') }}" method="GET" class="row g-2 align-items-end">
+        <div class="col-12 col-lg-6"><label class="form-label small fw-semibold">Tìm kiếm</label><input type="search" name="search" class="form-control" placeholder="Tên sản phẩm hoặc SKU..." value="{{ request('search') }}"></div>
+        <div class="col-6 col-lg-2"><label class="form-label small fw-semibold">Trạng thái</label><select name="status" class="form-select"><option value="">Tất cả</option><option value="active" @selected(request('status') === 'active')>Đang bán</option><option value="inactive" @selected(request('status') === 'inactive')>Đã ẩn</option></select></div>
+        <div class="col-6 col-lg-2"><label class="form-label small fw-semibold">Tồn kho</label><select name="stock" class="form-select"><option value="">Tất cả</option><option value="low" @selected(request('stock') === 'low')>Sắp hết (≤ 5)</option></select></div>
+        <div class="col-12 col-lg-2 d-flex gap-2"><button class="btn btn-primary flex-grow-1"><i class="bi bi-funnel me-1"></i>Lọc</button><a href="{{ route('admin.products.index') }}" class="btn btn-light border" title="Xóa bộ lọc"><i class="bi bi-arrow-counterclockwise"></i></a></div>
+    </form>
+</div></div>
+
+<div class="d-flex justify-content-end mb-3">
+    <a data-admin-modal data-modal-title="Thêm sản phẩm" href="{{ route('admin.products.create') }}" class="btn btn-primary">
+        <i class="bi bi-plus-lg"></i> Thêm sản phẩm
     </a>
 </div>
-
-@if(session('success'))
-<div class="alert alert-success alert-dismissible fade show" role="alert">
-    {{ session('success') }}
-    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-</div>
-@endif
 
 @if($products->count() > 0)
 <div class="card border-0 shadow-sm">
@@ -74,13 +57,13 @@
                     </td>
                     <td class="text-end pe-3">
                         <div class="btn-group btn-group-sm" role="group">
-                            <a href="{{ route('admin.products.show', $product) }}" class="btn btn-outline-info" title="Xem">
+                            <a data-admin-modal data-modal-title="Chi tiết sản phẩm" href="{{ route('admin.products.show', $product) }}" class="btn btn-outline-info" title="Xem">
                                 <i class="bi bi-eye"></i>
                             </a>
-                            <a href="{{ route('admin.products.edit', $product) }}" class="btn btn-outline-warning" title="Sửa">
+                            <a data-admin-modal data-modal-title="Chỉnh sửa sản phẩm" href="{{ route('admin.products.edit', $product) }}" class="btn btn-outline-warning" title="Sửa">
                                 <i class="bi bi-pencil"></i>
                             </a>
-                            <button type="button" class="btn btn-outline-danger delete-btn" data-product-id="{{ $product->id }}" title="Xóa">
+                            <button type="button" class="btn btn-outline-danger delete-btn" data-product-id="{{ $product->id }}" data-product-name="{{ $product->name }}" data-delete-url="{{ route('admin.products.api.destroy', $product) }}" title="Xóa">
                                 <i class="bi bi-trash"></i>
                             </button>
                         </div>
@@ -98,7 +81,7 @@
 @else
 <div class="alert alert-info text-center py-5">
     <i class="bi bi-inbox fs-1"></i>
-    <p class="mt-3 mb-0">Chưa có sản phẩm nào. <a href="{{ route('admin.products.create') }}">Thêm sản phẩm mới</a></p>
+    <p class="mt-3 mb-0">Chưa có sản phẩm nào. <a data-admin-modal data-modal-title="Thêm sản phẩm" href="{{ route('admin.products.create') }}">Thêm sản phẩm mới</a></p>
 </div>
 @endif
 
@@ -106,15 +89,22 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Xác nhận xóa</h5>
+                <div>
+                    <div class="small text-uppercase text-muted fw-semibold mb-1">Quản lý sản phẩm</div>
+                    <h5 class="modal-title">Xoá sản phẩm</h5>
+                </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                Bạn chắc chắn muốn xóa sản phẩm này? Hành động này không thể hoàn tác.
+                <div>
+                    <div class="small text-uppercase text-muted fw-semibold">Sản phẩm được chọn</div>
+                    <span class="delete-product-name" id="deleteProductName">Sản phẩm</span>
+                </div>
+                <div class="delete-product-warning">Thao tác xoá sẽ gỡ sản phẩm khỏi cửa hàng và không thể hoàn tác.</div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Xóa</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Xoá sản phẩm</button>
             </div>
         </div>
     </div>
@@ -128,13 +118,15 @@
     document.querySelectorAll('.delete-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             deleteProductId = btn.getAttribute('data-product-id');
+            document.getElementById('deleteProductName').textContent = btn.getAttribute('data-product-name') || 'Sản phẩm';
             const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
             modal.show();
         });
     });
 
     document.getElementById('confirmDeleteBtn').addEventListener('click', async () => {
-        const url = '{{ route("admin.products.api.destroy", ["product" => "PLACEHOLDER"]) }}'.replace('PLACEHOLDER', deleteProductId);
+        const deleteBtn = document.querySelector(`.delete-btn[data-product-id="${deleteProductId}"]`);
+        const url = deleteBtn ? deleteBtn.getAttribute('data-delete-url') : '';
         try {
             const response = await fetch(url, {
                 method: 'DELETE',
@@ -145,13 +137,19 @@
             });
 
             if (response.ok) {
+                const data = await response.json().catch(() => ({}));
+                sessionStorage.setItem('admin-notification', JSON.stringify({
+                    message: data.message || 'Sản phẩm đã được xóa.',
+                    type: 'success'
+                }));
                 window.location.reload();
             } else {
-                alert('Lỗi khi xóa sản phẩm');
+                const data = await response.json().catch(() => ({}));
+                window.adminNotify(data.message || 'Lỗi khi xóa sản phẩm.', 'error');
             }
         } catch (error) {
             console.error('Error:', error);
-            alert('Lỗi khi xóa sản phẩm');
+            window.adminNotify('Lỗi khi xóa sản phẩm.', 'error');
         }
     });
 </script>

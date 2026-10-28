@@ -3,7 +3,7 @@
 @section('title', 'Chi tiết Người dùng')
 
 @section('content')
-<div class="container-fluid mt-4">
+<div class="container-fluid admin-user-detail mt-4">
     <div class="row mb-4">
         <div class="col-md-6">
             <h2 class="fw-semibold">
@@ -11,7 +11,7 @@
             </h2>
         </div>
         <div class="col-md-6 text-end">
-            <a href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-warning">
+            <a data-admin-modal data-modal-title="Chỉnh sửa người dùng" href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-warning">
                 <i class="bi bi-pencil"></i> Chỉnh sửa
             </a>
             <a href="{{ route('admin.users.index') }}" class="btn btn-secondary">
@@ -24,9 +24,6 @@
         <!-- Account Information -->
         <div class="col-lg-8">
             <div class="card shadow-sm mb-4">
-                <div class="card-header bg-light">
-                    <h5 class="mb-0"><i class="bi bi-person"></i> Thông tin tài khoản</h5>
-                </div>
                 <div class="card-body">
                     <div class="row mb-3">
                         <div class="col-md-6">
@@ -42,16 +39,21 @@
                         <div class="col-md-6">
                             <label class="form-label text-muted">Vai trò</label>
                             <p>
-                                <span class="badge {{ $user->isAdmin() ? 'bg-danger' : 'bg-info' }} fs-6">
+                                <span class="badge user-status-badge {{ $user->isAdmin() ? 'bg-danger' : 'bg-info' }}">
                                     {{ $user->isAdmin() ? 'Admin' : 'Người dùng' }}
                                 </span>
                             </p>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label text-muted">Trạng thái</label>
-                            <p>
-                                <span class="badge bg-success">Hoạt động</span>
-                            </p>
+                            <div class="account-status-actions">
+                                <span class="badge user-status-badge {{ $user->is_locked ? 'bg-secondary' : 'bg-success' }}">
+                                    {{ $user->is_locked ? 'Đã khóa' : 'Hoạt động' }}
+                                </span>
+                                @if($user->is_locked && $user->locked_reason)
+                                    <div class="small text-muted mt-2">Lý do: {{ $user->locked_reason }}</div>
+                                @endif
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -66,7 +68,13 @@
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label class="form-label text-muted">Điện thoại</label>
-                            <p class="fs-5">{{ $user->phone ?? '<em class="text-muted">Chưa cập nhật</em>' }}</p>
+                            <p class="fs-5">
+                                @if($user->phone)
+                                    {{ $user->phone }}
+                                @else
+                                    <em class="text-muted">Chưa cập nhật</em>
+                                @endif
+                            </p>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label text-muted">Email xác minh</label>
@@ -88,7 +96,13 @@
                     <h5 class="mb-0"><i class="bi bi-map"></i> Địa chỉ</h5>
                 </div>
                 <div class="card-body">
-                    <p class="fs-5">{{ $user->address ?? '<em class="text-muted">Chưa cập nhật</em>' }}</p>
+                    <p class="fs-5">
+                        @if($user->address)
+                            {{ $user->address }}
+                        @else
+                            <em class="text-muted">Chưa cập nhật</em>
+                        @endif
+                    </p>
                 </div>
             </div>
         </div>
@@ -106,9 +120,22 @@
                     </div>
                     <h5 class="mb-1">{{ $user->name }}</h5>
                     <p class="text-muted mb-3">{{ $user->email }}</p>
-                    <span class="badge {{ $user->isAdmin() ? 'bg-danger' : 'bg-info' }} fs-6">
-                        {{ $user->isAdmin() ? 'Admin' : 'Người dùng' }}
-                    </span>
+                    <div class="account-sidebar-status">
+                        @if($user->id !== Auth::id())
+                            <form action="{{ route('admin.users.lock', $user->id) }}" method="POST" class="account-lock-form">
+                                @csrf
+                                @method('PATCH')
+                                @if(!$user->is_locked)
+                                    <input type="hidden" name="locked_reason" value="Khóa từ khu vực quản trị">
+                                @endif
+                                <button class="btn btn-sm {{ $user->is_locked ? 'btn-success' : 'btn-outline-danger' }}" type="submit">
+                                    {{ $user->is_locked ? 'Mở khóa tài khoản' : 'Khóa tài khoản' }}
+                                </button>
+                            </form>
+                        @else
+                            <button class="btn btn-sm btn-outline-secondary account-lock-button" type="button" disabled>Tài khoản hiện tại</button>
+                        @endif
+                    </div>
                 </div>
             </div>
 
@@ -131,8 +158,38 @@
                 <div class="card-body">
                     <label class="form-label text-muted">Ngày tạo</label>
                     <p class="mb-2"><strong>{{ $user->created_at->format('d/m/Y H:i') }}</strong></p>
+                    <label class="form-label text-muted">Lần đăng nhập gần nhất</label>
+                    <p class="mb-2">
+                        @if($user->last_login_at)
+                            <strong>{{ $user->last_login_at->format('d/m/Y H:i') }}</strong>
+                            <span class="d-block small text-muted">{{ $user->last_login_ip }}</span>
+                        @else
+                            <span class="text-muted">Chưa đăng nhập</span>
+                        @endif
+                    </p>
                     <label class="form-label text-muted">Cập nhật lần cuối</label>
                     <p><strong>{{ $user->updated_at->format('d/m/Y H:i') }}</strong></p>
+                </div>
+                @if($user->auditLogs->isNotEmpty())
+                <div class="card shadow-sm mt-4">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0"><i class="bi bi-clock-history"></i> Hoạt động gần đây</h5>
+                    </div>
+                    @endif
+                    <div class="card-body">
+                        @forelse($user->auditLogs as $log)
+                            <div class="border-bottom pb-2 mb-2">
+                                <div class="fw-semibold">{{ $log->description }}</div>
+                                <div class="small text-muted">
+                                    {{ $log->created_at->format('d/m/Y H:i') }}
+                                    · {{ $log->actor?->name ?? 'Hệ thống' }}
+                                    @if($log->ip_address) · {{ $log->ip_address }} @endif
+                                </div>
+                            </div>
+                        @empty
+                            <span class="text-muted">Chưa có hoạt động được ghi nhận.</span>
+                        @endforelse
+                    </div>
                 </div>
             </div>
         </div>

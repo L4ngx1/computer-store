@@ -506,18 +506,28 @@
                 body: JSON.stringify(id ? { ...payload, total_amount: total() } : payload),
             };
 
-            await request(id ? `${api.orders}/${id}` : api.orders, options);
-            modal.order.hide();
-            await loadOrders(state.page);
+            try {
+                await request(id ? `${api.orders}/${id}` : api.orders, options);
+                modal.order.hide();
+                await loadOrders(state.page);
+                window.adminNotify(id ? 'Đã cập nhật đơn hàng.' : 'Đã tạo đơn hàng.');
+            } catch (error) {
+                window.adminNotify(error.message, 'error');
+            }
         }
 
         async function saveStatus() {
-            await request(`${api.orders}/${el.statusOrderId.value}/status`, {
-                method: 'PATCH',
-                body: JSON.stringify({ status: el.statusSelect.value }),
-            });
-            modal.status.hide();
-            await loadOrders(state.page);
+            try {
+                await request(`${api.orders}/${el.statusOrderId.value}/status`, {
+                    method: 'PATCH',
+                    body: JSON.stringify({ status: el.statusSelect.value }),
+                });
+                modal.status.hide();
+                await loadOrders(state.page);
+                window.adminNotify('Đã cập nhật trạng thái đơn hàng.');
+            } catch (error) {
+                window.adminNotify(error.message, 'error');
+            }
         }
 
         async function deleteOrder(id) {
@@ -525,8 +535,13 @@
                 return;
             }
 
-            await request(`${api.orders}/${id}`, { method: 'DELETE' });
-            await loadOrders(state.page);
+            try {
+                await request(`${api.orders}/${id}`, { method: 'DELETE' });
+                await loadOrders(state.page);
+                window.adminNotify('Đã xóa đơn hàng.');
+            } catch (error) {
+                window.adminNotify(error.message, 'error');
+            }
         }
 
         function addSelectedProduct() {
@@ -534,12 +549,12 @@
             const quantity = Number(el.productQuantity.value || 1);
 
             if (!product?.value) {
-                alert('Vui lòng chọn sản phẩm.');
+                window.adminNotify('Vui lòng chọn sản phẩm.', 'error');
                 return;
             }
 
             if (quantity < 1) {
-                alert('Số lượng phải lớn hơn 0.');
+                window.adminNotify('Số lượng phải lớn hơn 0.', 'error');
                 return;
             }
 

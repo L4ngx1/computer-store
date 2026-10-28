@@ -3,7 +3,7 @@
 @section('title', isset($user) ? 'Chỉnh sửa Người dùng' : 'Tạo Người dùng mới')
 
 @section('content')
-<div class="container-fluid mt-4">
+<div class="container-fluid admin-user-form mt-4">
     <div class="row mb-4">
         <div class="col-md-6">
             <h2 class="fw-semibold">
@@ -30,10 +30,6 @@
 
                         <!-- Account Information -->
                         <div class="mb-4">
-                            <h5 class="border-bottom pb-2 mb-3">
-                                <i class="bi bi-person"></i> Thông tin tài khoản
-                            </h5>
-
                             <div class="row mb-3">
                                 <div class="col-md-6">
                                     <label for="name" class="form-label">Tên <span class="text-danger">*</span></label>
@@ -160,6 +156,30 @@
                         </div>
                         <h5 class="mb-1">{{ $user->name }}</h5>
                         <p class="text-muted mb-0">{{ $user->email }}</p>
+                        <div class="mt-3 pt-3 border-top w-100">
+                            <div class="small text-muted mb-2">Trạng thái tài khoản</div>
+                            <div class="account-status-actions">
+                                <span class="badge {{ $user->is_locked ? 'bg-secondary' : 'bg-success' }}">
+                                    {{ $user->is_locked ? 'Đã khóa' : 'Đang hoạt động' }}
+                                </span>
+                                @if($user->id !== Auth::id())
+                                    <form action="{{ route('admin.users.lock', $user->id) }}" method="POST" class="account-lock-form">
+                                        @csrf
+                                        @method('PATCH')
+                                        @if(!$user->is_locked)
+                                            <input type="hidden" name="locked_reason" value="Khóa từ khu vực quản trị">
+                                        @endif
+                                        <button class="btn btn-sm {{ $user->is_locked ? 'btn-success' : 'btn-outline-danger' }}" type="submit">
+                                            {{ $user->is_locked ? 'Mở khóa tài khoản' : 'Khóa tài khoản' }}
+                                        </button>
+                                    </form>
+                                @else
+                                    <button class="btn btn-sm btn-outline-secondary account-lock-button" type="button" disabled title="Không thể tự khóa tài khoản đang đăng nhập">
+                                        Tài khoản hiện tại
+                                    </button>
+                                @endif
+                            </div>
+                        </div>
                     </div>
                 </div>
             @endif

@@ -8,6 +8,7 @@ use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\BrandController as AdminBrandController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
@@ -66,6 +67,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::middleware('is_admin')->group(function () {
         Route::get('/', fn() => redirect()->route('admin.dashboard'));
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/audit-logs', [AuditLogController::class, 'index'])->name('audit-logs.index');
+        Route::post('/audit-logs/{auditLog}/undo', [AuditLogController::class, 'undo'])->name('audit-logs.undo');
 
         Route::prefix('users')->name('users.')->controller(UserController::class)->group(function () {
             Route::get('/', 'index')->name('index');
@@ -74,6 +77,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::get('/{user}', 'show')->name('show');
             Route::get('/{user}/edit', 'edit')->name('edit');
             Route::put('/{user}', 'update')->name('update');
+            Route::patch('/{user}/lock', 'toggleLock')->name('lock');
             Route::delete('/{user}', 'destroy')->name('destroy');
         });
 

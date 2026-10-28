@@ -16,7 +16,7 @@
             <dt class="col-sm-3">Số sản phẩm</dt><dd class="col-sm-9">{{ $category->products_count }}</dd>
             <dt class="col-sm-3">Trạng thái</dt><dd class="col-sm-9">{{ $category->is_active ? 'Hiển thị' : 'Ẩn' }}</dd>
         </dl>
-        <a href="{{ route('admin.categories.edit', $category->id) }}" class="btn btn-primary mt-3"><i class="bi bi-pencil me-1"></i>Chỉnh sửa</a>
+        <a data-admin-modal data-modal-title="Chỉnh sửa danh mục" href="{{ route('admin.categories.edit', $category->id) }}" class="btn btn-primary mt-3"><i class="bi bi-pencil me-1"></i>Chỉnh sửa</a>
     </div>
 </div>
 @endsection

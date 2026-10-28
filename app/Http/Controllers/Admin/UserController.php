@@ -7,6 +7,8 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
+use App\Models\AuditLog;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -45,13 +47,22 @@ class UserController extends Controller
         ]);
 
         $validated['password'] = bcrypt($validated['password']);
-        User::create($validated);
+        $user = User::create($validated);
+        AuditLog::create([
+            'user_id' => $user->id,
+            'actor_id' => Auth::id(),
+            'action' => 'user.created',
+            'description' => 'Tạo người dùng mới',
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
 
         return redirect()->route('admin.users.index')->with('success', 'Tạo người dùng thành công');
     }
 
     public function show(User $user): View
     {
+        $user->load(['auditLogs' => fn ($query) => $query->with('actor:id,name')->latest()->limit(10)]);
         return view('admin.users.show', compact('user'));
     }
 
@@ -74,14 +85,85 @@ class UserController extends Controller
             $validated['password'] = bcrypt($request->password);
         }
 
+        $previousValues = $user->only(['name', 'email', 'phone', 'address', 'role']);
         $user->update($validated);
+        AuditLog::create([
+            'user_id' => $user->id,
+            'actor_id' => Auth::id(),
+            'action' => 'user.updated',
+            'description' => 'Cập nhật thông tin người dùng',
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+            'metadata' => ['previous_values' => $previousValues],
+        ]);
 
         return redirect()->route('admin.users.index')->with('success', 'Cập nhật người dùng thành công');
     }
 
     public function destroy(User $user): RedirectResponse
     {
+        if ($user->id === Auth::id()) {
+            return back()->with('error', 'Bạn không thể xóa tài khoản đang đăng nhập.');
+        }
+
+        AuditLog::create([
+            'user_id' => $user->id,
+            'actor_id' => Auth::id(),
+            'action' => 'user.deleted',
+            'description' => 'Xóa người dùng',
+            'ip_address' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+        ]);
         $user->delete();
         return redirect()->route('admin.users.index')->with('success', 'Xóa người dùng thành công');
+    }
+
+    public function toggleLock(Request $request, User $user): RedirectResponse
+    {
+        if ($user->id === Auth::id()) {
+            return back()->with('error', 'Bạn không thể khóa tài khoản đang đăng nhập.');
+        }
+
+        $previousLockState = [
+            'is_locked' => $user->is_locked,
+            'locked_at' => $user->locked_at?->toISOString(),
+            'locked_reason' => $user->locked_reason,
+        ];
+
+        if ($user->is_locked) {
+            $user->update([
+                'is_locked' => false,
+                'locked_at' => null,
+                'locked_reason' => null,
+            ]);
+            $action = 'user.unlocked';
+            $description = 'Mở khóa tài khoản';
+        } else {
+            $validated = $request->validate([
+                'locked_reason' => ['nullable', 'string', 'max:255'],
+            ]);
+            $user->update([
+                'is_locked' => true,
+                'locked_at' => now(),
+                'locked_reason' => $validated['locked_reason'] ?? null,
+            ]);
+            $action = 'user.locked';
+            $description = 'Khóa tài khoản';
+        }
+
+        AuditLog::create([
+            'user_id' => $user->id,
+            'actor_id' => Auth::id(),
+            'action' => $action,
+            'description' => $description,
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+            'metadata' => [
+                'reason' => $user->locked_reason,
+                'previous_state' => $previousLockState,
+            ],
+        ]);
+
+        return back()->with('success', $user->is_locked ? 'Đã khóa tài khoản.' : 'Đã mở khóa tài khoản.');
     }
 }

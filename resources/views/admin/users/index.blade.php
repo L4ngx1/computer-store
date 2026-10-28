@@ -4,40 +4,32 @@
 
 @section('content')
 <div class="container-fluid mt-4">
-    <div class="row mb-4 align-items-center">
-        <div class="col-md-4">
-            <h2 class="fw-semibold mb-0">
-                <i class="bi bi-people-fill"></i> Quản lý Người dùng
-            </h2>
-        </div>
-        <div class="col-md-5">
-            <form action="{{ route('admin.users.index') }}" method="GET" class="d-flex">
-                <div class="input-group">
+    <div class="card admin-filter-card">
+        <div class="card-body">
+            <form action="{{ route('admin.users.index') }}" method="GET" class="row g-2 align-items-end">
+                <div class="col-12">
+                    <label class="form-label">Tìm kiếm</label>
+                    <div class="input-group">
                     <input type="text" name="search" class="form-control" placeholder="Tìm tên, email, số điện thoại..." value="{{ request('search') }}">
-                    <button class="btn btn-outline-secondary" type="submit">
-                        <i class="bi bi-search"></i> Tìm
+                    <button class="btn btn-primary" type="submit">
+                        <i class="bi bi-search me-1"></i> Tìm kiếm
                     </button>
                     @if (request('search'))
                         <a href="{{ route('admin.users.index') }}" class="btn btn-outline-danger" title="Xóa tìm kiếm">
                             <i class="bi bi-x-lg"></i>
                         </a>
                     @endif
+                    </div>
                 </div>
             </form>
         </div>
-        <div class="col-md-3 text-end">
-            <a href="{{ route('admin.users.create') }}" class="btn btn-primary">
-                <i class="bi bi-plus-circle"></i> Tạo người dùng mới
-            </a>
-        </div>
     </div>
 
-    @if ($message = Session::get('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="bi bi-check-circle"></i> {{ $message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    @endif
+    <div class="d-flex justify-content-end mb-3">
+        <a data-admin-modal data-modal-title="Tạo người dùng mới" href="{{ route('admin.users.create') }}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Tạo người dùng mới
+        </a>
+    </div>
 
     <div class="card shadow-sm">
         <div class="table-responsive">
@@ -49,6 +41,7 @@
                         <th>Email</th>
                         <th>Điện thoại</th>
                         <th>Vai trò</th>
+                        <th>Trạng thái tài khoản</th>
                         <th>Hành động</th>
                     </tr>
                 </thead>
@@ -73,11 +66,16 @@
                                 </span>
                             </td>
                             <td>
+                                <span class="badge {{ $user->is_locked ? 'bg-secondary' : 'bg-success' }}">
+                                    {{ $user->is_locked ? 'Đã khóa' : 'Hoạt động' }}
+                                </span>
+                            </td>
+                            <td>
                                 <div class="btn-group btn-group-sm" role="group">
-                                    <a href="{{ route('admin.users.show', $user->id) }}" class="btn btn-outline-primary" title="Xem chi tiết">
+                                    <a data-admin-modal data-modal-title="Chi tiết người dùng" href="{{ route('admin.users.show', $user->id) }}" class="btn btn-outline-primary" title="Xem chi tiết">
                                         <i class="bi bi-eye"></i>
                                     </a>
-                                    <a href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-outline-warning" title="Chỉnh sửa">
+                                    <a data-admin-modal data-modal-title="Chỉnh sửa người dùng" href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-outline-warning" title="Chỉnh sửa">
                                         <i class="bi bi-pencil"></i>
                                     </a>
                                     <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ $user->id }}" title="Xóa">
@@ -111,7 +109,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="text-center py-4">
+                            <td colspan="7" class="text-center py-4">
                                 <i class="bi bi-inbox"></i> Không có người dùng nào
                             </td>
                         </tr>

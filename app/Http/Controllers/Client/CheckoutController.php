@@ -96,6 +96,10 @@ class CheckoutController extends Controller
                 'status'           => 'pending',
                 'total_amount'     => 0,
             ]);
+            $order->statusHistories()->create([
+                'to_status' => 'pending',
+                'note' => 'Đơn hàng được tạo từ website',
+            ]);
 
             foreach ($cartItems as $item) {
                 $product = $products[$item->product_id];
@@ -124,7 +128,14 @@ class CheckoutController extends Controller
 
         if (isset($result['error'])) {
             return redirect()->route('client.cart')
-                ->with('cart_error', $result['error']);
+                ->with('cart_error', $result['error'            ]);
+            Product::query()->find($item['product_id'])->inventoryMovements()->create([
+                'quantity' => -$item['quantity'],
+                'type' => 'sale',
+                'reference_type' => Order::class,
+                'reference_id' => $order->id,
+                'note' => 'Bán hàng qua website',
+            ]);
         }
 
         $order = $result['order'];

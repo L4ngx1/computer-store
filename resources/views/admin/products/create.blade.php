@@ -15,46 +15,45 @@
 
     <div class="card border-0 shadow-sm">
         <div class="card-body">
-            <form id="productForm" method="POST">
+            <form id="productForm" method="POST" onsubmit="event.preventDefault(); submitForm();">
                 @csrf
 
-                <div class="mb-4">
+                <div class="mb-4 product-edit-section--basic">
                     <h5 class="border-bottom pb-2 mb-3">Thông tin cơ bản</h5>
                     <div class="row">
-                        <div class="col-md-6 mb-3">
+                        <div class="col-md-4 mb-3">
                             <label for="name" class="form-label">Tên Sản phẩm <span class="text-danger">*</span></label>
                             <input type="text" id="name" name="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name') }}" required>
                             @error('name')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                         </div>
-                        <div class="col-md-6 mb-3">
+                        <div class="col-md-4 mb-3">
                             <label for="sku" class="form-label">SKU <span class="text-danger">*</span></label>
                             <input type="text" id="sku" name="sku" class="form-control @error('sku') is-invalid @enderror" value="{{ old('sku') }}" required>
                             @error('sku')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                         </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
+                        <div class="col-md-4 mb-3">
                             <label for="slug" class="form-label">Slug (URL thân thiện)</label>
                             <input type="text" id="slug" name="slug" class="form-control @error('slug') is-invalid @enderror" value="{{ old('slug') }}" placeholder="Để trống tự động tạo từ tên">
                             @error('slug')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label for="summary" class="form-label">Mô tả ngắn</label>
-                        <textarea id="summary" name="summary" class="form-control @error('summary') is-invalid @enderror" rows="3" placeholder="Mô tả ngắn về sản phẩm">{{ old('summary') }}</textarea>
-                        @error('summary')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
-                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6 mb-3">
+                            <label for="summary" class="form-label">Mô tả ngắn</label>
+                            <textarea id="summary" name="summary" class="form-control @error('summary') is-invalid @enderror" rows="2" placeholder="Mô tả ngắn về sản phẩm">{{ old('summary') }}</textarea>
+                            @error('summary')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                        </div>
 
-                    <div class="mb-3">
-                        <label for="description" class="form-label">Mô tả chi tiết</label>
-                        <textarea id="description" name="description" class="form-control @error('description') is-invalid @enderror" rows="5" placeholder="Mô tả chi tiết sản phẩm">{{ old('description') }}</textarea>
-                        @error('description')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                        <div class="col-md-6 mb-3">
+                            <label for="description" class="form-label">Mô tả chi tiết</label>
+                            <textarea id="description" name="description" class="form-control @error('description') is-invalid @enderror" rows="2" placeholder="Mô tả chi tiết sản phẩm">{{ old('description') }}</textarea>
+                            @error('description')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                        </div>
                     </div>
                 </div>
 
-                <div class="mb-4">
+                <div class="mb-4 product-edit-section--pricing">
                     <h5 class="border-bottom pb-2 mb-3">Giá & Kho hàng</h5>
                     <div class="row">
                         <div class="col-md-4 mb-3">
@@ -75,7 +74,7 @@
                     </div>
                 </div>
 
-                <div class="mb-4">
+                <div class="mb-4 product-edit-section--warranty">
                     <h5 class="border-bottom pb-2 mb-3">Bảo hành</h5>
                     <div class="row">
                         <div class="col-md-6 mb-3">
@@ -95,8 +94,8 @@
                     </div>
                 </div>
 
-                <div class="mb-4">
-                    <h5 class="border-bottom pb-2 mb-3">Phân loại & Ảnh</h5>
+                <div class="mb-4 product-edit-section--classification">
+                    <h5 class="border-bottom pb-2 mb-3">Phân loại & ảnh</h5>
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="category_id" class="form-label">Danh mục <span class="text-danger">*</span></label>
@@ -121,35 +120,37 @@
                     </div>
 
            
-                    <!-- Ảnh Thumbnail -->
-                    
-                        
-                            <div class="mb-4">
-                            <label for="thumbnail" class="form-label">Ảnh Đại Diện (Ảnh Chính) <span class="text-danger">*</span></label>
-                            <input type="file" id="thumbnail" name="thumbnail" class="form-control @error('thumbnail') is-invalid @enderror" accept="image/png, image/jpeg , image/webp" required>
-                            <small class="text-muted d-block mt-1">Chọn ảnh chính của sản phẩm</small>
-                            @error('thumbnail')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
-                            
-                            <div id="thumbnailPreview" class="mt-3" style="display: none;">
-                                <img id="thumbnailImage" src="" alt="Thumbnail Preview" class="img-fluid rounded" style="max-width: 300px; max-height: 300px; object-fit: cover;">
-                            </div>
+                    <div class="product-media-grid row g-3">
+                        <div class="col-lg-6">
+                            <section class="border rounded-3 p-3 bg-white h-100">
+                                <div class="mb-2">
+                                    <div>
+                                        <h6 class="mb-0">Ảnh đại diện</h6>
+                                    </div>
+                                </div>
+                                <input type="file" id="thumbnail" name="thumbnail" class="form-control @error('thumbnail') is-invalid @enderror" accept="image/png,image/jpeg,image/webp" required onchange="previewProductThumbnail(this)">
+                                @error('thumbnail')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                                <div id="thumbnailPreview" class="product-gallery-grid mt-2 d-none"></div>
+                            </section>
                         </div>
 
-                        <!-- Ảnh Chi Tiết Sản Phẩm -->
-                        <div class="mb-4">
-                            <label for="images" class="form-label">Ảnh Chi Tiết Sản Phẩm</label>
-                            <input type="file" id="images" name="images[]" class="form-control @error('images') is-invalid @enderror" accept="image/png, image/jpeg , image/webp" multiple>
-                            <small class="text-muted d-block mt-1">Chọn nhiều ảnh chi tiết (có thể chọn 0 hoặc nhiều ảnh)</small>
-                            @error('images')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
-
-                            <div id="imagesPreview" class="mt-3 d-flex gap-2 flex-wrap">
-                                <!-- Preview images will appear here -->
-                            </div>
+                        <div class="col-lg-6">
+                            <section class="border rounded-3 p-3 bg-white h-100">
+                                <div class="mb-2">
+                                    <div>
+                                        <h6 class="mb-0">Ảnh chi tiết</h6>
+                                    </div>
+                                </div>
+                                <input type="file" id="images" name="images[]" class="form-control @error('images') is-invalid @enderror" accept="image/png,image/jpeg,image/webp" multiple onchange="previewProductGallery(this)">
+                                @error('images')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                                <div id="imagesPreview" class="product-gallery-grid mt-2"></div>
+                            </section>
                         </div>
+                    </div>
                     
                 </div>
 
-                <div class="mb-4">
+                <div class="mb-4 product-edit-section--status">
                     <h5 class="border-bottom pb-2 mb-3">Trạng thái</h5>
                     <div class="form-check form-switch">
                         <input type="hidden" name="is_active" value="0">
@@ -164,74 +165,22 @@
                     </div>
                 </div>
 
-                <div class="mb-3">
-                    <button type="button" class="btn btn-primary btn-lg" onclick="submitForm()">
-                        <i class="bi bi-check-circle"></i> Tạo Sản phẩm
+                <div class="mb-3 product-edit-actions d-flex flex-wrap gap-2">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        Tạo sản phẩm
                     </button>
-                    <a href="{{ route('admin.products.index') }}" class="btn btn-secondary btn-lg">
-                        <i class="bi bi-x-circle"></i> Hủy
-                    </a>
+                    <button type="button" class="btn btn-secondary btn-lg" data-bs-dismiss="modal">Đóng</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
-@endsection
-
-@push('scripts')
 <script>
-    // Thumbnail preview
-    document.getElementById('thumbnail').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                document.getElementById('thumbnailImage').src = event.target.result;
-                document.getElementById('thumbnailPreview').style.display = 'block';
-            };
-            reader.readAsDataURL(file);
-        }
-    });
-
-    // Multiple images preview
-    document.getElementById('images').addEventListener('change', function(e) {
-        const previewContainer = document.getElementById('imagesPreview');
-        previewContainer.innerHTML = '';
-
-        const files = Array.from(e.target.files);
-        files.forEach((file, index) => {
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                const imgWrapper = document.createElement('div');
-                imgWrapper.className = 'position-relative';
-                imgWrapper.style.cssText = 'width: 100px; height: 100px;';
-                
-                const img = document.createElement('img');
-                img.src = event.target.result;
-                img.className = 'img-fluid rounded border';
-                img.style.cssText = 'width: 100%; height: 100%; object-fit: cover;';
-                
-                const removeBtn = document.createElement('button');
-                removeBtn.type = 'button';
-                removeBtn.className = 'btn btn-sm btn-danger position-absolute top-0 end-0';
-                removeBtn.innerHTML = '&times;';
-                removeBtn.style.cssText = 'width: 24px; height: 24px; padding: 0; border-radius: 50%; margin: -5px -5px 0 0;';
-                removeBtn.onclick = function(e) {
-                    e.preventDefault();
-                    imgWrapper.remove();
-                };
-
-                imgWrapper.appendChild(img);
-                imgWrapper.appendChild(removeBtn);
-                previewContainer.appendChild(imgWrapper);
-            };
-            reader.readAsDataURL(file);
-        });
-    });
-
     async function submitForm() {
         const form = document.getElementById('productForm');
+        if (!form) return;
+        if (!form.reportValidity()) return;
         const formData = new FormData(form);
 
         try {
@@ -244,18 +193,38 @@
                 body: formData
             });
 
-            const data = await response.json();
+            const data = await response.json().catch(() => ({}));
 
             if (response.ok && data.success) {
-                window.location.href = '{{ route("admin.products.index") }}';
+                sessionStorage.setItem('admin-notification', JSON.stringify({
+                    message: data.message || 'Sản phẩm đã được tạo thành công.',
+                    type: 'success'
+                }));
+                window.location.reload();
             } else {
-                const errors = data.data?.errors || data.message || 'Lỗi không xác định';
-                alert(typeof errors === 'string' ? errors : JSON.stringify(errors));
+                let errorMsg = 'Lỗi không xác định khi tạo sản phẩm.';
+                if (data.errors) {
+                    errorMsg = Object.values(data.errors).flat().join(' | ');
+                } else if (data.data?.errors) {
+                    errorMsg = typeof data.data.errors === 'string' ? data.data.errors : Object.values(data.data.errors).flat().join(' | ');
+                } else if (data.message) {
+                    errorMsg = data.message;
+                }
+
+                if (typeof window.adminNotify === 'function') {
+                    window.adminNotify(errorMsg, 'error');
+                } else {
+                    alert(errorMsg);
+                }
             }
         } catch (error) {
             console.error('Error:', error);
-            alert('Lỗi khi tạo sản phẩm');
+            if (typeof window.adminNotify === 'function') {
+                window.adminNotify('Có lỗi hệ thống xảy ra khi tạo sản phẩm.', 'error');
+            } else {
+                alert('Có lỗi hệ thống xảy ra khi tạo sản phẩm.');
+            }
         }
     }
 </script>
-@endpush
+@endsection

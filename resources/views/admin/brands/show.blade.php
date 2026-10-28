@@ -15,7 +15,7 @@
             <dt class="col-sm-3">Slug</dt><dd class="col-sm-9">{{ $brand->slug }}</dd>
             <dt class="col-sm-3">Số sản phẩm</dt><dd class="col-sm-9">{{ $brand->products_count }}</dd>
         </dl>
-        <a href="{{ route('admin.brands.edit', $brand->id) }}" class="btn btn-primary mt-3"><i class="bi bi-pencil me-1"></i>Chỉnh sửa</a>
+        <a data-admin-modal data-modal-title="Chỉnh sửa thương hiệu" href="{{ route('admin.brands.edit', $brand->id) }}" class="btn btn-primary mt-3"><i class="bi bi-pencil me-1"></i>Chỉnh sửa</a>
     </div>
 </div>
 @endsection

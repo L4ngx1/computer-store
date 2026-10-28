@@ -13,17 +13,9 @@
     ];
 @endphp
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h3 mb-0">Quản lý đơn hàng</h1>
-</div>
-
-@if(session('success'))
-    <div class="alert alert-success alert-dismissible fade show">{{ session('success') }}<button class="btn-close" data-bs-dismiss="alert"></button></div>
-@endif
-
 <div class="card border-0 shadow-sm">
     <div class="card-body">
-        <form method="GET" class="row g-3 align-items-end mb-4">
+        <form method="GET" class="admin-filter-card row g-2 align-items-end mb-4 p-3">
             <div class="col-lg-6">
                 <label class="form-label">Tìm kiếm</label>
                 <input type="search" name="q" class="form-control" value="{{ request('q') }}" placeholder="Mã đơn, tên khách, email, sđt">
@@ -37,8 +29,9 @@
                     @endforeach
                 </select>
             </div>
-            <div class="col-lg-3">
-                <button class="btn btn-primary w-100"><i class="bi bi-search me-1"></i>Lọc</button>
+            <div class="col-lg-3 d-flex gap-2">
+                <button class="btn btn-primary flex-grow-1"><i class="bi bi-search me-1"></i>Lọc</button>
+                <a href="{{ route('admin.orders.index') }}" class="btn btn-light border flex-grow-1"><i class="bi bi-arrow-counterclockwise me-1"></i>Đặt lại</a>
             </div>
         </form>
 
@@ -67,7 +60,7 @@
                             <td><span class="badge bg-{{ $labels[$order->status][1] ?? 'secondary' }}">{{ $labels[$order->status][0] ?? $order->status }}</span></td>
                             <td class="small text-muted">{{ $order->created_at->format('d/m/Y H:i') }}</td>
                             <td class="text-end">
-                                <a href="{{ route('admin.orders.show', $order->id) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></a>
+                                <a data-admin-modal data-modal-title="Chi tiết đơn hàng #{{ $order->id }}" href="{{ route('admin.orders.show', $order->id) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></a>
                                 <form action="{{ route('admin.orders.destroy', $order->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Xóa đơn hàng này?')">
                                     @csrf @method('DELETE')
                                     <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>

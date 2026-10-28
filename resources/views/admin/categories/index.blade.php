@@ -5,12 +5,7 @@
 @section('content')
 <div class="container-fluid mt-4">
     <div class="row mb-4 align-items-center">
-        <div class="col-md-4">
-            <h2 class="fw-semibold mb-0">
-                <i class="bi bi-tags-fill"></i> Quản lý Danh mục
-            </h2>
-        </div>
-        <div class="col-md-5">
+        <div class="col-12">
             <form action="{{ route('admin.categories.index') }}" method="GET" class="d-flex">
                 <div class="input-group">
                     <input type="text" name="search" class="form-control" placeholder="Tìm kiếm danh mục..." value="{{ request('search') }}">
@@ -25,19 +20,13 @@
                 </div>
             </form>
         </div>
-        <div class="col-md-3 text-end">
-            <a href="{{ route('admin.categories.create') }}" class="btn btn-primary">
-                <i class="bi bi-plus-circle"></i> Thêm mới
-            </a>
-        </div>
     </div>
 
-@if(session('success'))
-    <div class="alert alert-success alert-dismissible fade show">{{ session('success') }}<button class="btn-close" data-bs-dismiss="alert"></button></div>
-@endif
-@if(session('error'))
-    <div class="alert alert-danger alert-dismissible fade show">{{ session('error') }}<button class="btn-close" data-bs-dismiss="alert"></button></div>
-@endif
+    <div class="d-flex justify-content-end mb-3">
+        <a data-admin-modal data-modal-title="Thêm danh mục" href="{{ route('admin.categories.create') }}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Thêm mới
+        </a>
+    </div>
 
 <div class="card border-0 shadow-sm">
     <div class="card-body">
@@ -66,7 +55,8 @@
                                 @endif
                             </td>
                             <td class="text-end">
-                                <a href="{{ route('admin.categories.edit', $category->id) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
+                                <a data-admin-modal data-modal-title="Chi tiết danh mục" href="{{ route('admin.categories.show', $category->id) }}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-eye"></i></a>
+                                <a data-admin-modal data-modal-title="Chỉnh sửa danh mục" href="{{ route('admin.categories.edit', $category->id) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
                                 <form action="{{ route('admin.categories.destroy', $category->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Xóa danh mục này?')">
                                     @csrf @method('DELETE')
                                     <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>

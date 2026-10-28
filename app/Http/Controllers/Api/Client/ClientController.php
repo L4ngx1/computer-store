@@ -128,7 +128,7 @@ class ClientController extends ApiController
     {
         $validated = $request->validate([
             'items' => 'required|array|min:1',
-            'items.*.product_id' => 'required|exists:products,id',
+            'items.*.product_id' => 'required|distinct|exists:products,id',
             'items.*.quantity' => 'required|integer|min:1',
         ]);
 
@@ -174,16 +174,14 @@ class ClientController extends ApiController
     public function checkout(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'user_id' => 'nullable|exists:users,id',
             'customer_name' => 'required|string|max:255',
             'customer_email' => 'required|email|max:255',
             'customer_phone' => 'required|string|max:30',
             'shipping_address' => 'required|string',
             'note' => 'nullable|string',
-            'payment_method' => 'nullable|string|max:50',
-            'status' => 'nullable|in:pending,processing,shipping,completed,cancelled',
+            'payment_method' => 'nullable|in:COD',
             'items' => 'required|array|min:1',
-            'items.*.product_id' => 'required|exists:products,id',
+            'items.*.product_id' => 'required|distinct|exists:products,id',
             'items.*.quantity' => 'required|integer|min:1',
         ]);
 
@@ -192,8 +190,20 @@ class ClientController extends ApiController
             $totalAmount = 0;
 
             foreach ($validated['items'] as $item) {
-                $product = Product::query()->findOrFail($item['product_id']);
+                $product = Product::query()
+                    ->whereKey($item['product_id'])
+                    ->lockForUpdate()
+                    ->firstOrFail();
+
+                if (! $product->is_active) {
+                    abort(422, 'Sản phẩm không còn kinh doanh.');
+                }
+
                 $quantity = (int) $item['quantity'];
+                if ($product->stock < $quantity) {
+                    abort(422, "Sản phẩm {$product->name} không đủ tồn kho.");
+                }
+
                 $unitPrice = $product->sale_price ?? $product->price;
 
                 $totalAmount += $unitPrice * $quantity;
@@ -204,10 +214,12 @@ class ClientController extends ApiController
                     'quantity' => $quantity,
                     'price' => $unitPrice,
                 ];
+
+                $product->decrement('stock', $quantity);
             }
 
             $order = Order::create([
-                'user_id' => $validated['user_id'] ?? Auth::id(),
+                'user_id' => Auth::id(),
                 'customer_name' => $validated['customer_name'],
                 'customer_email' => $validated['customer_email'],
                 'customer_phone' => $validated['customer_phone'],
@@ -215,13 +227,24 @@ class ClientController extends ApiController
                 'note' => $validated['note'] ?? null,
                 'total_amount' => $totalAmount,
                 'payment_method' => $validated['payment_method'] ?? 'COD',
-                'status' => $validated['status'] ?? 'pending',
+                'status' => 'pending',
+            ]);
+            $order->statusHistories()->create([
+                'to_status' => 'pending',
+                'note' => 'Đơn hàng được tạo qua API',
             ]);
 
             foreach ($items as $item) {
                 OrderItem::create([
                     'order_id' => $order->id,
                     ...$item,
+                ]);
+                Product::query()->find($item['product_id'])->inventoryMovements()->create([
+                    'quantity' => -$item['quantity'],
+                    'type' => 'sale',
+                    'reference_type' => Order::class,
+                    'reference_id' => $order->id,
+                    'note' => 'Bán hàng qua API',
                 ]);
             }
 

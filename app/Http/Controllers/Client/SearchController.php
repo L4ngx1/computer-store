@@ -21,7 +21,7 @@ class SearchController extends Controller
             $products->whereRaw('1 = 0');
         }
 
-        $products = $products->with(['category', 'images'])->paginate(12)->withQueryString();
+        $products = $products->with(['category:id,name,slug'])->paginate(12)->withQueryString();
 
         return view('client.search', compact('products', 'keyword'));
     }

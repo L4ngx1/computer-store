@@ -15,7 +15,7 @@ class CatalogController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Product::with(['category', 'brand', 'images'])->where('is_active', true);
+        $query = Product::with(['category:id,name,slug', 'brand:id,name,slug'])->where('is_active', true);
 
         if ($request->filled('category')) {
             $query->whereHas('category', function($q) use ($request) {

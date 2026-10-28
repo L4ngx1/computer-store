@@ -72,7 +72,7 @@
                                 class="text-decoration-none text-dark d-flex flex-column h-100">
                                 <div class="product-image-container">
                                     @if($product->thumbnail)
-                                        <img src="{{ $product->thumbnail }}" class="card-img-top" alt="{{ $product->name }}">
+                                        <img src="{{ $product->thumbnail }}" class="card-img-top" loading="lazy" decoding="async" alt="{{ $product->name }}">
                                     @else
                                         <div class="bg-light d-flex align-items-center justify-content-center h-100 w-100">
                                             <i class="bi bi-image text-muted" style="font-size: 3rem;"></i>

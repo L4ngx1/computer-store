@@ -8,6 +8,9 @@ use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Pagination\Paginator;
 use App\Models\CartItem;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -24,11 +27,17 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        RateLimiter::for('api', function (Request $request) {
+            return Limit::perMinute(60)->by(
+                $request->user()?->getAuthIdentifier() ?: $request->ip()
+            );
+        });
+
         // Cấu hình sử dụng giao diện Bootstrap 5 cho hệ thống phân trang (Kéo từ main về)
         Paginator::useBootstrapFive();
 
         // Chia sẻ số lượng sản phẩm trong giỏ hàng cho mọi view (badge giỏ hàng)
-        View::composer('*', function ($view) {
+        View::composer('layouts.site', function ($view) {
             if (Auth::check()) {
                 $cartCount = CartItem::where('user_id', Auth::id())->sum('quantity');
             } else {

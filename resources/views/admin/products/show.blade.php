@@ -9,7 +9,7 @@
             <h1 class="h3 mb-0">Chi tiết Sản phẩm</h1>
         </div>
         <div class="d-flex gap-2">
-            <a href="{{ route('admin.products.edit', $product->id) }}" class="btn btn-warning">
+            <a data-admin-modal data-modal-title="Chỉnh sửa sản phẩm" href="{{ route('admin.products.edit', $product->id) }}" class="btn btn-warning">
                 <i class="bi bi-pencil"></i> Sửa
             </a>
             <a href="{{ route('admin.products.index') }}" class="btn btn-secondary">

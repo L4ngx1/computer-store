@@ -256,6 +256,11 @@ class CartController extends ApiController
                     return null;
                 }
 
+                if ($product->stock <= 0) {
+                    return null;
+                }
+
+                $quantity = min($quantity, (int) $product->stock);
                 $unitPrice = (float) ($product->sale_price ?? $product->price ?? 0);
 
                 return [
@@ -297,16 +302,10 @@ class CartController extends ApiController
         }
 
         $cartItem->fill([
-            'cart_token' => $this->databaseCartToken($request),
             'quantity' => $newQuantity,
         ])->save();
 
         return $cartItem;
-    }
-
-    private function databaseCartToken(Request $request): string
-    {
-        return 'user_' . $request->user()->id;
     }
 
     private function mergeLocalItems(array $items, int $productId, int $quantityToAdd): array

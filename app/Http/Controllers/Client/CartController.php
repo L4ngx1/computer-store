@@ -187,11 +187,23 @@ class CartController extends Controller
                 continue;
             }
 
+            $product = Product::query()
+                ->whereKey($productId)
+                ->where('is_active', true)
+                ->first();
+
+            if (! $product || $product->stock <= 0) {
+                continue;
+            }
+
             $item = CartItem::firstOrNew([
                 'user_id'    => $userId,
                 'product_id' => $productId,
             ]);
-            $item->quantity = ($item->quantity ?? 0) + $qty;
+            $item->quantity = min(
+                $product->stock,
+                ($item->quantity ?? 0) + $qty
+            );
             $item->save();
         }
 

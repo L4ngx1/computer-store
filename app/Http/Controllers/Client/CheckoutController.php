@@ -61,19 +61,28 @@ class CheckoutController extends Controller
                 ->with('cart_error', 'Giỏ hàng trống!');
         }
 
-        // Kiểm tra tồn kho trước khi tạo đơn
-        foreach ($cartItems as $item) {
-            if (! $item->product || ! $item->product->is_active) {
-                return redirect()->route('client.cart')
-                    ->with('cart_error', 'Một sản phẩm trong giỏ không còn kinh doanh.');
-            }
-            if ($item->product->stock < $item->quantity) {
-                return redirect()->route('client.cart')
-                    ->with('cart_error', 'Sản phẩm "' . $item->product->name . '" chỉ còn ' . $item->product->stock . ' sản phẩm.');
-            }
-        }
+        $result = DB::transaction(function () use ($validated, $cartItems) {
+            $products = [];
 
-        $order = DB::transaction(function () use ($validated, $cartItems) {
+            foreach ($cartItems as $item) {
+                $product = Product::query()
+                    ->whereKey($item->product_id)
+                    ->lockForUpdate()
+                    ->first();
+
+                if (! $product || ! $product->is_active) {
+                    return ['error' => 'Một sản phẩm trong giỏ không còn kinh doanh.'];
+                }
+
+                if ($product->stock < $item->quantity) {
+                    return [
+                        'error' => 'Sản phẩm "' . $product->name . '" chỉ còn ' . $product->stock . ' sản phẩm.',
+                    ];
+                }
+
+                $products[$item->product_id] = $product;
+            }
+
             $total = 0;
 
             $order = Order::create([
@@ -89,18 +98,19 @@ class CheckoutController extends Controller
             ]);
 
             foreach ($cartItems as $item) {
-                $price = $item->product->sale_price ?? $item->product->price;
+                $product = $products[$item->product_id];
+                $price = $product->sale_price ?? $product->price;
 
                 OrderItem::create([
                     'order_id'     => $order->id,
                     'product_id'   => $item->product_id,
-                    'product_name' => $item->product->name,
+                    'product_name' => $product->name,
                     'quantity'     => $item->quantity,
                     'price'        => $price,
                 ]);
 
                 // Trừ tồn kho
-                Product::where('id', $item->product_id)->decrement('stock', $item->quantity);
+                $product->decrement('stock', $item->quantity);
 
                 $total += $price * $item->quantity;
             }
@@ -109,8 +119,15 @@ class CheckoutController extends Controller
 
             CartItem::where('user_id', Auth::id())->delete();
 
-            return $order;
+            return ['order' => $order];
         });
+
+        if (isset($result['error'])) {
+            return redirect()->route('client.cart')
+                ->with('cart_error', $result['error']);
+        }
+
+        $order = $result['order'];
 
         return redirect()->route('client.account', ['#orders'])
             ->with('success', 'Đặt hàng thành công! Mã đơn hàng của bạn là #' . $order->id);

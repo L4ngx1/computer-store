@@ -19,7 +19,8 @@ RUN composer install \
     --no-interaction \
     --no-progress \
     --prefer-dist \
-    --optimize-autoloader
+    --optimize-autoloader \
+    --no-scripts
 
 FROM php:8.3-apache-bookworm AS app
 
@@ -61,7 +62,8 @@ RUN mkdir -p storage/framework/cache storage/framework/sessions \
 
 COPY docker/php/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint
-RUN chmod +x /usr/local/bin/entrypoint
+RUN chmod +x /usr/local/bin/entrypoint \
+    && php artisan package:discover --ansi
 
 EXPOSE 80
 

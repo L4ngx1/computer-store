@@ -40,7 +40,7 @@ Route::prefix('admin')->name('api.admin.')->middleware(['api_token', 'is_admin']
 		Route::post('/', 'store')->name('store');
 		Route::get('{user}', 'show')->name('show');
 		Route::put('{user}', 'update')->name('update');
-		Route::patch('{user}', 'update')->name('update');
+		Route::patch('{user}', 'update')->name('update.patch');
 		Route::delete('{user}', 'destroy')->name('destroy');
 	});
 	Route::prefix('categories')->name('categories.')->controller(CategoryController::class)->group(function () {
@@ -48,7 +48,7 @@ Route::prefix('admin')->name('api.admin.')->middleware(['api_token', 'is_admin']
 		Route::post('/', 'store')->name('store');
 		Route::get('{category}', 'show')->name('show');
 		Route::put('{category}', 'update')->name('update');
-		Route::patch('{category}', 'update')->name('update');
+		Route::patch('{category}', 'update')->name('update.patch');
 		Route::delete('{category}', 'destroy')->name('destroy');
 	});
 	Route::prefix('brands')->name('brands.')->controller(BrandController::class)->group(function () {
@@ -56,7 +56,7 @@ Route::prefix('admin')->name('api.admin.')->middleware(['api_token', 'is_admin']
 		Route::post('/', 'store')->name('store');
 		Route::get('{brand}', 'show')->name('show');
 		Route::put('{brand}', 'update')->name('update');
-		Route::patch('{brand}', 'update')->name('update');
+		Route::patch('{brand}', 'update')->name('update.patch');
 		Route::delete('{brand}', 'destroy')->name('destroy');
 	});
 	Route::prefix('products')->name('products.')->controller(ProductController::class)->group(function () {
@@ -64,7 +64,7 @@ Route::prefix('admin')->name('api.admin.')->middleware(['api_token', 'is_admin']
 		Route::post('/', 'store')->name('store');
 		Route::get('{product}', 'show')->name('show');
 		Route::put('{product}', 'update')->name('update');
-		Route::patch('{product}', 'update')->name('update');
+		Route::patch('{product}', 'update')->name('update.patch');
 		Route::delete('{product}', 'destroy')->name('destroy');
 	});
 	Route::prefix('orders')->name('orders.')->controller(OrderController::class)->group(function () {
@@ -72,7 +72,7 @@ Route::prefix('admin')->name('api.admin.')->middleware(['api_token', 'is_admin']
 		Route::post('/', 'store')->name('store');
 		Route::get('{order}', 'show')->name('show');
 		Route::put('{order}', 'update')->name('update');
-		Route::patch('{order}', 'update')->name('update');
+		Route::patch('{order}', 'update')->name('update.patch');
 		Route::delete('{order}', 'destroy')->name('destroy');
 		Route::patch('{order}/status', 'updateStatus')->name('updateStatus');
 	});

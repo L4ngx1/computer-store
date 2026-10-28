@@ -16,12 +16,22 @@ class Product extends Model
         'price',
         'sale_price',
         'stock',
+        'warranty_start_date',
+        'warranty_end_date',
         'thumbnail',
         'is_featured',
         'is_active',
         'category_id',
         'brand_id',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'warranty_start_date' => 'date:Y-m-d',
+            'warranty_end_date' => 'date:Y-m-d',
+        ];
+    }
 
     public function category()
     {
@@ -57,7 +67,7 @@ class Product extends Model
                 return $value;
             }
             // Ngược lại, tạo URL từ đường dẫn lưu trữ
-            return Storage::url($value);
+            return Storage::disk('public')->url($value);
         }
         return null; // Hoặc trả về một ảnh placeholder: asset('images/placeholder.png')
     }

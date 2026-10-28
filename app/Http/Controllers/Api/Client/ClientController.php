@@ -136,8 +136,16 @@ class ClientController extends ApiController
         $subtotal = 0;
 
         foreach ($validated['items'] as $item) {
-            $product = Product::query()->findOrFail($item['product_id']);
+            $product = Product::query()
+                ->where('is_active', true)
+                ->findOrFail($item['product_id']);
             $quantity = (int) $item['quantity'];
+            if ($product->stock < $quantity) {
+                return $this->error(
+                    "Sản phẩm {$product->name} không đủ tồn kho.",
+                    422
+                );
+            }
             $unitPrice = $product->sale_price ?? $product->price;
             $lineTotal = $unitPrice * $quantity;
 

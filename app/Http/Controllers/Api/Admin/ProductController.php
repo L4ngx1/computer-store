@@ -27,6 +27,8 @@ class ProductController extends Controller
             'price' => 'required|numeric|min:0',
             'sale_price' => 'nullable|numeric|min:0|lte:price',
             'stock' => 'required|integer|min:0',
+            'warranty_start_date' => 'nullable|date',
+            'warranty_end_date' => 'nullable|date|after_or_equal:warranty_start_date',
             'category_id' => 'required|exists:categories,id',
             'brand_id' => 'required|exists:brands,id',
             'is_active' => 'required|boolean',
@@ -44,12 +46,14 @@ class ProductController extends Controller
             $product = Product::create([
                 'name' => $validated['name'],
                 'sku' => $validated['sku'],
-                'slug' => $validated['slug'] ?: Str::slug($validated['name']),
+                'slug' => $this->uniqueSlug($validated['slug'] ?: $validated['name']),
                 'summary' => $validated['summary'],
                 'description' => $validated['description'],
                 'price' => $validated['price'],
                 'sale_price' => $validated['sale_price'],
                 'stock' => $validated['stock'],
+                'warranty_start_date' => $validated['warranty_start_date'] ?? null,
+                'warranty_end_date' => $validated['warranty_end_date'] ?? null,
                 'category_id' => $validated['category_id'],
                 'brand_id' => $validated['brand_id'],
                 'is_active' => $validated['is_active'],
@@ -95,6 +99,8 @@ class ProductController extends Controller
             'price' => 'required|numeric|min:0',
             'sale_price' => 'nullable|numeric|min:0|lte:price',
             'stock' => 'required|integer|min:0',
+            'warranty_start_date' => 'nullable|date',
+            'warranty_end_date' => 'nullable|date|after_or_equal:warranty_start_date',
             'category_id' => 'required|exists:categories,id',
             'brand_id' => 'required|exists:brands,id',
             'is_active' => 'required|boolean',
@@ -136,7 +142,7 @@ class ProductController extends Controller
 
             // 3. Update Product
             if (empty($updateData['slug'])) {
-                $updateData['slug'] = Str::slug($updateData['name']);
+                $updateData['slug'] = $this->uniqueSlug($updateData['name'], $product->id);
             }
             $product->update($updateData);
 
@@ -158,5 +164,22 @@ class ProductController extends Controller
         // You might want to add logic to prevent deleting products with active orders
         $product->delete(); // This will trigger model events to delete images if set up
         return response()->json(['success' => true, 'message' => 'Sản phẩm đã được xóa.']);
+    }
+
+    private function uniqueSlug(string $value, ?int $ignoreId = null): string
+    {
+        $base = Str::slug($value) ?: 'product';
+        $slug = $base;
+        $suffix = 2;
+
+        while (Product::query()
+            ->where('slug', $slug)
+            ->when($ignoreId, fn ($query) => $query->where('id', '!=', $ignoreId))
+            ->exists()) {
+            $slug = "{$base}-{$suffix}";
+            $suffix++;
+        }
+
+        return $slug;
     }
 }

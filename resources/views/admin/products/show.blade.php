@@ -101,6 +101,24 @@
 
             <div class="card border-0 shadow-sm mb-3">
                 <div class="card-header bg-white">
+                    <h6 class="mb-0">Bảo hành</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="text-muted small">Ngày bắt đầu</label>
+                            <p class="mb-0">{{ $product->warranty_start_date?->format('d/m/Y') ?? '-' }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small">Ngày kết thúc</label>
+                            <p class="mb-0">{{ $product->warranty_end_date?->format('d/m/Y') ?? '-' }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm mb-3">
+                <div class="card-header bg-white">
                     <h6 class="mb-0">Giá & Kho hàng</h6>
                 </div>
                 <div class="card-body">

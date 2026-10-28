@@ -7,6 +7,8 @@ use App\Models\Product;
 use App\Models\Category;
 use App\Models\Brand;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
@@ -19,18 +21,10 @@ class ProductController extends Controller
 
         if ($request->filled('search')) {
             $search = $request->input('search');
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
+            $query->where(function ($query) use ($search) {
+                $query->where('name', 'like', "%{$search}%")
                     ->orWhere('sku', 'like', "%{$search}%");
             });
-        }
-
-        $query = Product::with(['category', 'brand']);
-
-        if ($request->filled('search')) {
-            $search = $request->input('search');
-            $query->where('name', 'like', "%{$search}%")
-                ->orWhere('sku', 'like', "%{$search}%");
         }
 
         $products = $query->latest()->paginate(15)->withQueryString();
@@ -82,20 +76,22 @@ class ProductController extends Controller
             'price' => 'required|numeric|min:0',
             'category_id' => 'required|exists:categories,id',
             'brand_id' => 'required|exists:brands,id',
-            'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'sale_price' => 'nullable|numeric|min:0|lte:price',
+            'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'description' => 'nullable|string',
             'summary' => 'nullable|string|max:500',
             'stock' => 'nullable|integer|min:0',
+            'warranty_start_date' => 'nullable|date',
+            'warranty_end_date' => 'nullable|date|after_or_equal:warranty_start_date',
             'is_featured' => 'nullable|boolean',
             'is_active' => 'nullable|boolean',
         ]);
 
-        $validatedData['slug'] = \Illuminate\Support\Str::slug($request->name);
-        $validatedData['sku'] = 'SKU-' . rand(1000, 9999); // Simple SKU generation
+        $validatedData['slug'] = $this->uniqueSlug($request->name);
+        $validatedData['sku'] = $this->uniqueSku();
 
         if ($request->hasFile('thumbnail')) {
-            $path = $request->file('thumbnail')->store('public/products');
-            $validatedData['thumbnail'] = str_replace('public/', '', $path);
+            $validatedData['thumbnail'] = $request->file('thumbnail')->store('products', 'public');
         }
 
         Product::create($validatedData);
@@ -111,25 +107,27 @@ class ProductController extends Controller
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
+            'sale_price' => 'nullable|numeric|min:0|lte:price',
             'category_id' => 'required|exists:categories,id',
             'brand_id' => 'required|exists:brands,id',
             'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'description' => 'nullable|string',
             'summary' => 'nullable|string|max:500',
             'stock' => 'nullable|integer|min:0',
+            'warranty_start_date' => 'nullable|date',
+            'warranty_end_date' => 'nullable|date|after_or_equal:warranty_start_date',
             'is_featured' => 'nullable|boolean',
             'is_active' => 'nullable|boolean',
         ]);
 
-        $validatedData['slug'] = \Illuminate\Support\Str::slug($request->name);
+        $validatedData['slug'] = $this->uniqueSlug($request->name, $product->id);
 
         if ($request->hasFile('thumbnail')) {
             // Delete old thumbnail if it exists
             if ($product->thumbnail) {
-                \Illuminate\Support\Facades\Storage::delete('public/' . $product->thumbnail);
+                Storage::disk('public')->delete($product->thumbnail);
             }
-            $path = $request->file('thumbnail')->store('public/products');
-            $validatedData['thumbnail'] = str_replace('public/', '', $path);
+            $validatedData['thumbnail'] = $request->file('thumbnail')->store('products', 'public');
         }
 
         $product->update($validatedData);
@@ -146,5 +144,30 @@ class ProductController extends Controller
         $product->delete();
 
         return redirect()->route('admin.products.index')->with('success', 'Product deleted successfully.');
+    }
+
+    private function uniqueSlug(string $name, ?int $ignoreId = null): string
+    {
+        $base = Str::slug($name) ?: 'product';
+        $slug = $base;
+        $suffix = 2;
+
+        while (Product::where('slug', $slug)
+            ->when($ignoreId, fn ($query) => $query->where('id', '!=', $ignoreId))
+            ->exists()) {
+            $slug = "{$base}-{$suffix}";
+            $suffix++;
+        }
+
+        return $slug;
+    }
+
+    private function uniqueSku(): string
+    {
+        do {
+            $sku = 'SKU-' . strtoupper(Str::random(8));
+        } while (Product::where('sku', $sku)->exists());
+
+        return $sku;
     }
 }

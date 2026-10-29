@@ -12,6 +12,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // The app runs behind the HTTPS reverse proxy. Trust forwarded
+        // headers so Laravel generates HTTPS URLs for proxied requests.
+        $middleware->trustProxies(at: '*');
+
         $middleware->alias([
             'is_admin' => \App\Http\Middleware\AdminMiddleware::class,
             'api_token' => \App\Http\Middleware\ApiTokenMiddleware::class,

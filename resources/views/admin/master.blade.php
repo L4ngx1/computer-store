@@ -550,6 +550,62 @@
         const adminPageModalTitle = document.getElementById('adminPageModalTitle');
         const modalInstance = adminPageModal ? new bootstrap.Modal(adminPageModal) : null;
 
+        document.addEventListener('submit', async (event) => {
+            const form = event.target.closest('form[data-admin-product-form]');
+            if (!form) return;
+
+            event.preventDefault();
+            if (!form.reportValidity()) return;
+
+            const submitButton = form.querySelector('[type="submit"]');
+            if (submitButton?.disabled) return;
+            if (submitButton) submitButton.disabled = true;
+
+            try {
+                const formData = new FormData(form);
+                if (form.dataset.apiMethod) formData.set('_method', form.dataset.apiMethod);
+
+                const response = await fetch(form.dataset.apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                });
+                const data = await response.json().catch(() => ({}));
+
+                if (response.ok && data.success) {
+                    sessionStorage.setItem('admin-notification', JSON.stringify({
+                        message: data.message || 'Sản phẩm đã được lưu thành công.',
+                        type: 'success'
+                    }));
+                    window.location.reload();
+                    return;
+                }
+
+                const errors = data.errors || data.data?.errors;
+                const errorMessage = errors
+                    ? (typeof errors === 'string' ? errors : Object.values(errors).flat().join(' | '))
+                    : (data.message || 'Không thể lưu sản phẩm. Vui lòng thử lại.');
+                if (typeof window.adminNotify === 'function') {
+                    window.adminNotify(errorMessage, 'error');
+                } else {
+                    alert(errorMessage);
+                }
+            } catch (error) {
+                console.error('Error saving product:', error);
+                const errorMessage = 'Có lỗi kết nối khi lưu sản phẩm. Vui lòng thử lại.';
+                if (typeof window.adminNotify === 'function') {
+                    window.adminNotify(errorMessage, 'error');
+                } else {
+                    alert(errorMessage);
+                }
+            } finally {
+                if (submitButton?.isConnected) submitButton.disabled = false;
+            }
+        });
+
         document.addEventListener('click', async (event) => {
             const link = event.target.closest('a[data-admin-modal]');
             if (!link || !modalInstance) return;

@@ -15,7 +15,7 @@
 
     <div class="card border-0 shadow-sm">
         <div class="card-body">
-            <form id="productForm" method="POST" onsubmit="event.preventDefault(); submitForm();">
+            <form id="productForm" method="POST" data-admin-product-form data-api-url="{{ route('admin.products.api.update', $product->id, false) }}" data-api-method="PATCH">
                 @csrf
                 @method('PATCH')
 
@@ -267,57 +267,5 @@
         });
     });
 
-    async function submitForm() {
-        const form = document.getElementById('productForm');
-        if (!form) return;
-        if (!form.reportValidity()) return;
-        const formData = new FormData(form);
-        // PHP only parses multipart form bodies on POST. Keep the intended
-        // Laravel PATCH route through method spoofing so fields and files are
-        // available to validation.
-        formData.set('_method', 'PATCH');
-        
-        try {
-            const response = await fetch('{{ route("admin.products.api.update", $product->id) }}', {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    'Accept': 'application/json'
-                },
-                body: formData
-            });
-            
-            const data = await response.json().catch(() => ({}));
-            
-            if (response.ok && data.success) {
-                sessionStorage.setItem('admin-notification', JSON.stringify({
-                    message: data.message || 'Sản phẩm đã được cập nhật thành công.',
-                    type: 'success'
-                }));
-                window.location.reload();
-            } else {
-                let errorMsg = 'Lỗi không xác định khi cập nhật sản phẩm.';
-                if (data.errors) {
-                    errorMsg = Object.values(data.errors).flat().join(' | ');
-                } else if (data.data?.errors) {
-                    errorMsg = typeof data.data.errors === 'string' ? data.data.errors : Object.values(data.data.errors).flat().join(' | ');
-                } else if (data.message) {
-                    errorMsg = data.message;
-                }
-                if (typeof window.adminNotify === 'function') {
-                    window.adminNotify(errorMsg, 'error');
-                } else {
-                    alert(errorMsg);
-                }
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            if (typeof window.adminNotify === 'function') {
-                window.adminNotify('Có lỗi hệ thống xảy ra khi cập nhật sản phẩm.', 'error');
-            } else {
-                alert('Có lỗi hệ thống xảy ra khi cập nhật sản phẩm.');
-            }
-        }
-    }
 </script>
 @endsection

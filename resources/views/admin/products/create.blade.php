@@ -15,7 +15,7 @@
 
     <div class="card border-0 shadow-sm">
         <div class="card-body">
-            <form id="productForm" method="POST" onsubmit="event.preventDefault(); submitForm();">
+            <form id="productForm" method="POST" data-admin-product-form data-api-url="{{ route('admin.products.api.store', [], false) }}">
                 @csrf
 
                 <div class="mb-4 product-edit-section--basic">
@@ -176,55 +176,4 @@
     </div>
 </div>
 
-<script>
-    async function submitForm() {
-        const form = document.getElementById('productForm');
-        if (!form) return;
-        if (!form.reportValidity()) return;
-        const formData = new FormData(form);
-
-        try {
-            const response = await fetch('{{ route("admin.products.api.store") }}', {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    'Accept': 'application/json'
-                },
-                body: formData
-            });
-
-            const data = await response.json().catch(() => ({}));
-
-            if (response.ok && data.success) {
-                sessionStorage.setItem('admin-notification', JSON.stringify({
-                    message: data.message || 'Sản phẩm đã được tạo thành công.',
-                    type: 'success'
-                }));
-                window.location.reload();
-            } else {
-                let errorMsg = 'Lỗi không xác định khi tạo sản phẩm.';
-                if (data.errors) {
-                    errorMsg = Object.values(data.errors).flat().join(' | ');
-                } else if (data.data?.errors) {
-                    errorMsg = typeof data.data.errors === 'string' ? data.data.errors : Object.values(data.data.errors).flat().join(' | ');
-                } else if (data.message) {
-                    errorMsg = data.message;
-                }
-
-                if (typeof window.adminNotify === 'function') {
-                    window.adminNotify(errorMsg, 'error');
-                } else {
-                    alert(errorMsg);
-                }
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            if (typeof window.adminNotify === 'function') {
-                window.adminNotify('Có lỗi hệ thống xảy ra khi tạo sản phẩm.', 'error');
-            } else {
-                alert('Có lỗi hệ thống xảy ra khi tạo sản phẩm.');
-            }
-        }
-    }
-</script>
 @endsection

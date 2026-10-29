@@ -33,6 +33,9 @@ class ProductController extends Controller
             'brand_id' => 'required|exists:brands,id',
             'is_active' => 'required|boolean',
             'is_featured' => 'required|boolean',
+            'attributes' => 'nullable|array',
+            'attributes.*.name' => 'nullable|string|max:255',
+            'attributes.*.value' => 'nullable|string|max:255',
             'thumbnail' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
             'images.*' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
@@ -66,6 +69,15 @@ class ProductController extends Controller
                 foreach ($request->file('images') as $imageFile) {
                     $imagePath = $imageFile->store('products/images', 'public');
                     $product->images()->create(['image_path' => $imagePath]);
+                }
+            }
+
+            foreach ($validated['attributes'] ?? [] as $attribute) {
+                if (filled($attribute['name'] ?? null) && filled($attribute['value'] ?? null)) {
+                    $product->attributes()->create([
+                        'name' => $attribute['name'],
+                        'value' => $attribute['value'],
+                    ]);
                 }
             }
 
@@ -105,6 +117,9 @@ class ProductController extends Controller
             'brand_id' => 'required|exists:brands,id',
             'is_active' => 'required|boolean',
             'is_featured' => 'required|boolean',
+            'attributes' => 'nullable|array',
+            'attributes.*.name' => 'nullable|string|max:255',
+            'attributes.*.value' => 'nullable|string|max:255',
             'thumbnail' => 'required_if:delete_thumbnail,1|nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'delete_thumbnail' => 'nullable|boolean',
             'delete_images' => 'nullable|array',
@@ -118,7 +133,7 @@ class ProductController extends Controller
         DB::beginTransaction();
         try {
             $updateData = $validated;
-            unset($updateData['delete_images'], $updateData['replace_images'], $updateData['images'], $updateData['delete_thumbnail']);
+            unset($updateData['delete_images'], $updateData['replace_images'], $updateData['images'], $updateData['delete_thumbnail'], $updateData['attributes']);
 
             // 1. Handle Thumbnail update
             if ($request->hasFile('thumbnail')) {
@@ -173,6 +188,16 @@ class ProductController extends Controller
                 $updateData['slug'] = $this->uniqueSlug($updateData['name'], $product->id);
             }
             $product->update($updateData);
+
+            $product->attributes()->delete();
+            foreach ($validated['attributes'] ?? [] as $attribute) {
+                if (filled($attribute['name'] ?? null) && filled($attribute['value'] ?? null)) {
+                    $product->attributes()->create([
+                        'name' => $attribute['name'],
+                        'value' => $attribute['value'],
+                    ]);
+                }
+            }
 
             DB::commit();
 

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Brand;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -34,10 +35,13 @@ class BrandController extends Controller
     {
         $data = $request->validate([
             'name' => 'required|string|max:255|unique:brands,name',
-            'logo' => 'nullable|string|max:255',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
 
         $data['slug'] = Str::slug($data['name']);
+        if ($request->hasFile('logo')) {
+            $data['logo'] = $request->file('logo')->store('brands', 'public');
+        }
 
         Brand::create($data);
 
@@ -61,12 +65,21 @@ class BrandController extends Controller
     {
         $data = $request->validate([
             'name' => 'required|string|max:255|unique:brands,name,' . $brand->id,
-            'logo' => 'nullable|string|max:255',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
 
         $data['slug'] = Str::slug($data['name']);
 
+        $oldLogo = null;
+        if ($request->hasFile('logo')) {
+            $oldLogo = $brand->logo;
+            $data['logo'] = $request->file('logo')->store('brands', 'public');
+        } else {
+            unset($data['logo']);
+        }
+
         $brand->update($data);
+        $this->deleteStoredImage($oldLogo);
 
         return redirect()->route('admin.brands.index')
             ->with('success', 'Cập nhật thương hiệu thành công!');
@@ -83,5 +96,12 @@ class BrandController extends Controller
 
         return redirect()->route('admin.brands.index')
             ->with('success', 'Đã xóa thương hiệu!');
+    }
+
+    private function deleteStoredImage(?string $path): void
+    {
+        if ($path && !filter_var($path, FILTER_VALIDATE_URL) && Storage::disk('public')->exists($path)) {
+            Storage::disk('public')->delete($path);
+        }
     }
 }

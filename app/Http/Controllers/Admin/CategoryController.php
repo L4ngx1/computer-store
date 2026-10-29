@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -34,12 +35,15 @@ class CategoryController extends Controller
     {
         $data = $request->validate([
             'name'      => 'required|string|max:255|unique:categories,name',
-            'image'     => 'nullable|string|max:255',
+            'image'     => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'is_active' => 'nullable|boolean',
         ]);
 
         $data['slug'] = Str::slug($data['name']);
         $data['is_active'] = $request->boolean('is_active');
+        if ($request->hasFile('image')) {
+            $data['image'] = $request->file('image')->store('categories', 'public');
+        }
 
         Category::create($data);
 
@@ -63,14 +67,23 @@ class CategoryController extends Controller
     {
         $data = $request->validate([
             'name'      => 'required|string|max:255|unique:categories,name,' . $category->id,
-            'image'     => 'nullable|string|max:255',
+            'image'     => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'is_active' => 'nullable|boolean',
         ]);
 
         $data['slug'] = Str::slug($data['name']);
         $data['is_active'] = $request->boolean('is_active');
 
+        $oldImage = null;
+        if ($request->hasFile('image')) {
+            $oldImage = $category->image;
+            $data['image'] = $request->file('image')->store('categories', 'public');
+        } else {
+            unset($data['image']);
+        }
+
         $category->update($data);
+        $this->deleteStoredImage($oldImage);
 
         return redirect()->route('admin.categories.index')
             ->with('success', 'Cập nhật danh mục thành công!');
@@ -87,5 +100,12 @@ class CategoryController extends Controller
 
         return redirect()->route('admin.categories.index')
             ->with('success', 'Đã xóa danh mục!');
+    }
+
+    private function deleteStoredImage(?string $path): void
+    {
+        if ($path && !filter_var($path, FILTER_VALIDATE_URL) && Storage::disk('public')->exists($path)) {
+            Storage::disk('public')->delete($path);
+        }
     }
 }

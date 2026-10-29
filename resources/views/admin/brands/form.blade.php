@@ -14,7 +14,7 @@
 
 <div class="card border-0 shadow-sm">
     <div class="card-body">
-        <form action="{{ isset($brand) ? route('admin.brands.update', $brand->id) : route('admin.brands.store') }}" method="POST">
+        <form action="{{ isset($brand) ? route('admin.brands.update', $brand->id) : route('admin.brands.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
             @isset($brand) @method('PUT') @endisset
 
@@ -23,8 +23,13 @@
                 <input type="text" name="name" class="form-control" value="{{ old('name', $brand->name ?? '') }}" required>
             </div>
             <div class="mb-4">
-                <label class="form-label">Logo (URL)</label>
-                <input type="text" name="logo" class="form-control" value="{{ old('logo', $brand->logo ?? '') }}">
+                <label class="form-label" for="brandLogo">Logo thương hiệu</label>
+                <input type="file" id="brandLogo" name="logo" class="form-control" accept="image/png,image/jpeg,image/webp">
+                <div class="form-text">Chọn ảnh PNG, JPG hoặc WebP, tối đa 2 MB.</div>
+                @if(isset($brand) && $brand->logo)
+                    @php($brandLogoUrl = filter_var($brand->logo, FILTER_VALIDATE_URL) ? $brand->logo : Storage::disk('public')->url($brand->logo))
+                    <img src="{{ $brandLogoUrl }}" alt="Logo {{ $brand->name }}" class="mt-2 rounded" style="max-width: 120px; max-height: 90px; object-fit: contain;">
+                @endif
             </div>
 
             <button class="btn btn-primary px-4"><i class="bi bi-save me-1"></i>Lưu</button>

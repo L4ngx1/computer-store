@@ -94,6 +94,26 @@
                     </div>
                 </div>
 
+                <div class="mb-4 product-edit-section--attributes">
+                    <h5 class="border-bottom pb-2 mb-3">Thuộc tính sản phẩm</h5>
+                    <div id="productAttributes" data-product-attributes data-next-index="1">
+                        <div class="row g-2 align-items-end mb-2" data-product-attribute-row>
+                            <div class="col-md-5">
+                                <label class="form-label">Tên thuộc tính</label>
+                                <input type="text" name="attributes[0][name]" class="form-control" placeholder="Ví dụ: CPU">
+                            </div>
+                            <div class="col-md-5">
+                                <label class="form-label">Giá trị</label>
+                                <input type="text" name="attributes[0][value]" class="form-control" placeholder="Ví dụ: Intel Core i7">
+                            </div>
+                            <div class="col-md-2 d-grid">
+                                <button type="button" class="btn btn-outline-danger" data-remove-product-attribute>Xóa</button>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-outline-primary btn-sm" data-add-product-attribute>+ Thêm thuộc tính</button>
+                </div>
+
                 <div class="mb-4 product-edit-section--classification">
                     <h5 class="border-bottom pb-2 mb-3">Phân loại & ảnh</h5>
                     <div class="row">

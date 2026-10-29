@@ -14,7 +14,7 @@
 
 <div class="card border-0 shadow-sm">
     <div class="card-body">
-        <form action="{{ isset($category) ? route('admin.categories.update', $category->id) : route('admin.categories.store') }}" method="POST">
+        <form action="{{ isset($category) ? route('admin.categories.update', $category->id) : route('admin.categories.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
             @isset($category) @method('PUT') @endisset
 
@@ -23,8 +23,13 @@
                 <input type="text" name="name" class="form-control" value="{{ old('name', $category->name ?? '') }}" required>
             </div>
             <div class="mb-3">
-                <label class="form-label">Ảnh (URL)</label>
-                <input type="text" name="image" class="form-control" value="{{ old('image', $category->image ?? '') }}">
+                <label class="form-label" for="categoryImage">Ảnh danh mục</label>
+                <input type="file" id="categoryImage" name="image" class="form-control" accept="image/png,image/jpeg,image/webp">
+                <div class="form-text">Chọn ảnh PNG, JPG hoặc WebP, tối đa 2 MB.</div>
+                @if(isset($category) && $category->image)
+                    @php($categoryImageUrl = filter_var($category->image, FILTER_VALIDATE_URL) ? $category->image : Storage::disk('public')->url($category->image))
+                    <img src="{{ $categoryImageUrl }}" alt="Ảnh {{ $category->name }}" class="mt-2 rounded" style="max-width: 120px; max-height: 90px; object-fit: cover;">
+                @endif
             </div>
             <div class="form-check mb-4">
                 <input type="checkbox" name="is_active" value="1" class="form-check-input" id="is_active" {{ old('is_active', $category->is_active ?? true) ? 'checked' : '' }}>

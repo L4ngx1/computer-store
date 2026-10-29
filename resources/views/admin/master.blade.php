@@ -550,6 +550,38 @@
         const adminPageModalTitle = document.getElementById('adminPageModalTitle');
         const modalInstance = adminPageModal ? new bootstrap.Modal(adminPageModal) : null;
 
+        document.addEventListener('click', (event) => {
+            const addButton = event.target.closest('[data-add-product-attribute]');
+            if (addButton) {
+                const list = addButton.closest('form')?.querySelector('[data-product-attributes]');
+                if (!list) return;
+
+                const index = Number(list.dataset.nextIndex || 0);
+                list.dataset.nextIndex = String(index + 1);
+                const row = document.createElement('div');
+                row.className = 'row g-2 align-items-end mb-2';
+                row.dataset.productAttributeRow = '';
+                row.innerHTML = `
+                    <div class="col-md-5">
+                        <label class="form-label">Tên thuộc tính</label>
+                        <input type="text" name="attributes[${index}][name]" class="form-control" placeholder="Ví dụ: CPU">
+                    </div>
+                    <div class="col-md-5">
+                        <label class="form-label">Giá trị</label>
+                        <input type="text" name="attributes[${index}][value]" class="form-control" placeholder="Ví dụ: Intel Core i7">
+                    </div>
+                    <div class="col-md-2 d-grid">
+                        <button type="button" class="btn btn-outline-danger" data-remove-product-attribute>Xóa</button>
+                    </div>`;
+                list.appendChild(row);
+                row.querySelector('input')?.focus();
+                return;
+            }
+
+            const removeButton = event.target.closest('[data-remove-product-attribute]');
+            if (removeButton) removeButton.closest('[data-product-attribute-row]')?.remove();
+        });
+
         document.addEventListener('submit', async (event) => {
             const form = event.target.closest('form[data-admin-product-form]');
             if (!form) return;

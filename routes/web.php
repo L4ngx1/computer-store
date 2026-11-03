@@ -21,6 +21,7 @@ use App\Http\Controllers\Client\HomeController;
 use App\Http\Controllers\Client\ProfileController;
 use App\Http\Controllers\Client\ReviewController;
 use App\Http\Controllers\Client\SearchController;
+use App\Http\Controllers\Client\WishlistController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
@@ -72,6 +73,12 @@ Route::prefix('page')->name('client.')->group(function () {
     Route::put('reviews/{id}', [ReviewController::class, 'update'])->name('reviews.update');
     Route::delete('reviews/{id}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
     Route::get('my-reviews', [ReviewController::class, 'index'])->middleware('auth')->name('reviews.mine');
+
+    // Wishlist: thêm/xóa yêu thích, xem danh sách (yêu cầu đăng nhập)
+    Route::middleware('auth')->group(function () {
+        Route::post('wishlist/{product}', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
+        Route::get('wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
+    });
 
     // Checkout yêu cầu đăng nhập và đã xác minh email
     Route::middleware(['auth', 'verified'])->group(function () {

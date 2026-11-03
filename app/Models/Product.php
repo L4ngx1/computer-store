@@ -71,6 +71,11 @@ class Product extends Model
         return $this->reviews()->where('is_approved', true);
     }
 
+    public function wishlistedBy()
+    {
+        return $this->hasMany(Wishlist::class);
+    }
+
     /**
      * Lấy URL đầy đủ cho ảnh đại diện của sản phẩm.
      *

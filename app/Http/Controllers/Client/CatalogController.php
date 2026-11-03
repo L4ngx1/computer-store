@@ -75,6 +75,11 @@ class CatalogController extends Controller
             ? $product->reviews()->where('user_id', auth()->id())->first()
             : null;
 
+        // Trạng thái yêu thích của người dùng hiện tại
+        $isWishlisted = auth()->check()
+            ? $product->wishlistedBy()->where('user_id', auth()->id())->exists()
+            : false;
+
         $relatedProducts = Product::with(['images', 'category'])
             ->where('category_id', $product->category_id)
             ->where('id', '!=', $product->id)

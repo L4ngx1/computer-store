@@ -131,7 +131,7 @@
                                 @forelse($cartItems as $item)
                                     <div class="list-group-item d-flex justify-content-between align-items-center px-0">
                                         <div class="d-flex align-items-center">
-                                            <img src="{{Storage::url($item->product->thumbnail) ? $item->product->thumbnail : 'https://via.placeholder.com/60' }}"
+                                            <img src="{{ $item->product->thumbnail ?: asset('favicon.ico') }}"
                                                 alt="{{ $item->product->name }}" class="rounded me-3"
                                                 style="width: 60px; height: 60px; object-fit: contain;">
                                             <div>

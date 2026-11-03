@@ -58,6 +58,19 @@ class Product extends Model
         return $this->hasMany(InventoryMovement::class);
     }
 
+    public function reviews()
+    {
+        return $this->hasMany(ProductReview::class);
+    }
+
+    /**
+     * Danh sách đánh giá đã được duyệt (hiển thị công khai).
+     */
+    public function approvedReviews()
+    {
+        return $this->reviews()->where('is_approved', true);
+    }
+
     /**
      * Lấy URL đầy đủ cho ảnh đại diện của sản phẩm.
      *

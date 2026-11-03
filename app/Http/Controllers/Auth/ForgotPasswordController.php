@@ -3,20 +3,23 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
-use App\Mail\ResetPasswordMail;
-use Carbon\Carbon;
+use App\Services\PasswordResetService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
 
 class ForgotPasswordController extends Controller
 {
+    private const OTP_TTL_MINUTES = 15;
+
+    public function __construct(private PasswordResetService $resetService)
+    {
+    }
+
     /**
-     * Display the form to request a password reset link.
+     * Hiển thị form yêu cầu đặt lại mật khẩu.
      */
     public function showLinkRequestForm(): View
     {
@@ -24,38 +27,38 @@ class ForgotPasswordController extends Controller
     }
 
     /**
-     * Send a reset code to the given user.
+     * Gửi mã OTP đến email (qua Brevo).
      */
     public function sendResetCodeEmail(Request $request): RedirectResponse
     {
         $request->validate([
-            'email' => ['required', 'email', 'exists:users,email'],
+            'email' => ['required', 'email'],
         ], [
             'email.required' => 'Vui lòng nhập email.',
             'email.email' => 'Định dạng email không hợp lệ.',
-            'email.exists' => 'Email này chưa được đăng ký trong hệ thống.',
         ]);
 
-        $code = (string) mt_rand(100000, 999999);
+        // Chống spam: giới hạn 5 yêu cầu mỗi phút theo IP
+        $throttleKey = 'password-email:' . $request->ip();
+        if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
+            $seconds = RateLimiter::availableIn($throttleKey);
 
-        // Save or update the code in the password_reset_tokens table
-        DB::table('password_reset_tokens')->updateOrInsert(
-            ['email' => $request->email],
-            [
-                'token' => $code,
-                'created_at' => Carbon::now(),
-            ]
-        );
+            return back()->with('error', 'Bạn đã yêu cầu quá nhiều lần. Vui lòng thử lại sau ' . $seconds . ' giây.');
+        }
+        RateLimiter::hit($throttleKey, 60);
 
-        // Send email
-        Mail::to($request->email)->send(new ResetPasswordMail($code));
+        $result = $this->resetService->sendOtp($request->input('email'));
 
-        return redirect()->route('password.reset', ['email' => $request->email])
-            ->with('success', 'Mã xác nhận OTP gồm 6 chữ số đã được gửi đến email của bạn.');
+        if (! $result['ok']) {
+            return back()->with('error', $result['message'])->onlyInput('email');
+        }
+
+        return redirect()->route('password.reset', ['email' => $request->input('email')])
+            ->with('success', $result['message']);
     }
 
     /**
-     * Display the password reset view for the given token/email.
+     * Hiển thị form nhập OTP và mật khẩu mới.
      */
     public function showResetForm(Request $request): View
     {
@@ -64,47 +67,38 @@ class ForgotPasswordController extends Controller
     }
 
     /**
-     * Reset the given user's password.
+     * Xác nhận OTP và đặt lại mật khẩu.
      */
     public function reset(Request $request): RedirectResponse
     {
         $request->validate([
-            'email' => ['required', 'email', 'exists:users,email'],
+            'email' => ['required', 'email'],
             'code' => ['required', 'string', 'size:6'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'password' => ['required', Password::min(8)->letters()->numbers(), 'confirmed'],
         ], [
             'email.required' => 'Vui lòng nhập email.',
             'email.email' => 'Định dạng email không hợp lệ.',
-            'email.exists' => 'Email không tồn tại.',
             'code.required' => 'Vui lòng nhập mã xác nhận.',
             'code.size' => 'Mã xác nhận phải gồm đúng 6 chữ số.',
             'password.required' => 'Vui lòng nhập mật khẩu mới.',
             'password.min' => 'Mật khẩu mới phải có ít nhất 8 ký tự.',
+            'password.letters' => 'Mật khẩu phải chứa ít nhất một chữ cái.',
+            'password.numbers' => 'Mật khẩu phải chứa ít nhất một chữ số.',
             'password.confirmed' => 'Xác nhận mật khẩu mới không khớp.',
         ]);
 
-        $record = DB::table('password_reset_tokens')->where('email', $request->email)->first();
+        $result = $this->resetService->resetPassword(
+            $request->input('email'),
+            $request->input('code'),
+            $request->input('password')
+        );
 
-        if (! $record || $record->token !== $request->code) {
-            return back()->withErrors(['code' => 'Mã xác nhận OTP không đúng hoặc đã hết hạn.'])
-                ->withInput();
+        if (! $result['ok']) {
+            return back()
+                ->withErrors(['code' => $result['message']])
+                ->withInput($request->only('email'));
         }
 
-        // Check if token expired (valid for 15 minutes)
-        if (Carbon::parse($record->created_at)->addMinutes(15)->isPast()) {
-            return back()->withErrors(['code' => 'Mã xác nhận OTP đã hết hạn. Vui lòng yêu cầu mã mới.'])
-                ->withInput();
-        }
-
-        // Reset password
-        $user = User::where('email', $request->email)->first();
-        $user->password = Hash::make($request->password);
-        $user->save();
-
-        // Delete the token record
-        DB::table('password_reset_tokens')->where('email', $request->email)->delete();
-
-        return redirect()->route('login.form')
-            ->with('success', 'Mật khẩu đã đặt lại thành công! Bạn có thể đăng nhập bằng mật khẩu mới.');
+        return redirect()->route('login.form')->with('success', $result['message']);
     }
 }

@@ -1,0 +1,21 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
+
+return new class extends Migration
+{
+    /**
+     * Thống nhất giá trị vai trò: 'user' -> 'customer'.
+     * Toàn bộ hệ thống (seeders, middleware, dashboard) dùng 'customer'.
+     */
+    public function up(): void
+    {
+        DB::table('users')->where('role', 'user')->update(['role' => 'customer']);
+    }
+
+    public function down(): void
+    {
+        DB::table('users')->where('role', 'customer')->update(['role' => 'user']);
+    }
+};

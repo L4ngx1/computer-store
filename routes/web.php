@@ -3,8 +3,9 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AdminAuthController;
 use App\Http\Controllers\Auth\ClientAuthController;
-use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Auth\EmailVerificationController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\UserController;
@@ -12,11 +13,13 @@ use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\BrandController as AdminBrandController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
-use App\Http\Controllers\Client\ProfileController;
+use App\Http\Controllers\Admin\ReviewController as AdminReviewController;
 use App\Http\Controllers\Client\CartController;
+use App\Http\Controllers\Client\CatalogController;
 use App\Http\Controllers\Client\CheckoutController;
 use App\Http\Controllers\Client\HomeController;
-use App\Http\Controllers\Client\CatalogController;
+use App\Http\Controllers\Client\ProfileController;
+use App\Http\Controllers\Client\ReviewController;
 use App\Http\Controllers\Client\SearchController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -32,6 +35,17 @@ Route::get('/reset-password', [ForgotPasswordController::class, 'showResetForm']
 Route::post('/reset-password', [ForgotPasswordController::class, 'reset'])->name('password.update');
 
 Route::post('/logout', [ClientAuthController::class, 'destroy'])->middleware('auth')->name('logout');
+
+// Xác minh email: yêu cầu đăng nhập; liên kết xác minh là URL đã ký
+Route::middleware('auth')->group(function () {
+    Route::get('/verify-email', [EmailVerificationController::class, 'notice'])->name('verification.notice');
+    Route::get('/verify-email/{id}/{hash}', [EmailVerificationController::class, 'verify'])
+        ->middleware(['signed', 'throttle:6,1'])
+        ->name('verification.verify');
+    Route::post('/verify-email/resend', [EmailVerificationController::class, 'resend'])
+        ->middleware('throttle:6,1')
+        ->name('verification.resend');
+});
 
 Route::prefix('page')->name('client.')->group(function () {
     Route::get('about', fn() => view('client.about'))->name('about');
@@ -52,8 +66,15 @@ Route::prefix('page')->name('client.')->group(function () {
     Route::delete('cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
     Route::delete('cart/clear', [CartController::class, 'clear'])->name('cart.clear');
 
-    // Checkout yêu cầu đăng nhập
-    Route::middleware('auth')->group(function () {
+    // Đánh giá sản phẩm: khách xem công khai được render trong trang chi tiết,
+    // gửi/sửa/xóa yêu cầu đăng nhập và đã xác minh email
+    Route::post('reviews/{product}', [ReviewController::class, 'store'])->name('reviews.store');
+    Route::put('reviews/{id}', [ReviewController::class, 'update'])->name('reviews.update');
+    Route::delete('reviews/{id}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
+    Route::get('my-reviews', [ReviewController::class, 'index'])->middleware('auth')->name('reviews.mine');
+
+    // Checkout yêu cầu đăng nhập và đã xác minh email
+    Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('checkout', [CheckoutController::class, 'index'])->name('checkout');
         Route::post('checkout', [CheckoutController::class, 'store'])->name('checkout.store');
     });
@@ -116,6 +137,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::get('/{order}', 'show')->name('show');
             Route::patch('/{order}/status', 'updateStatus')->name('updateStatus');
             Route::delete('/{order}', 'destroy')->name('destroy');
+        });
+
+        // Kiểm duyệt đánh giá sản phẩm
+        Route::prefix('reviews')->name('reviews.')->controller(AdminReviewController::class)->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::patch('/{review}/approve', 'approve')->name('approve');
+            Route::patch('/{review}/reject', 'reject')->name('reject');
+            Route::delete('/{review}', 'destroy')->name('destroy');
         });
 
         // API routes for admin product management (AJAX)

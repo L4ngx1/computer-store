@@ -135,6 +135,150 @@
         </div>
     </div>
 
+    {{-- Phần đánh giá sản phẩm --}}
+    <section id="reviews" class="bg-white p-4 p-md-5 rounded-4 shadow-sm mb-5" aria-labelledby="reviews-heading">
+        <h2 id="reviews-heading" class="h4 fw-bold mb-4">Đánh giá sản phẩm</h2>
+
+        <div class="row g-4 mb-4">
+            {{-- Tổng quan điểm --}}
+            <div class="col-12 col-md-4 text-center">
+                <div class="display-4 fw-bold text-primary">{{ number_format($reviewStats['average'] ?? 0, 1) }}<span class="h5 text-muted">/5</span></div>
+                <div class="fs-5 mb-2" aria-label="Điểm trung bình {{ $reviewStats['average'] ?? 0 }} trên 5">
+                    @for ($i = 1; $i <= 5; $i++)
+                        <i class="bi {{ $i <= round($reviewStats['average'] ?? 0) ? 'bi-star-fill text-warning' : 'bi-star text-secondary' }}"></i>
+                    @endfor
+                </div>
+                <p class="text-muted mb-0">Dựa trên {{ $reviewStats['total'] ?? 0 }} đánh giá</p>
+
+                {{-- Phân bố điểm --}}
+                <div class="mt-3 text-start">
+                    @for ($star = 5; $star >= 1; $star--)
+                        @php
+                            $count = $reviewStats['distribution'][$star] ?? 0;
+                            $percent = ($reviewStats['total'] ?? 0) > 0 ? round($count / $reviewStats['total'] * 100) : 0;
+                        @endphp
+                        <div class="d-flex align-items-center gap-2 mb-1 small">
+                            <span class="text-nowrap" style="width: 40px;">{{ $star }} <i class="bi bi-star-fill text-warning"></i></span>
+                            <div class="progress flex-grow-1" style="height: 8px;" role="progressbar" aria-valuenow="{{ $percent }}" aria-valuemin="0" aria-valuemax="100" aria-label="{{ $star }} sao: {{ $percent }}%">
+                                <div class="progress-bar bg-warning" style="width: {{ $percent }}%"></div>
+                            </div>
+                            <span class="text-muted" style="width: 30px;">{{ $count }}</span>
+                        </div>
+                    @endfor
+                </div>
+            </div>
+
+            {{-- Form gửi đánh giá --}}
+            <div class="col-12 col-md-8">
+                @auth
+                    @if ($myReview)
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Bạn đã đánh giá sản phẩm này.
+                            @if (! $myReview->is_approved)
+                                <span class="fw-semibold">Trạng thái: đang chờ kiểm duyệt.</span>
+                            @else
+                                <span class="fw-semibold">Trạng thái: đã duyệt hiển thị.</span>
+                            @endif
+                        </div>
+                        <form method="POST" action="{{ route('client.reviews.update', $myReview->id) }}">
+                            @csrf
+                            @method('PUT')
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold" for="my-rating">Điểm đánh giá của bạn</label>
+                                <select class="form-select" id="my-rating" name="rating" required>
+                                    @for ($i = 5; $i >= 1; $i--)
+                                        <option value="{{ $i }}" {{ (int) old('rating', $myReview->rating) === $i ? 'selected' : '' }}>{{ $i }} sao</option>
+                                    @endfor
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold" for="my-comment">Nội dung đánh giá</label>
+                                <textarea class="form-control" id="my-comment" name="comment" rows="3" minlength="10" maxlength="2000" required>{{ old('comment', $myReview->comment) }}</textarea>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary rounded-pill px-4">Cập nhật đánh giá</button>
+                            </div>
+                        </form>
+                        <form method="POST" action="{{ route('client.reviews.destroy', $myReview->id) }}" class="mt-2" onsubmit="return confirm('Bạn có chắc muốn xóa đánh giá này?');">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-link text-danger p-0 text-decoration-none">Xóa đánh giá</button>
+                        </form>
+                    @else
+                        <h3 class="h5 fw-bold mb-3">Viết đánh giá của bạn</h3>
+                        <form method="POST" action="{{ route('client.reviews.store', $product->id) }}">
+                            @csrf
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold" for="rating">Điểm đánh giá <span class="text-danger">*</span></label>
+                                <select class="form-select" id="rating" name="rating" required>
+                                    <option value="">— Chọn số sao —</option>
+                                    <option value="5" {{ old('rating') == 5 ? 'selected' : '' }}>5 sao — Rất hài lòng</option>
+                                    <option value="4" {{ old('rating') == 4 ? 'selected' : '' }}>4 sao — Hài lòng</option>
+                                    <option value="3" {{ old('rating') == 3 ? 'selected' : '' }}>3 sao — Bình thường</option>
+                                    <option value="2" {{ old('rating') == 2 ? 'selected' : '' }}>2 sao — Không hài lòng</option>
+                                    <option value="1" {{ old('rating') == 1 ? 'selected' : '' }}>1 sao — Rất tệ</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold" for="comment">Nội dung đánh giá <span class="text-danger">*</span></label>
+                                <textarea class="form-control" id="comment" name="comment" rows="3" minlength="10" maxlength="2000" placeholder="Chia sẻ trải nghiệm của bạn về sản phẩm (tối thiểu 10 ký tự)..." required>{{ old('comment') }}</textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary rounded-pill px-4">
+                                <i class="bi bi-send me-1"></i> Gửi đánh giá
+                            </button>
+                        </form>
+                    @endif
+                @else
+                    <div class="alert alert-light border text-center py-4 mb-0">
+                        <i class="bi bi-chat-square-text display-6 text-secondary"></i>
+                        <p class="mt-2 mb-3">Vui lòng <a href="{{ route('login.form') }}" class="fw-semibold">đăng nhập</a> để viết đánh giá cho sản phẩm này.</p>
+                    </div>
+                @endauth
+            </div>
+        </div>
+
+        {{-- Danh sách đánh giá --}}
+        <h3 class="h5 fw-bold mb-3 border-top pt-4">Nhận xét từ khách hàng</h3>
+        @if (session('success'))
+            <div class="alert alert-success" role="status">{{ session('success') }}</div>
+        @endif
+        @if (session('error'))
+            <div class="alert alert-danger" role="alert">{{ session('error') }}</div>
+        @endif
+
+        @forelse ($reviews as $review)
+            <article class="border-bottom pb-3 mb-3">
+                <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+                    <span class="fw-bold">{{ $review->user->name ?? 'Khách hàng' }}</span>
+                    @php
+                        $reviewAuthor = $review->user;
+                        $verified = $reviewAuthor && $reviewAuthor->orders()->where('status', 'completed')->whereHas('items', fn ($q) => $q->where('product_id', $product->id))->exists();
+                    @endphp
+                    @if ($verified)
+                        <span class="badge bg-success rounded-pill"><i class="bi bi-patch-check me-1"></i>Đã mua hàng</span>
+                    @endif
+                    <span class="text-muted small ms-auto">{{ $review->created_at->format('d/m/Y H:i') }}</span>
+                </div>
+                <div class="mb-1" aria-label="Đánh giá {{ $review->rating }} trên 5 sao">
+                    @for ($i = 1; $i <= 5; $i++)
+                        <i class="bi {{ $i <= $review->rating ? 'bi-star-fill text-warning' : 'bi-star text-secondary' }}"></i>
+                    @endfor
+                </div>
+                <p class="mb-0">{{ $review->comment }}</p>
+            </article>
+        @empty
+            <div class="alert alert-light border text-center py-4">
+                <i class="bi bi-chat-square display-6 text-secondary"></i>
+                <p class="mt-2 mb-0">Chưa có đánh giá nào cho sản phẩm này. Hãy là người đầu tiên đánh giá!</p>
+            </div>
+        @endforelse
+
+        <div class="d-flex justify-content-center mt-3">
+            {{ $reviews->appends(['review_page' => $reviews->currentPage()])->fragment('reviews')->links() }}
+        </div>
+    </section>
+
     @if($relatedProducts->count() > 0)
     <div class="mb-5">
         <h2 class="h4 fw-bold mb-4 border-bottom pb-2">Sản phẩm liên quan</h2>

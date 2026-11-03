@@ -24,14 +24,21 @@ class CheckoutController extends Controller
             return redirect()->route('client.cart')->with('cart_error', 'Giỏ hàng của bạn trống để thanh toán.');
         }
 
-        $products = Product::find(array_keys($cart));
+        // Chỉ tính các sản phẩm còn kinh doanh; số lượng không vượt tồn kho
+        $products = Product::where('is_active', true)->find(array_keys($cart));
 
         $cartItems = $products->map(function ($product) use ($cart) {
+            $quantity = min((int) $cart[$product->id], $product->stock);
+
             return (object) [
                 'product'  => $product,
-                'quantity' => $cart[$product->id] ?? 0,
+                'quantity' => $quantity,
             ];
-        })->filter()->values();
+        })->filter(fn ($item) => $item->quantity > 0)->values();
+
+        if ($cartItems->isEmpty()) {
+            return redirect()->route('client.cart')->with('cart_error', 'Giỏ hàng của bạn trống để thanh toán.');
+        }
 
         $total = $cartItems->sum(fn($item) => ($item->product->sale_price ?? $item->product->price) * $item->quantity);
 
@@ -113,8 +120,15 @@ class CheckoutController extends Controller
                     'price'        => $price,
                 ]);
 
-                // Trừ tồn kho
+                // Trừ tồn kho và ghi nhận biến động kho (loại: bán hàng)
                 $product->decrement('stock', $item->quantity);
+                $product->inventoryMovements()->create([
+                    'quantity'       => -$item->quantity,
+                    'type'           => 'sale',
+                    'reference_type' => Order::class,
+                    'reference_id'   => $order->id,
+                    'note'           => 'Bán hàng qua website',
+                ]);
 
                 $total += $price * $item->quantity;
             }
@@ -128,14 +142,7 @@ class CheckoutController extends Controller
 
         if (isset($result['error'])) {
             return redirect()->route('client.cart')
-                ->with('cart_error', $result['error'            ]);
-            Product::query()->find($item['product_id'])->inventoryMovements()->create([
-                'quantity' => -$item['quantity'],
-                'type' => 'sale',
-                'reference_type' => Order::class,
-                'reference_id' => $order->id,
-                'note' => 'Bán hàng qua website',
-            ]);
+                ->with('cart_error', $result['error']);
         }
 
         $order = $result['order'];

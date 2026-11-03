@@ -78,13 +78,29 @@
                                 </div>
                             </div>
 
-                            <div class="alert alert-info mb-0">
-                                <i class="bi bi-info-circle"></i> 
-                                @if($user->email_verified_at)
-                                    Email của bạn đã được xác minh
-                                @else
-                                    Email của bạn chưa được xác minh. <a href="#">Xác minh ngay</a>
-                                @endif
+                            <div class="border rounded-3 p-3 d-flex flex-column flex-md-row align-items-md-center gap-3 {{ $user->email_verified_at ? 'bg-light' : 'bg-warning-subtle border-warning' }}">
+                                <div class="d-flex align-items-center gap-2 flex-grow-1">
+                                    <i class="bi {{ $user->email_verified_at ? 'bi-patch-check-fill text-success' : 'bi-exclamation-triangle-fill text-warning' }} fs-4" aria-hidden="true"></i>
+                                    <div>
+                                        <div class="fw-semibold small">Xác minh email</div>
+                                        @if($user->email_verified_at)
+                                            <div class="small text-muted">Đã xác minh ngày {{ $user->email_verified_at->format('d/m/Y H:i') }}.</div>
+                                        @else
+                                            <div class="small text-muted">Email chưa được xác minh. Hãy xác minh để sử dụng đầy đủ tính năng (đánh giá, thanh toán...).</div>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="d-flex gap-2 flex-shrink-0">
+                                    @if(!$user->email_verified_at)
+                                        <form method="POST" action="{{ route('verification.resend') }}">
+                                            @csrf
+                                            <button type="submit" class="btn btn-sm btn-primary rounded-pill">Gửi lại email xác minh</button>
+                                        </form>
+                                    @endif
+                                    <a href="{{ route('client.reviews.mine') }}" class="btn btn-sm btn-outline-secondary rounded-pill">
+                                        <i class="bi bi-chat-square-text me-1"></i> Đánh giá của tôi
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>

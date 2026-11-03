@@ -35,4 +35,14 @@ return [
         ],
     ],
 
+    // Brevo: dịch vụ gửi email giao dịch (mã OTP đặt lại mật khẩu).
+    // Mặc định dùng SMTP (cấu hình MAIL_* trong .env); BREVO_CHANNEL=api để dùng HTTP API.
+    'brevo' => [
+        'channel' => env('BREVO_CHANNEL', 'smtp'),
+        'api_key' => env('BREVO_API_KEY'),
+        'sender_email' => env('BREVO_SENDER_EMAIL'),
+        'sender_name' => env('BREVO_SENDER_NAME', 'Computer Store'),
+        'timeout' => env('BREVO_TIMEOUT', 10),
+    ],
+
 ];

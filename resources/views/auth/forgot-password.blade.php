@@ -12,8 +12,14 @@
                 <p class="text-secondary mb-4">Nhập email đã đăng ký của bạn. Chúng tôi sẽ gửi một mã xác nhận OTP gồm 6 chữ số để bạn đặt lại mật khẩu mới.</p>
 
                 @if (session('success'))
-                    <div class="alert alert-success">
+                    <div class="alert alert-success" role="status">
                         {{ session('success') }}
+                    </div>
+                @endif
+
+                @if (session('error'))
+                    <div class="alert alert-danger" role="alert">
+                        {{ session('error') }}
                     </div>
                 @endif
 

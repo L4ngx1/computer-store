@@ -54,6 +54,27 @@ class CatalogController extends Controller
             ->where('is_active', true)
             ->firstOrFail();
 
+        // Thống kê đánh giá đã duyệt (hiển thị công khai)
+        $approvedReviews = $product->approvedReviews()->with('user:id,name')->latest();
+        $reviewStats = [
+            'average' => round((float) $product->approvedReviews()->avg('rating'), 1),
+            'total' => $product->approvedReviews()->count(),
+            'distribution' => $product->approvedReviews()
+                ->selectRaw('rating, COUNT(*) as count')
+                ->groupBy('rating')
+                ->pluck('count', 'rating')
+                ->all(),
+        ];
+        $reviews = $approvedReviews->paginate(5, ['*'], 'review_page');
+
+        // Huy hiệu "Đã mua hàng" chỉ khi người dùng đã mua (đơn hoàn tất)
+        $hasPurchased = auth()->check() ? auth()->user()->hasPurchasedProduct($product->id) : false;
+
+        // Đánh giá của người dùng hiện tại (nếu có) để chỉnh sửa/xóa
+        $myReview = auth()->check()
+            ? $product->reviews()->where('user_id', auth()->id())->first()
+            : null;
+
         $relatedProducts = Product::with(['images', 'category'])
             ->where('category_id', $product->category_id)
             ->where('id', '!=', $product->id)
@@ -61,7 +82,7 @@ class CatalogController extends Controller
             ->take(4)
             ->get();
 
-        return view('client.product', compact('product', 'relatedProducts'));
+        return view('client.product', compact('product', 'relatedProducts', 'reviews', 'reviewStats', 'hasPurchased', 'myReview'));
     }
 
 }

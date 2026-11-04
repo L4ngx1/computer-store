@@ -326,7 +326,7 @@
             const btn = this;
             const productId = btn.dataset.productId;
             const icon = btn.querySelector('i');
-            const url = "{{ route('wishlist.toggle', '__ID__') }}".replace('__ID__', productId);
+            const url = "{{ route('client.wishlist.toggle', '__ID__') }}".replace('__ID__', productId);
 
             fetch(url, {
                 method: 'POST',

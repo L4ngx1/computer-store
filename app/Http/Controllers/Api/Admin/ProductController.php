@@ -113,7 +113,6 @@ class ProductController extends Controller
             'category_id' => 'required|exists:categories,id',
             'brand_id' => 'nullable|exists:brands,id',
             'is_active' => 'required|boolean',
-            'is_active' => 'required|boolean',
             'is_featured' => 'required|boolean',
             'attributes' => 'nullable|array',
             'attributes.*.name' => 'nullable|string|max:255',

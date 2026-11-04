@@ -121,8 +121,8 @@
                             @error('category_id')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label for="brand_id" class="form-label">Thương hiệu <span class="text-danger">*</span></label>
-                            <select id="brand_id" name="brand_id" class="form-select @error('brand_id') is-invalid @enderror" required>
+                            <label for="brand_id" class="form-label">Thương hiệu</label>
+                            <select id="brand_id" name="brand_id" class="form-select @error('brand_id') is-invalid @enderror">
                                 <option value="">-- Chọn thương hiệu --</option>
                                 @foreach($brands as $brand)
                                     <option value="{{ $brand->id }}" {{ old('brand_id') == $brand->id ? 'selected' : '' }}>{{ $brand->name }}</option>

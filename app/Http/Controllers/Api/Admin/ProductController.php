@@ -56,7 +56,7 @@ class ProductController extends Controller
                 'stock' => $validated['stock'],
                 'warranty_period' => $validated['warranty_period'] ?? null,
                 'category_id' => $validated['category_id'],
-                'brand_id' => $validated['brand_id'],
+                'brand_id' => $validated['brand_id'] ?: null,
                 'is_active' => $validated['is_active'],
                 'is_featured' => $validated['is_featured'],
                 'thumbnail' => $thumbnailPath, // Save the path
@@ -179,6 +179,9 @@ class ProductController extends Controller
                     $product->images()->create(['image_path' => $imagePath]);
                 }
             }
+
+            // Convert empty string to null for nullable foreign keys
+            $updateData['brand_id'] = $updateData['brand_id'] ?: null;
 
             // 5. Update Product
             if (empty($updateData['slug'])) {

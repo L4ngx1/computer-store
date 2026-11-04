@@ -101,6 +101,9 @@ class ProductController extends Controller
             $validatedData['thumbnail'] = $request->file('thumbnail')->store('products', 'public');
         }
 
+        // Convert empty string to null for nullable foreign keys
+        $validatedData['brand_id'] = $validatedData['brand_id'] ?: null;
+
         Product::create($validatedData);
 
         return redirect()->route('admin.products.index')->with('success', 'Product created successfully.');
@@ -135,6 +138,9 @@ class ProductController extends Controller
             }
             $validatedData['thumbnail'] = $request->file('thumbnail')->store('products', 'public');
         }
+
+        // Convert empty string to null for nullable foreign keys
+        $validatedData['brand_id'] = $validatedData['brand_id'] ?: null;
 
         $product->update($validatedData);
 

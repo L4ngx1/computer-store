@@ -87,7 +87,7 @@ class CatalogController extends Controller
             ->take(4)
             ->get();
 
-        return view('client.product', compact('product', 'relatedProducts', 'reviews', 'reviewStats', 'hasPurchased', 'myReview'));
+        return view('client.product', compact('product', 'relatedProducts', 'reviews', 'reviewStats', 'hasPurchased', 'myReview', 'isWishlisted'));
     }
 
 }

@@ -47,7 +47,7 @@ class PasswordResetService
 
                 return [
                     'ok' => false,
-                    'message' => 'Vui lòng đợi ' . $remaining . ' giây trước khi yêu cầu mã OTP mới.',
+                    'message' => 'Vui lòng đợi ' . (int) $remaining . ' giây trước khi yêu cầu mã OTP mới.',
                 ];
             }
         }

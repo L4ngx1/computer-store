@@ -6,9 +6,6 @@
     <div class="small text-secondary mb-4">Trang chủ › Tài khoản</div>
     
     <div class="container py-4">
-        <h1 class="h2 fw-bold mb-4">
-            <i class="bi bi-person-circle"></i> Tài khoản của tôi
-        </h1>
 
         @if ($message = Session::get('success'))
             <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -92,10 +89,9 @@
                                 </div>
                                 <div class="d-flex gap-2 flex-shrink-0">
                                     @if(!$user->email_verified_at)
-                                        <form method="POST" action="{{ route('verification.resend') }}">
-                                            @csrf
-                                            <button type="submit" class="btn btn-sm btn-primary rounded-pill">Gửi lại email xác minh</button>
-                                        </form>
+                                        <button type="button" class="btn btn-sm btn-primary rounded-pill" onclick="document.getElementById('resendVerificationForm').submit()">
+                                            Gửi lại email xác minh
+                                        </button>
                                     @endif
                                     <a href="{{ route('client.reviews.mine') }}" class="btn btn-sm btn-outline-secondary rounded-pill">
                                         <i class="bi bi-chat-square-text me-1"></i> Đánh giá của tôi
@@ -325,30 +321,37 @@
         @endif
     </div>
 
+<form id="resendVerificationForm" method="POST" action="{{ route('verification.resend') }}" class="d-none">
+    @csrf
+</form>
+
 @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const menuItems = document.querySelectorAll('.list-group [data-section]');
             const profileForm = document.getElementById('profileForm');
-            const ordersSection = document.querySelector('[data-section-id="orders"]').closest('.row');
-            const formCards = profileForm.querySelectorAll('.card');
+            const ordersSection = document.querySelector('[data-section-id="orders"]');
+            const ordersRow = ordersSection ? ordersSection.closest('.row') : null;
+            const formCards = profileForm ? profileForm.querySelectorAll('.card') : [];
 
             function showSection(sectionName) {
                 const isFormSection = ['account', 'contact', 'address', 'password'].includes(sectionName);
 
                 if (isFormSection) {
-                    profileForm.style.display = 'block';
-                    ordersSection.style.display = 'none';
+                    if (profileForm) profileForm.style.display = 'block';
+                    if (ordersRow) ordersRow.style.display = 'none';
 
                     formCards.forEach(card => {
                         const cardId = card.getAttribute('data-section-id');
+                        if (!cardId) return;
                         const isTargetCard = cardId === sectionName;
-                        const isSaveButtonCard = cardId && cardId.includes(' ');
+                        // Save button card contains multiple section IDs separated by space; always show it
+                        const isSaveButtonCard = cardId.includes(' ');
                         card.style.display = (isTargetCard || isSaveButtonCard) ? 'block' : 'none';
                     });
                 } else { // 'orders' section
-                    profileForm.style.display = 'none';
-                    ordersSection.style.display = 'block';
+                    if (profileForm) profileForm.style.display = 'none';
+                    if (ordersRow) ordersRow.style.display = 'block';
                 }
 
                 // Update active menu item

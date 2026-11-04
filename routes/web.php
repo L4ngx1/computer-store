@@ -37,15 +37,17 @@ Route::post('/reset-password', [ForgotPasswordController::class, 'reset'])->name
 
 Route::post('/logout', [ClientAuthController::class, 'destroy'])->middleware('auth')->name('logout');
 
-// Xác minh email: yêu cầu đăng nhập; liên kết xác minh là URL đã ký
+// Xác minh email: liên kết xác minh là URL đã ký (không yêu cầu đăng nhập để nhấn liên kết từ email)
+Route::get('/verify-email/{id}/{hash}', [EmailVerificationController::class, 'verify'])
+    ->middleware(['signed', 'throttle:6,1'])
+    ->name('verification.verify');
+Route::post('/verify-email/resend', [EmailVerificationController::class, 'resend'])
+    ->middleware('throttle:6,1')
+    ->name('verification.resend');
+
+// Trang thông báo xác minh (yêu cầu đăng nhập)
 Route::middleware('auth')->group(function () {
     Route::get('/verify-email', [EmailVerificationController::class, 'notice'])->name('verification.notice');
-    Route::get('/verify-email/{id}/{hash}', [EmailVerificationController::class, 'verify'])
-        ->middleware(['signed', 'throttle:6,1'])
-        ->name('verification.verify');
-    Route::post('/verify-email/resend', [EmailVerificationController::class, 'resend'])
-        ->middleware('throttle:6,1')
-        ->name('verification.resend');
 });
 
 Route::prefix('page')->name('client.')->group(function () {
@@ -69,9 +71,11 @@ Route::prefix('page')->name('client.')->group(function () {
 
     // Đánh giá sản phẩm: khách xem công khai được render trong trang chi tiết,
     // gửi/sửa/xóa yêu cầu đăng nhập và đã xác minh email
-    Route::post('reviews/{product}', [ReviewController::class, 'store'])->name('reviews.store');
-    Route::put('reviews/{id}', [ReviewController::class, 'update'])->name('reviews.update');
-    Route::delete('reviews/{id}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
+    Route::middleware(['auth', 'verified'])->group(function () {
+        Route::post('reviews/{product}', [ReviewController::class, 'store'])->name('reviews.store');
+        Route::put('reviews/{id}', [ReviewController::class, 'update'])->name('reviews.update');
+        Route::delete('reviews/{id}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
+    });
     Route::get('my-reviews', [ReviewController::class, 'index'])->middleware('auth')->name('reviews.mine');
 
     // Wishlist: thêm/xóa yêu thích, xem danh sách (yêu cầu đăng nhập)

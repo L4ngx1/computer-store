@@ -94,8 +94,8 @@
                         <i class="bi bi-cart-plus me-1"></i> Thêm vào giỏ
                     </button>
                 </form>
-                <button type="button" class="btn btn-outline-danger btn-lg rounded-pill px-4" aria-label="Yêu thích">
-                    <i class="bi bi-heart"></i>
+                <button type="button" id="wishlistBtn" class="btn btn-outline-danger btn-lg rounded-pill px-4 {{ $isWishlisted ? 'text-danger' : '' }}" aria-label="Yêu thích" data-product-id="{{ $product->id }}">
+                    <i class="bi {{ $isWishlisted ? 'bi-heart-fill text-danger' : 'bi-heart' }}"></i>
                 </button>
             </div>
         </div>
@@ -317,6 +317,50 @@
         document.getElementById('mainProductImage').src = src;
         document.querySelectorAll('.product-thumbnail-item').forEach(el => el.classList.remove('active'));
         element.classList.add('active');
+    }
+
+    // Toggle yêu thích (wishlist) qua AJAX
+    const wishlistBtn = document.getElementById('wishlistBtn');
+    if (wishlistBtn) {
+        wishlistBtn.addEventListener('click', function () {
+            const btn = this;
+            const productId = btn.dataset.productId;
+            const icon = btn.querySelector('i');
+            const url = "{{ route('wishlist.toggle', '__ID__') }}".replace('__ID__', productId);
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (response.status === 401) {
+                    window.location.href = "{{ route('login.form') }}";
+                    return null;
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (!data) return;
+                if (data.added) {
+                    icon.classList.remove('bi-heart');
+                    icon.classList.add('bi-heart-fill', 'text-danger');
+                    btn.classList.add('text-danger');
+                } else {
+                    icon.classList.remove('bi-heart-fill', 'text-danger');
+                    icon.classList.add('bi-heart');
+                    btn.classList.remove('text-danger');
+                }
+                alert(data.message);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Có lỗi xảy ra, vui lòng thử lại.');
+            });
+        });
     }
 </script>
 @endpush

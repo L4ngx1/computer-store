@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Client;
 
+use App\Http\Controllers\Controller;
 use App\Models\Wishlist;
 use App\Models\Product;
 use Illuminate\Http\RedirectResponse;
@@ -13,7 +14,7 @@ class WishlistController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth');
+        // Middleware được áp dụng ở routes/web.php (auth)
     }
 
     /**

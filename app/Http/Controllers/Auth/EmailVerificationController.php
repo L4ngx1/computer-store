@@ -77,7 +77,7 @@ class EmailVerificationController extends Controller
         if (RateLimiter::tooManyAttempts('verify-email:' . $user->id, 2)) {
             $seconds = RateLimiter::availableIn('verify-email:' . $user->id);
 
-            return back()->with('error', 'Bạn đã yêu cầu quá nhiều lần. Vui lòng thử lại sau ' . $seconds . ' giây.');
+            return back()->with('error', 'Bạn đã yêu cầu quá nhiều lần. Vui lòng thử lại sau ' . (int) $seconds . ' giây.');
         }
 
         RateLimiter::hit('verify-email:' . $user->id, 60);

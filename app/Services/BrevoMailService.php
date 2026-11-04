@@ -60,10 +60,23 @@ class BrevoMailService
                     ->from($fromEmail, $fromName);
             });
 
+            Log::info('Email đã được gửi qua Brevo SMTP', [
+                'to' => $toEmail,
+                'to_name' => $toName,
+                'subject' => $subject,
+                'from' => $fromEmail,
+                'mailer' => 'smtp',
+                'host' => config('mail.host'),
+            ]);
+
             return true;
         } catch (\Throwable $e) {
             // Ghi log kỹ thuật, không làm sập luồng người dùng
-            Log::error('Gửi email qua SMTP thất bại: ' . $e->getMessage());
+            Log::error('Gửi email qua SMTP thất bại: ' . $e->getMessage(), [
+                'to' => $toEmail,
+                'subject' => $subject,
+                'exception' => get_class($e),
+            ]);
 
             return false;
         }

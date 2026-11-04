@@ -43,7 +43,7 @@ class ForgotPasswordController extends Controller
         if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
             $seconds = RateLimiter::availableIn($throttleKey);
 
-            return back()->with('error', 'Bạn đã yêu cầu quá nhiều lần. Vui lòng thử lại sau ' . $seconds . ' giây.');
+            return back()->with('error', 'Bạn đã yêu cầu quá nhiều lần. Vui lòng thử lại sau ' . (int) $seconds . ' giây.');
         }
         RateLimiter::hit($throttleKey, 60);
 

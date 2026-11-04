@@ -16,9 +16,7 @@ class ReviewController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth');
-        // Chỉ tài khoản đã xác minh email mới được gửi đánh giá
-        $this->middleware('verified')->except(['index']);
+        // Middleware được áp dụng ở routes/web.php (auth, verified)
     }
 
     /**

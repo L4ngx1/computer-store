@@ -13,7 +13,7 @@
     <div class="bg-black text-white small py-1">
         <div class="container-xxl">
             <div class="d-flex flex-column flex-lg-row align-items-center justify-content-between gap-2">
-                <div class="dropdown">
+                <div class="dropdown d-none d-lg-block">
                     <button class="btn btn-sm border-0 text-white p-0 dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <span class="text-white-50">Thứ Hai - Thứ Năm:</span> <strong>9:00 - 17:30</strong>
                     </button>
@@ -24,9 +24,9 @@
                         <li><span class="dropdown-item-text">Chủ Nhật: Nghỉ</span></li>
                     </ul>
                 </div>
-                <div class="text-center text-white-50">Ghé showroom tại 1234 Street Address City Address, 1234 <a class="text-white fw-bold" href="{{ route('client.contact') }}">Liên hệ</a></div>
-                <div class="d-flex align-items-center gap-3">
-                    <span><strong>Gọi:</strong> (00) 1234 5678</span>
+                <div class="text-center text-white-50 d-none d-lg-block">Ghé showroom tại 1234 Street Address City Address, 1234 <a class="text-white fw-bold" href="{{ route('client.contact') }}">Liên hệ</a></div>
+                <div class="d-flex align-items-center gap-3 flex-wrap">
+                    <span class="d-none d-lg-inline"><strong>Gọi:</strong> (00) 1234 5678</span>
                     <a class="text-white" href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
                     <a class="text-white" href="#" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
                 </div>

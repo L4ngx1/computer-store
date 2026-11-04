@@ -86,48 +86,13 @@
             @foreach($brands as $brand)
                 <div class="col text-center">
                     <a href="{{ route('client.catalog', ['brand' => $brand->slug]) }}">
-                        <img src="{{ Storage::url($brand->logo) }}" alt="{{ $brand->name }}" class="img-fluid" loading="lazy" decoding="async" width="120" height="60" style="max-height: 60px; filter: grayscale(100%); transition: filter 0.3s;" onmouseover="this.style.filter='none'" onmouseout="this.style.filter='grayscale(100%)'">
+                        <img src="{{ Storage::url($brand->logo) }}" alt="{{ $brand->name }}" class="img-fluid" loading="lazy" decoding="async" style="width: 100%; height: auto; max-height: 60px; max-width: 120px; object-fit: contain; transition: filter 0.3s;" onmouseover="this.style.filter='grayscale(100%)'" onmouseout="this.style.filter='none'">
                     </a>
                 </div>
             @endforeach
         </div>
     </div>
     @endif
-
-    <!-- Why Choose Us Section -->
-    <div class="mb-5 bg-light rounded-4 p-5">
-        <h2 class="h4 fw-bold mb-4 text-center border-bottom pb-3">Tại sao chọn chúng tôi?</h2>
-        <div class="row text-center g-4">
-            <div class="col-md-3">
-                <div class="p-3">
-                    <i class="bi bi-truck display-4 text-primary mb-3"></i>
-                    <h5 class="fw-bold">Giao hàng miễn phí</h5>
-                    <p class="text-muted small">Cho đơn hàng trên 500.000đ</p>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="p-3">
-                    <i class="bi bi-headset display-4 text-primary mb-3"></i>
-                    <h5 class="fw-bold">Hỗ trợ 24/7</h5>
-                    <p class="text-muted small">Hỗ trợ chuyên nghiệp</p>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="p-3">
-                    <i class="bi bi-shield-check display-4 text-primary mb-3"></i>
-                    <h5 class="fw-bold">Thanh toán an toàn</h5>
-                    <p class="text-muted small">100% thanh toán an toàn</p>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="p-3">
-                    <i class="bi bi-box-seam display-4 text-primary mb-3"></i>
-                    <h5 class="fw-bold">Giá cả tốt nhất</h5>
-                    <p class="text-muted small">Đảm bảo giá tốt</p>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Sản phẩm nổi bật -->
     <div class="mb-5 position-relative">

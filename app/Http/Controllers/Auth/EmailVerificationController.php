@@ -8,6 +8,7 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\View\View;
 
@@ -30,7 +31,7 @@ class EmailVerificationController extends Controller
     /**
      * Xác minh liên kết đã ký từ email.
      */
-    public function verify(Request $request): RedirectResponse
+    public function verify(Request $request): View|RedirectResponse
     {
         $user = User::find($request->route('id'));
 
@@ -47,14 +48,14 @@ class EmailVerificationController extends Controller
         }
 
         if ($user->hasVerifiedEmail()) {
-            return redirect()->route('home')->with('success', 'Email của bạn đã được xác minh trước đó.');
+            return view('auth.verified', ['alreadyVerified' => true]);
         }
 
         if ($user->markEmailAsVerified()) {
             event(new Verified($user));
         }
 
-        return redirect()->route('home')->with('success', 'Xác minh email thành công! Cảm ơn bạn đã xác minh địa chỉ email.');
+        return view('auth.verified', ['alreadyVerified' => false]);
     }
 
     /**

@@ -89,8 +89,7 @@ class ProductController extends Controller
             'description' => 'nullable|string',
             'summary' => 'nullable|string|max:500',
             'stock' => 'nullable|integer|min:0',
-            'warranty_start_date' => 'nullable|date',
-            'warranty_end_date' => 'nullable|date|after_or_equal:warranty_start_date',
+            'warranty_period' => 'nullable|integer|min:0|max:120',
             'is_featured' => 'nullable|boolean',
             'is_active' => 'nullable|boolean',
         ]);
@@ -122,8 +121,7 @@ class ProductController extends Controller
             'description' => 'nullable|string',
             'summary' => 'nullable|string|max:500',
             'stock' => 'nullable|integer|min:0',
-            'warranty_start_date' => 'nullable|date',
-            'warranty_end_date' => 'nullable|date|after_or_equal:warranty_start_date',
+            'warranty_period' => 'nullable|integer|min:0|max:120',
             'is_featured' => 'nullable|boolean',
             'is_active' => 'nullable|boolean',
         ]);

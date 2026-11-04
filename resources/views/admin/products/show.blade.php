@@ -106,12 +106,8 @@
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="text-muted small">Ngày bắt đầu</label>
-                            <p class="mb-0">{{ $product->warranty_start_date?->format('d/m/Y') ?? '-' }}</p>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="text-muted small">Ngày kết thúc</label>
-                            <p class="mb-0">{{ $product->warranty_end_date?->format('d/m/Y') ?? '-' }}</p>
+                            <label class="text-muted small">Bảo hành chính hãng</label>
+                            <p class="mb-0">{{ $product->warranty_period ? $product->warranty_period . ' tháng' : '-' }}</p>
                         </div>
                     </div>
                 </div>

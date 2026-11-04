@@ -16,8 +16,7 @@ class Product extends Model
         'price',
         'sale_price',
         'stock',
-        'warranty_start_date',
-        'warranty_end_date',
+        'warranty_period',
         'thumbnail',
         'is_featured',
         'is_active',
@@ -28,8 +27,7 @@ class Product extends Model
     protected function casts(): array
     {
         return [
-            'warranty_start_date' => 'date:Y-m-d',
-            'warranty_end_date' => 'date:Y-m-d',
+            'warranty_period' => 'integer',
         ];
     }
 

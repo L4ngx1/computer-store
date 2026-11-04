@@ -77,19 +77,12 @@
                 <div class="mb-4 product-edit-section--warranty">
                     <h5 class="border-bottom pb-2 mb-3">Bảo hành</h5>
                     <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="warranty_start_date" class="form-label">Ngày bắt đầu</label>
-                            <input type="date" id="warranty_start_date" name="warranty_start_date"
-                                   class="form-control @error('warranty_start_date') is-invalid @enderror"
-                                   value="{{ old('warranty_start_date') }}">
-                            @error('warranty_start_date')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="warranty_end_date" class="form-label">Ngày kết thúc</label>
-                            <input type="date" id="warranty_end_date" name="warranty_end_date"
-                                   class="form-control @error('warranty_end_date') is-invalid @enderror"
-                                   value="{{ old('warranty_end_date') }}">
-                            @error('warranty_end_date')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        <div class="col mb-3">
+                            <label for="warranty_period" class="form-label">Bảo hành chính hãng (tháng)</label>
+                            <input type="number" id="warranty_period" name="warranty_period"
+                                   class="form-control @error('warranty_period') is-invalid @enderror"
+                                   value="{{ old('warranty_period') }}" min="0" max="120" placeholder="Để trống nếu không có bảo hành">
+                            @error('warranty_period')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
                     </div>
                 </div>

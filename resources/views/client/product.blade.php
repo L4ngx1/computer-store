@@ -61,6 +61,14 @@
                 <div class="vr"></div>
                 <div>SKU: <span class="fw-bold text-dark">{{ $product->sku ?? 'N/A' }}</span></div>
                 <div class="vr"></div>
+                <div>Bảo hành:
+                    @if($product->warranty_period)
+                        <span class="fw-bold text-dark">{{ $product->warranty_period }} tháng</span>
+                    @else
+                        <span class="text-muted">Không có</span>
+                    @endif
+                </div>
+                <div class="vr"></div>
                 <div>Tình trạng:
                     @if($product->stock > 0)
                         <span class="badge bg-success rounded-pill px-2">Còn hàng ({{ $product->stock }})</span>

@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\View\View;
 
@@ -32,11 +32,10 @@ class EmailVerificationController extends Controller
      */
     public function verify(Request $request): RedirectResponse
     {
-        $user = Auth::user();
+        $user = User::find($request->route('id'));
 
         if (! $user) {
-            return redirect()->route('login.form')
-                ->with('error', 'Vui lòng đăng nhập để xác minh email.');
+            throw new AuthorizationException();
         }
 
         if (! hash_equals((string) $request->route('id'), (string) $user->getKey())) {
